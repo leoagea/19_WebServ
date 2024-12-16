@@ -1,27 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   configFileParser.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 16:46:47 by lagea            ###   ########.fr       */
+/*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
+/*   Updated: 2024/12/16 18:43:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include "config/configFileParser.hpp"
+#ifndef __CONFIGPARSERFILE_HPP__
+# define __CONFIGPARSERFILE_HPP__
 
-int main(int ac, char **av)
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+#include "serverBlock.hpp"
+#include "tokenizer.hpp"
+
+class ConfigFile
 {
-    std::string defaultConfigFilePath = "config/configtest.conf";
-    
-    if(ac == 1)
-        ConfigFile config(defaultConfigFilePath);
-    else if (ac == 2)
-        ConfigFile config(av[1]);
-    else{
-        std::cerr << "Error: too many arguments" << std::endl;
-    }
-}
+    public:
+        ConfigFile(std::string);    
+        ~ConfigFile();
+
+    private:
+        std::string _tokenizerString;
+        std::vector<t_token> _tokensVec;
+        std::vector<class serverBlock> _serverlist;
+};
+
+#endif

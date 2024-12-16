@@ -1,27 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   locationBlock.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 16:46:47 by lagea            ###   ########.fr       */
+/*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
+/*   Updated: 2024/12/16 17:05:31 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include "config/configFileParser.hpp"
+#include "locationBlock.hpp"
 
-int main(int ac, char **av)
+locationBlock::locationBlock()
 {
-    std::string defaultConfigFilePath = "config/configtest.conf";
+
+}
+
+locationBlock::~locationBlock()
+{
     
-    if(ac == 1)
-        ConfigFile config(defaultConfigFilePath);
-    else if (ac == 2)
-        ConfigFile config(av[1]);
-    else{
-        std::cerr << "Error: too many arguments" << std::endl;
-    }
 }
