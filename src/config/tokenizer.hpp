@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
+/*   By: lagea < lagea@student.s19.be >             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:32:27 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 19:11:38 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/16 22:37:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,17 @@
 enum e_tokenType
 {
     keyword,
-    value,
     openbracket,
     closebracket,
+    semicolon,
+    number,
+    string,
     delimiter
 };
 
 typedef struct s_token
 {
-    int type;
+    e_tokenType type;
     std::string value;
 }t_token;
 
