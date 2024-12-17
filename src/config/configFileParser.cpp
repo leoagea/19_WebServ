@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 18:16:04 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 22:24:44 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,28 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
     Tokenizer token(_tokenizerString);
     _tokensVec = token.getTokensVector();
 
-    // std::vector<t_token>::iterator it = _tokensVec.begin();
-    // for(; it != _tokensVec.end(); it++){
-    //     std::cout << "type: " << it->type << "   value: " << it->value << std::endl;
-    // }
-
+    //Print all tokens
+    // std::cout << token << std::endl;
+    
+    splitServerBlock();
 }
 
 ConfigFile::~ConfigFile()
 {
+}
+
+
+void ConfigFile::splitServerBlock()
+{
+    for(int i = 0; i < (int)_tokensVec.size(); i++){
+        if(_tokensVec[i].type == keyword && _tokensVec[i].value == "server"){
+            if(_tokensVec[i + 1].type == openbracket){
+                i += 2;
+                ServerBlock server(_tokensVec, &i);
+                std::cout << server << std::endl;
+                _serverlist.push_back(server);
+            }
+                
+        }
+    }
 }
