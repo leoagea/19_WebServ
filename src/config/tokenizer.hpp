@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lagea < lagea@student.s19.be >             +#+  +:+       +#+        */
+/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:32:27 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 22:37:04 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 18:13:55 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@ enum e_tokenType
     closebracket,
     semicolon,
     number,
-    string,
-    delimiter
+    string
 };
 
 typedef struct s_token
@@ -33,16 +32,20 @@ typedef struct s_token
     std::string value;
 }t_token;
 
-class tokenizer
+class Tokenizer
 {
     public:
-        tokenizer(std::string);
-        ~tokenizer();
+        Tokenizer(std::string &);
+        ~Tokenizer();
         
         std::vector<t_token> getTokensVector() const;
         
     private:
         std::vector<t_token> _tokensVector;
+
+        void splitToken(std::string &);
+        bool isKeyword(std::string &);
+        void verifTokenizerStringEmpty(std::string &);
 };
 
 #endif

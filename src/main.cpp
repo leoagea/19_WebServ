@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 16:46:47 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 16:39:09 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 int main(int ac, char **av)
 {
-    std::string defaultConfigFilePath = "config/configtest.conf";
+    std::string defaultConfigFilePath = "config/config.conf";
     
     if(ac == 1)
         ConfigFile config(defaultConfigFilePath);

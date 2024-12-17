@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 18:43:04 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 18:09:58 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class ConfigFile
         ~ConfigFile();
 
     private:
+        std::vector<std::string> _configFileVector; //Vector containing conf file used to write errors properly on terminal
         std::string _tokenizerString;
         std::vector<t_token> _tokensVec;
         std::vector<class serverBlock> _serverlist;

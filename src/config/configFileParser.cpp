@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/16 19:12:26 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 18:16:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
         if(!line.size())
             continue;
         _tokenizerString += line;
+        _configFileVector.push_back(line);
     }
 
     if(_tokenizerString.empty()){
@@ -33,10 +34,15 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
         return ;
     }
 
-    std::cout << _tokenizerString << std::endl;
+    // std::cout << _tokenizerString << std::endl;
     
-    tokenizer token(_tokenizerString);
+    Tokenizer token(_tokenizerString);
     _tokensVec = token.getTokensVector();
+
+    // std::vector<t_token>::iterator it = _tokensVec.begin();
+    // for(; it != _tokensVec.end(); it++){
+    //     std::cout << "type: " << it->type << "   value: " << it->value << std::endl;
+    // }
 
 }
 
