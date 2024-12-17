@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 20:13:45 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 21:02:58 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ std::ostream &operator<<(std::ostream &out, const Tokenizer &obj)
     std::vector<t_token> vec = obj.getTokensVector();
     
     std::vector<t_token>::iterator it;
-    out << ANSI_BLUE << "List of token:" << ANSI_RESET << std::endl;
+    out << BLUE << "List of token:" << RESET << std::endl;
     for (it = vec.begin(); it != vec.end(); it++){
         out << "type: " << it->type << "   value: " << it->value << std::endl;
     }
