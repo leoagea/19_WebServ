@@ -1,0 +1,5 @@
+Pour les messages d erreur:
+    quuand une erreur arrive, on enregiste l index du token auquel l erreur survient dans une map<index, msg erreur>
+    print a traves ma liste de tokens tout le fichier de config
+    regarde a chaque ligne si une erreur est dans la map pour l index du token
+    si une erreur est la on la print a cote de la ligne du fichier de config

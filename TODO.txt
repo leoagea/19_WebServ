@@ -1,0 +1,4 @@
+Faire un docker nginx avec le meme fichier de config que nous
+    Tester les permissions requises par le directory root
+
+Probleme a parsing root dir dans le serverBlock A CHECK 
