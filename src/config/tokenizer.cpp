@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 18:15:03 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 20:13:45 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ void Tokenizer::splitToken(std::string &configContent)
 
     }
     verifTokenizerStringEmpty(configContent);
-    // std::cout << configContent << std::endl;
 }
 
 bool Tokenizer::isKeyword(std::string &value)
@@ -116,9 +115,21 @@ bool Tokenizer::isKeyword(std::string &value)
     return false;
 }
 
-void verifTokenizerStringEmpty(std::string &tokenString)
+void Tokenizer::verifTokenizerStringEmpty(std::string &tokenString)
 {
     for(int i=0; i < (int)tokenString.size(); i++)
         if(tokenString[i] != ' ')
             std::cerr << "Error: config file: dunno" << std::endl;
+}
+
+std::ostream &operator<<(std::ostream &out, const Tokenizer &obj)
+{
+    std::vector<t_token> vec = obj.getTokensVector();
+    
+    std::vector<t_token>::iterator it;
+    out << ANSI_BLUE << "List of token:" << ANSI_RESET << std::endl;
+    for (it = vec.begin(); it != vec.end(); it++){
+        out << "type: " << it->type << "   value: " << it->value << std::endl;
+    }
+    return out;
 }

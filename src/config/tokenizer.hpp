@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:32:27 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 18:13:55 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/17 20:11:24 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <vector>
+
+#include "../../inc/Color.h"
 
 enum e_tokenType
 {
@@ -47,5 +49,7 @@ class Tokenizer
         bool isKeyword(std::string &);
         void verifTokenizerStringEmpty(std::string &);
 };
+
+std::ostream &operator<<(std::ostream &, const Tokenizer &);
 
 #endif
