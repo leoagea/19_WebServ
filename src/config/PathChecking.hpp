@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 22:18:36 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 22:18:37 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/18 15:02:45 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,12 @@
 
 #include <string>
 #include <sys/stat.h>
+#include <unistd.h>
 
 namespace PathChecking
 {
     bool exist(std::string &path);
+    bool isAbsolutePath(std::string &path);
     bool isFile(std::string &path);
     bool isDirectory(std::string &path);
     bool getReadPermission(std::string &path);
