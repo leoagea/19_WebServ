@@ -3,3 +3,6 @@ Pour les messages d erreur:
     print a traves ma liste de tokens tout le fichier de config
     regarde a chaque ligne si une erreur est dans la map pour l index du token
     si une erreur est la on la print a cote de la ligne du fichier de config
+
+
+Fermer les fichiers d access_log et de error_log avant de quitter le prgramme si une erreur est detecte dans le parsing
