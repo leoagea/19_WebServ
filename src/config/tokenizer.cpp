@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 21:02:58 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/18 18:54:40 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void Tokenizer::splitToken(std::string &configContent)
 bool Tokenizer::isKeyword(std::string &value)
 {
     if(value == "listen" || value == "server_name" || value == "root" || value == "index" \
-        || value == "access_log" || value == "error_log" || value == "location" \
+        || value == "access_log" || value == "errors_log" || value == "location" \
         || value == "autoindex" || value == "limit_body_size" || value == "server")
         return true;
     return false;
