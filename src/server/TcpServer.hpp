@@ -14,6 +14,13 @@
 # include <fcntl.h>
 # include "../../inc/Color.h"
 
+# define REQUEST_HTTP_SIZE 4096
+# define R                 "\033[91m"
+# define G                 "\033[92m"
+# define B                 "\033[94m"
+# define IT                "\033[3m"
+# define RES               "\033[0m"
+
 typedef struct sockaddr_in sockaddr_in;
 
 class TcpServer 
@@ -24,15 +31,18 @@ class TcpServer
 
         void startServer();
 
-        std::vector<int> getServerSockets();
-        std::vector<int> getPorts();
+        static size_t getPollCount();
+        std::vector<int> getServerSockets(); 
+        std::vector<int> getPorts();     
         std::vector<pollfd> getPollFds();
         sockaddr_in getServerAddress();
         
     private :
-        std::vector<int> _serverSockets;
+        static const size_t _maxPollFds = 4096;
+        static size_t _pollCount;
+        std::vector<int> _serverSockets;    // Fd's from server socket only
         std::vector<int> _ports;
-        std::vector<pollfd> _pollFds;
+        std::vector<pollfd> _pollFds;       // Basically all fd's server and client
         sockaddr_in _serverAddress;
 
         void setupSocket();
