@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/18 18:54:40 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/19 13:52:27 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,8 @@ bool Tokenizer::isKeyword(std::string &value)
 {
     if(value == "listen" || value == "server_name" || value == "root" || value == "index" \
         || value == "access_log" || value == "errors_log" || value == "location" \
-        || value == "autoindex" || value == "limit_body_size" || value == "server")
+        || value == "autoindex" || value == "limit_body_size" || value == "server" \
+        || value == "error_page")
         return true;
     return false;
 }
