@@ -4,7 +4,5 @@ Parsing Location
 Faire un docker nginx avec le meme fichier de config que nous
     Tester les permissions requises par le directory root
 
-Probleme a parsing root dir dans le serverBlock A CHECK 
 
-Parser plusieurs server names dans un vector
 Parser le host, si host = 127.0.0.1, servername = localhost
