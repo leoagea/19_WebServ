@@ -146,7 +146,7 @@ void TcpServer::handleClient(int clientFd)
     buffer[bytesRead] = '\0';
     // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
     std::cout << "Received: " << buffer << " from fd " << clientFd << " on port " << std::endl;
-    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nSlayyyyyyyy";
+    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nHello World";
     send(clientFd, response.c_str(), response.size(), 0);
 }
 
