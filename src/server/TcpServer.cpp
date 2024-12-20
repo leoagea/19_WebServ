@@ -9,9 +9,9 @@ TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
 
     std::cout << G << IT << "Server initialized on port(s): ";
 
-    for (int i = 0; i < _ports.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(_ports.size()); ++i) {
         std::cout << _ports[i];
-        if (i < _ports.size() - 1)
+        if (i < static_cast<int>(_ports.size()) - 1)
             std::cout << ", ";
 
     }
@@ -21,7 +21,7 @@ TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
 
 TcpServer::~TcpServer()
 {
-    for (int i = 0; i < _serverSockets.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(_serverSockets.size()); ++i) {
         if (_serverSockets[i] != -1)
             close(_serverSockets[i]);
     }
@@ -30,7 +30,7 @@ TcpServer::~TcpServer()
 
 void TcpServer::setupSocket()
 {
-    for (int i = 0; i < _ports.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(_ports.size()); ++i) {
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0); /* AF_INET : IPv4, SOCK_STREAM : Socket de connexion, 0 : Protocole TCP */
         if (serverSocket < 0)
         {
@@ -84,19 +84,19 @@ void TcpServer::makeNonBlocking(int socket)
 
 void TcpServer::startServer()
 {
-    std::cout << B << IT << "Server is running..." << RES << std::endl;
+    std::cout << B << IT << "Server is running...\n" << RES << std::endl;
     while (true) {
         int pollCount = poll(&_pollFds[0], _pollFds.size(), -1);
         if (pollCount < 0) {
             std::cerr << R << IT << "Poll failed" << RES << std::endl;
             exitCloseFds(_serverSockets);
         }
-        for (int i = 0; i < _pollFds.size(); ++i)
+        for (int i = 0; i < static_cast<int>(_pollFds.size()); ++i)
         {
             if (_pollFds[i].revents & POLLIN)
             {
                 bool isServerSocket = false;
-                for (int j = 0; j < _serverSockets.size(); ++j)
+                for (int j = 0; j < static_cast<int>(_serverSockets.size()); ++j)
                 {
                     if (_pollFds[i].fd == _serverSockets[j])
                     {
@@ -144,15 +144,16 @@ void TcpServer::handleClient(int clientFd)
         return;
     }
     buffer[bytesRead] = '\0';
+
     // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
-    std::cout << "Received: " << buffer << " from fd " << clientFd << " on port " << std::endl;
-    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nHello World";
+    std::cout << "Received:\n\n" << YELLOW << buffer << RES << "From fd " << clientFd << " on port " << std::endl;
+    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 6\r\n\r\nSlayyy";
     send(clientFd, response.c_str(), response.size(), 0);
 }
 
 void TcpServer::cleanupClient(int fd)
 {
-    for (int i = 0; i < _pollFds.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(_pollFds.size()); ++i) {
         if (_pollFds[i].fd == fd) {
             _pollFds.erase(_pollFds.begin() + i);
             break;

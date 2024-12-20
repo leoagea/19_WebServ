@@ -16,12 +16,13 @@ SRC_DIR 	= src
 OBJ_DIR 	= build
 
 SRC 		= 	$(SRC_DIR)/main.cpp \
+				$(SRC_DIR)/server/TcpServer.cpp \
 
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Werror -std=c++98 -Wpedantic #-fsanitize=address -g
+CPPFLAGS 	= -Wall -Wextra -Werror #-std=c++98 -Wpedantic -fsanitize=address -g
 INCS 		= -I.
 	
 all: $(NAME)
