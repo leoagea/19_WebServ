@@ -45,7 +45,7 @@ void TcpServer::setupSocket()
             exitCloseFds(_serverSockets);
         }
 
-        struct sockaddr_in serverAddr;
+        sockaddr_in serverAddr;
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port = htons(_ports[i]);  /* Conversion en big-endian */
         serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Ecoute sur toutes les interfaces reseau */
@@ -145,7 +145,7 @@ void TcpServer::handleClient(int clientFd)
         return;
     }
     buffer[bytesRead] = '\0';
-
+    this->getSocketPort(_pollFds[0].fd);
     std::string bufferStr = buffer;
     Request req(bufferStr);
 
@@ -172,6 +172,17 @@ void TcpServer::exitCloseFds(std::vector<int> &serverSockets)
         close(*it);
     }
     exit(1);
+}
+
+uint16_t TcpServer::getSocketPort(int socket)
+{
+    sockaddr_in sin;
+    socklen_t socklen = sizeof(sin);
+    if (getsockname(socket, (struct sockaddr *)&sin, &socklen) < 0) {
+        std::cout << "Getsockname failed" << std::endl;
+        return 0;
+    }
+    return htons(sin.sin_port);
 }
 
 size_t TcpServer::getPollCount() { return _pollCount; }

@@ -18,6 +18,7 @@ class Request
         std::string _header;
         std::string _empty = "\r\n";
         std::string _body;
+   
 };
 
 

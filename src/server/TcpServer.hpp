@@ -37,6 +37,7 @@ class TcpServer
         std::vector<int> getPorts();     
         std::vector<pollfd> getPollFds();
         sockaddr_in getServerAddress();
+        uint16_t getSocketPort(int socket);
         
     private :
         static const size_t _maxPollFds = 4096;
