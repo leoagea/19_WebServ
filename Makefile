@@ -16,7 +16,6 @@ SRC_DIR 	= src
 OBJ_DIR 	= build
 
 SRC 		= 	$(SRC_DIR)/main.cpp \
-				$(SRC_DIR)/server/TcpServer.cpp \
 
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)

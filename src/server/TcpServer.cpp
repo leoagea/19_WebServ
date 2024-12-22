@@ -1,5 +1,6 @@
 /* TCP SERVER CLASS IMPLEMENTATION */
 #include "TcpServer.hpp"
+#include "Request.hpp"
 
 size_t TcpServer::_pollCount = 0;
 
@@ -98,7 +99,7 @@ void TcpServer::startServer()
                 bool isServerSocket = false;
                 for (int j = 0; j < static_cast<int>(_serverSockets.size()); ++j)
                 {
-                    if (_pollFds[i].fd == _serverSockets[j])
+                    if (_pollFds[i].fd == _serverSockets[   j])
                     {
                         acceptNewClient(_serverSockets[j]);
                         isServerSocket = true;
@@ -132,10 +133,10 @@ void TcpServer::acceptNewClient(int serverSocket)
     _pollCount++;
 }
 
-
 void TcpServer::handleClient(int clientFd)
 {
     char buffer[REQUEST_HTTP_SIZE];
+    std::cout << buffer << std::endl;
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
     if (bytesRead <= 0) {
         std::cerr << R << IT << "Client disconnected" << RES << std::endl;
@@ -145,9 +146,12 @@ void TcpServer::handleClient(int clientFd)
     }
     buffer[bytesRead] = '\0';
 
+    std::string bufferStr = buffer;
+    Request req(bufferStr);
+
     // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
-    std::cout << "Received:\n\n" << YELLOW << buffer << RES << "From fd " << clientFd << " on port " << std::endl;
-    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 6\r\n\r\nSlayyy";
+    // std::cout << "Received:\n\n" << YELLOW << buffer << RES << "From fd " << clientFd << " on port " << std::endl;
+    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello world !";
     send(clientFd, response.c_str(), response.size(), 0);
 }
 

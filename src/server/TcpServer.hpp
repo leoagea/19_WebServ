@@ -11,10 +11,11 @@
 # include <vector>
 # include <poll.h>
 # include <algorithm>
+# include <cctype>
 # include <fcntl.h>
 # include "../../inc/Color.h"
 
-# define REQUEST_HTTP_SIZE 4096
+# define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"
 # define G                 "\033[92m"
 # define B                 "\033[94m"
