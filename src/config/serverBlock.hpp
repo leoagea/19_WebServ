@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/19 19:15:20 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 15:34:16 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <fstream>
 #include <limits>
+#include <sstream>
 #include "fcntl.h"
 
 #include "locationBlock.hpp"
@@ -51,7 +52,10 @@ class ServerBlock
         int getBodySizeLimit() const;
         std::string getErrorPagePath(int) const;
         std::map<int, std::string> getErrorPagesMap() const;
-        
+        std::string getHost() const;
+        std::vector<int> getHostBytesVector() const;
+        int getHostBytesByIndex(int) const;
+
     private:
         std::vector<int> _listeningports; //index 0 is default port
         std::vector<std::string> _servername;
@@ -60,6 +64,8 @@ class ServerBlock
         std::string _acceslogdpath;
         std::string _errorlogpath;
         int _bodysizelimit;
+        std::string _host;
+        std::vector<int> _hostbytes;
         std::map<std::string ,class locationBlock> _locationblock;
         std::map<int, std::string> _errorpages;
 
@@ -73,6 +79,9 @@ class ServerBlock
         void parseErrorsLogPath(t_token &);
         void parseLimitBodySize(t_token &);
         void parseErrorsPages(t_token &, t_token &);
+        void parseHost(t_token &);
+
+        bool isHostValid(std::string &);
 };
 
 std::ostream &operator<<(std::ostream &, const ServerBlock &);

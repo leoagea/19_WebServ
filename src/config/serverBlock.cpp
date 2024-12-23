@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/19 19:25:14 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 16:46:18 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j) : _servername({"webserv"}), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1) 
+ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j) : _servername(1, "webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2)
 {
     initializeMapErrorPages();
     parseAllServerVariables(tokenVec, j);
@@ -134,6 +134,32 @@ std::map<int, std::string> ServerBlock::getErrorPagesMap() const
     return _errorpages;
 }
 
+std::string ServerBlock::getHost() const
+{
+    return _host;
+}
+
+//Return vector of each bytes of host address
+//index 0 is first byte
+std::vector<int> ServerBlock::getHostBytesVector() const
+{
+    return _hostbytes;
+}
+
+//Return bytes by index of vector
+//return -1 if out of bound, -2 if host not setup
+int ServerBlock::getHostBytesByIndex(int index) const
+{
+    int n = -1;
+    try{
+        n = _hostbytes.at(index);
+    }    
+    catch (std::exception &e){
+        return -1;
+    }
+    return n;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ServerBlock::initializeMapErrorPages()
@@ -164,6 +190,8 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
         }
         else if (token.type == keyword && token.value == "server_name"){
             i++;
+            if (_servername[0] == "webserv")
+                _servername.erase(_servername.begin());
             while(tokenVec[i].type != semicolon){
                 if (tokenVec[i].type == keyword)
                     std::cerr << "Error: config file: expected ; before new line" << std::endl;
@@ -190,6 +218,9 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
         else if (token.type == keyword && token.value == "error_page" && tokenVec[i + 3].type == semicolon){
             parseErrorsPages(tokenVec[i + 1], tokenVec[i + 2]);
             i += 2;
+        }
+        else if (token.type == keyword && token.value == "host" && tokenVec[i + 2].type == semicolon){
+            parseHost(tokenVec[++i]);
         }
     }
 
@@ -339,6 +370,48 @@ void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
         std::cerr << "Error: config file: expected number and a path" << std::endl;
 }
 
+void ServerBlock::parseHost(t_token &token)
+{
+    if (token.type == number){
+        if (!isHostValid(token.value))
+            std::cerr << "Error: config file: host is unvalid" << std::endl;
+        else{
+            std::string n;
+            std::stringstream ss(token.value);
+            getline(ss, n, '.');
+            _hostbytes[0] = atoi(n.c_str());
+            getline(ss, n, '.');
+            _hostbytes[1] = atoi(n.c_str());
+            getline(ss, n, '.');
+            _hostbytes[2] = atoi(n.c_str());
+            getline(ss, n, '.');
+            _hostbytes[3] = atoi(n.c_str());
+            _host = token.value;
+        }
+    }
+}
+
+bool ServerBlock::isHostValid(std::string &host)
+{
+    int n;
+    std::string token;
+    std::stringstream ss(host);
+    
+    int i=0;
+    while (host[i]){
+        int start = i;
+        while(isdigit(host[i]))
+            i++;
+        if (host[i] && host[i] != '.')
+            return false;
+        n = atoi(host.substr(start, i - start).c_str());
+        if (n < 0 || n > 255)
+            return false;
+        i++;
+    }
+    return true;
+}
+
 //Print every private attributes for debugging purpose
 std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
 {
@@ -421,5 +494,15 @@ std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
     std::cout << "Get page 404:  '" << obj.getErrorPagePath(404) << "'" << std::endl;
     std::cout << "Get page 1000:  '" << obj.getErrorPagePath(1000) << "'" << std::endl;
 
+    out << CYAN << "Host" << RESET << std::endl;
+    std::cout << "string:  " << obj.getHost() << std::endl;
+    std::cout << "vector:  ";
+    std::vector<int> vec = obj.getHostBytesVector();
+    for (int i=0; i < (int)vec.size(); i++)
+        std::cout << vec[i] << "  ";
+    std::cout << std::endl;
+    std::cout << "Test: getHostBytesByIndex: index = -1, index = 0" << std::endl;
+    std::cout << "index -1:  " << obj.getHostBytesByIndex(-1) << "   index 0:  " << obj.getHostBytesByIndex(0) << std::endl;
+    
     return out;
 }

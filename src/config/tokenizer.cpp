@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/19 13:52:27 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 14:44:54 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,10 @@ void Tokenizer::splitToken(std::string &configContent)
             if(configContent[i] == '-')
                 i++;
             while(configContent[i] && isdigit(configContent[i])){
-                i++;
+                if (configContent[i + 1] == '.')
+                    i += 2;
+                else
+                    i++;
             }
             it2 = configContent.begin() + i;
             
@@ -111,7 +114,7 @@ bool Tokenizer::isKeyword(std::string &value)
     if(value == "listen" || value == "server_name" || value == "root" || value == "index" \
         || value == "access_log" || value == "errors_log" || value == "location" \
         || value == "autoindex" || value == "limit_body_size" || value == "server" \
-        || value == "error_page")
+        || value == "error_page" || value == "host")
         return true;
     return false;
 }
