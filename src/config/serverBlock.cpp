@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/23 16:46:18 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 18:30:49 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,21 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
         }
         else if (token.type == keyword && token.value == "host" && tokenVec[i + 2].type == semicolon){
             parseHost(tokenVec[++i]);
+        }
+        else if (token.type == keyword && token.value == "location" && tokenVec[i+1].type == string && tokenVec[i+2].type == openbracket){
+            int begin = i;
+            std::vector<t_token>::iterator start = tokenVec.begin() + i;
+            while (tokenVec[i].type != closebracket)
+                i++;
+            std::vector<t_token>::iterator end = tokenVec.begin() + i + 1;
+
+            std::vector<t_token> tmp(start, end);
+            if (_locationblock.find(tokenVec[begin + 1].value) == _locationblock.end()){
+                locationBlock block(tmp);
+                _locationblock.insert(std::make_pair(tokenVec[begin + 1].value, block));
+            }
+            else
+                std::cerr << "Error: config file: duplicate location" << std::endl;
         }
     }
 
