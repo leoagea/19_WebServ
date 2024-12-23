@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 18:34:48 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 16:27:34 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@ class ConfigFile
         std::vector<t_token> _tokensVec;
         std::vector<class ServerBlock> _serverlist;
 
+        bool isConfPathValid(std::string &);
         void splitServerBlock();
+        
 };
 
 #endif

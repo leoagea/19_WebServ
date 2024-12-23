@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 22:24:44 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 16:43:14 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,30 @@
 
 ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
 {
+    if (!isConfPathValid(path)){
+        std::cerr << "Error: config file: wrong extension, expected .conf" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    
     std::fstream file(path.c_str());
     
-    if(!file.is_open()){
+    if (!file.is_open()){
         std::cerr << "Error: config file: failed to open" << std::endl;
-        return ;
+        exit(EXIT_FAILURE);
     }
 
     std::string line;
-    while(getline(file, line)){
+    while (getline(file, line)){
         if(!line.size())
             continue;
         _tokenizerString += line;
         _configFileVector.push_back(line);
     }
 
-    if(_tokenizerString.empty()){
+    if (_tokenizerString.empty()){
         std::cerr << "Error: config file: empty file" << std::endl;
-        return ;
+        exit(EXIT_FAILURE);
     }
 
     // std::cout << _tokenizerString << std::endl;
@@ -49,6 +55,15 @@ ConfigFile::~ConfigFile()
 {
 }
 
+bool ConfigFile::isConfPathValid(std::string &path)
+{
+    std::string extension = ".conf";
+    std::string::iterator it = std::find_end(path.begin(), path.end(), extension.begin(), extension.end());
+    
+    if (it == path.end())
+        return false;
+    return true;
+}
 
 void ConfigFile::splitServerBlock()
 {
