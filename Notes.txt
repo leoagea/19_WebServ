@@ -6,3 +6,6 @@ Pour les messages d erreur:
 
 
 Fermer les fichiers d access_log et de error_log avant de quitter le prgramme si une erreur est detecte dans le parsing
+
+Besoin de specifier autoindex dans une location avec un directory sinon erreur
+Besoin pour les redirect d avoir le keyword return suivi de 301 (code http redirect)
