@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/23 14:44:54 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 16:54:55 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,15 +75,6 @@ void Tokenizer::splitToken(std::string &configContent)
             token.value = configContent.substr(start, i - start);
             token.type = number;
             _tokensVector.push_back(token);
-            configContent.erase(it, it2);
-            i = start - 1;
-        }
-        else if(configContent[i] && configContent[i] == '#'){
-            int start = i;
-            while(configContent[++i] != '#');
-            
-            it = configContent.begin() + start;
-            it2 = configContent.begin() + i + 1;
             configContent.erase(it, it2);
             i = start - 1;
         }

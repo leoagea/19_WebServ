@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/23 16:43:14 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/23 16:54:18 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,13 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
 
     std::string line;
     while (getline(file, line)){
-        if(!line.size())
+        if (!line.size())
             continue;
+            
+        std::string::iterator it = std::find(line.begin(), line.end(), '#');
+        if (it != line.end())
+            line.erase(it, line.end());
+            
         _tokenizerString += line;
         _configFileVector.push_back(line);
     }
@@ -46,7 +51,7 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
     _tokensVec = token.getTokensVector();
 
     //Print all tokens
-    // std::cout << token << std::endl;
+    std::cout << token << std::endl;
     
     splitServerBlock();
 }
