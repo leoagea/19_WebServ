@@ -1,8 +1,6 @@
-Parsing Location 
-
-
 Faire un docker nginx avec le meme fichier de config que nous
     Tester les permissions requises par le directory root
 
+Verif le parsing des location
 
-Parser le host, si host = 127.0.0.1, servername = localhost
+Gerer les erreurs and print la config avec les messages d erreurs afficher
