@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/23 15:34:16 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/24 17:25:11 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,9 @@ class ServerBlock
         std::string getHost() const;
         std::vector<int> getHostBytesVector() const;
         int getHostBytesByIndex(int) const;
-
+        std::map<std::string, locationBlock> getLocationBlockMap() const;
+        locationBlock getLocationBlockByString(std::string &) const;
+        
     private:
         std::vector<int> _listeningports; //index 0 is default port
         std::vector<std::string> _servername;

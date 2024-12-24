@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/23 18:30:49 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/24 17:27:45 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,6 +160,22 @@ int ServerBlock::getHostBytesByIndex(int index) const
     return n;
 }
 
+std::map<std::string, locationBlock> ServerBlock::getLocationBlockMap() const
+{
+    return _locationblock;
+}
+
+//return the object location if find, otherwise throw a runtime error
+locationBlock ServerBlock::getLocationBlockByString(std::string &locationName) const
+{
+    std::map<std::string, locationBlock>::const_iterator it = _locationblock.find(locationName);
+    if (it != _locationblock.end()) {
+        return (it->second);
+    } else {
+        throw std::runtime_error("Location not found in ServerBlock");
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ServerBlock::initializeMapErrorPages()
@@ -231,7 +247,8 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
 
             std::vector<t_token> tmp(start, end);
             if (_locationblock.find(tokenVec[begin + 1].value) == _locationblock.end()){
-                locationBlock block(tmp);
+                locationBlock block(*this ,tmp);
+                // std::cout << block << std::endl;
                 _locationblock.insert(std::make_pair(tokenVec[begin + 1].value, block));
             }
             else
@@ -273,7 +290,7 @@ void ServerBlock::parseServerName(t_token &token)
             if (find(_servername.begin(), _servername.end(), token.value) == _servername.end())
                 _servername.push_back(token.value);
             else
-                std::cerr << "Error: config file: port already used" << std::endl;
+                std::cerr << "Error: config file: server name already used" << std::endl;
         }
         else
             _servername.push_back(token.value);
@@ -519,5 +536,14 @@ std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
     std::cout << "Test: getHostBytesByIndex: index = -1, index = 0" << std::endl;
     std::cout << "index -1:  " << obj.getHostBytesByIndex(-1) << "   index 0:  " << obj.getHostBytesByIndex(0) << std::endl;
     
+    std::cout << std::endl;
+    //Location
+    {
+        std::map<std::string, locationBlock> tmp = obj.getLocationBlockMap();
+        std::map<std::string, locationBlock>::iterator it = tmp.begin();
+        for(; it != tmp.end(); it++)
+            std::cout << it->second << std::endl;
+    }
+
     return out;
 }
