@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:32:27 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 20:11:24 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/24 17:59:16 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_token
 {
     e_tokenType type;
     std::string value;
+    unsigned int index;
 }t_token;
 
 class Tokenizer
