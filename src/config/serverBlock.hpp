@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:25:11 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/24 17:55:08 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ class ServerBlock
         void parseHost(t_token &);
 
         bool isHostValid(std::string &);
+        bool isLogExtensionValid(std::string &);
 };
 
 std::ostream &operator<<(std::ostream &, const ServerBlock &);

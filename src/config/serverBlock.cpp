@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:27:45 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/24 17:56:01 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,7 +322,7 @@ void ServerBlock::parseIndex(t_token &token)
 
 void ServerBlock::parseAccesLogPath(t_token &token)
 {
-    if (token.type == string){
+    if (token.type == string && isLogExtensionValid(token.value)){
         std::string path =token.value;
         
         if(!PathChecking::isAbsolutePath(token.value)){
@@ -345,7 +345,7 @@ void ServerBlock::parseAccesLogPath(t_token &token)
 
 void ServerBlock::parseErrorsLogPath(t_token &token)
 {
-    if (token.type == string){
+    if (token.type == string && isLogExtensionValid(token.value)){
         std::string path = token.value;
         
         if(!PathChecking::isAbsolutePath(token.value)){
@@ -441,6 +441,16 @@ bool ServerBlock::isHostValid(std::string &host)
             return false;
         i++;
     }
+    return true;
+}
+
+bool ServerBlock::isLogExtensionValid(std::string &path)
+{
+    std::string extension = ".log";
+    std::string::iterator it = std::find_end(path.begin(), path.end(), extension.begin(), extension.end());
+    
+    if (it == path.end())
+        return false;
     return true;
 }
 
