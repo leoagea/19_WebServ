@@ -7,5 +7,9 @@ Pour les messages d erreur:
 
 Fermer les fichiers d access_log et de error_log avant de quitter le prgramme si une erreur est detecte dans le parsing
 
-Besoin de specifier autoindex dans une location avec un directory sinon erreur
-Besoin pour les redirect d avoir le keyword return suivi de 301 (code http redirect)
+
+Pour les erreurs : 
+    creer une map d erreurs et une methode reportError dans configfile pour inserer une erreur dans la map
+    creer une classe ErrorReporter qui prend un objet configfile en private puis on overload l operator () en appelant configfile->reportError
+    dans les classes serverblock et location on passe en parametre un object errorreporter qu on assigne a un objet errorreporter en private
+    puis quand une erreur arrive on call l overload() errorreporter
