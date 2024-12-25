@@ -2,8 +2,6 @@
 #include "TcpServer.hpp"
 #include "Request.hpp"
 
-size_t TcpServer::_pollCount = 0;
-
 TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
 {
     setupSocket();
