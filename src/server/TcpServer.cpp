@@ -136,10 +136,9 @@ void TcpServer::acceptNewClient(int serverSocket)
 void TcpServer::handleClient(int clientFd)
 {
     char buffer[REQUEST_HTTP_SIZE];
-    std::cout << buffer << std::endl;
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-    if (bytesRead <= 0) {
-        std::cerr << R << IT << "Client disconnected" << RES << std::endl;
+    if (bytesRead == 0) {
+        std::cerr << R << IT << "Client: " << clientFd << " disconnected" << RES << std::endl;
         close(clientFd);
         cleanupClient(clientFd);
         return;
@@ -150,8 +149,15 @@ void TcpServer::handleClient(int clientFd)
     Request req(bufferStr);
 
     // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
+    
     // std::cout << "Received:\n\n" << YELLOW << buffer << RES << "From fd " << clientFd << " on port " << std::endl;
-    std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello world !";
+    std::string response =  "HTTP/1.1 200 OK\r\n"                       /* FIRST LINE */
+                            "Content-Length: 13\r\n"                    /* HEADER */
+                            "Connection: keep-alive\r\n"
+                            "Keep-Alive: timeout=60\r\n"
+                            "\r\n"                                      /* EMPTY LINE */
+                            "Hello world !";                            /* BODY */
+
     send(clientFd, response.c_str(), response.size(), 0);
 }
 
