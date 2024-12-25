@@ -32,7 +32,6 @@ class TcpServer
 
         void startServer();
 
-        static size_t getPollCount();
         std::vector<int> getServerSockets(); 
         std::vector<int> getPorts();     
         std::vector<pollfd> getPollFds();
@@ -41,7 +40,6 @@ class TcpServer
         
     private :
         static const size_t _maxPollFds = 4096;
-        static size_t _pollCount;
         std::vector<int> _serverSockets;    // Fd's from server socket only
         std::vector<int> _ports;
         std::vector<pollfd> _pollFds;       // Basically all fd's server and client

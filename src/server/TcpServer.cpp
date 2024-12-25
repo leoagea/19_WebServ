@@ -71,7 +71,6 @@ void TcpServer::setupSocket()
         serverPollFd.events = POLLIN;
         _pollFds.push_back(serverPollFd);
         _serverSockets.push_back(serverSocket);
-        _pollCount++;
     }
 }
 
@@ -130,7 +129,6 @@ void TcpServer::acceptNewClient(int serverSocket)
     clientPollFd.fd = clientFd;
     clientPollFd.events = POLLIN;
     _pollFds.push_back(clientPollFd);
-    _pollCount++;
 }
 
 void TcpServer::handleClient(int clientFd)
@@ -190,8 +188,6 @@ uint16_t TcpServer::getSocketPort(int socket)
     }
     return htons(sin.sin_port);
 }
-
-size_t TcpServer::getPollCount() { return _pollCount; }
 
 std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
 
