@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:13:33 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 13:45:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,12 +123,18 @@ void locationBlock::parseAllLocationVariables()
     int i = 3;
     for(; i < (int)_tokenVec.size(); i++){
         t_token current = _tokenVec[i];
-        if (current.type == keyword && current.value == "root" && _tokenVec[i+2].type == semicolon)
+        if (current.type == keyword && current.value == "root" && _tokenVec[i+2].type == semicolon){
             parseRootDir(_tokenVec[++i]);
-        else if (current.type == keyword && current.value == "index" && _tokenVec[i+2].type == semicolon)
+            i++;
+        }
+        else if (current.type == keyword && current.value == "index" && _tokenVec[i+2].type == semicolon){
             parseIndex(_tokenVec[++i]);
-        else if (current.type == keyword && current.value == "autoindex" && _tokenVec[i+2].type == semicolon)
+            i++;
+        }
+        else if (current.type == keyword && current.value == "autoindex" && _tokenVec[i+2].type == semicolon){
             parseAutoIndex(_tokenVec[++i]);
+            i++;
+        }
         else if (current.type == keyword && current.value == "allowed_methods"){
             i++;
             while (_tokenVec[i].type != semicolon){
@@ -141,13 +147,20 @@ void locationBlock::parseAllLocationVariables()
         }
         else if (current.type == keyword && current.value == "include" && _tokenVec[i+2].type == semicolon){
             parseInclude(_tokenVec[++i]);
+            i++;
         }
         else if (current.type == keyword && current.value == "cgi_param" && _tokenVec[i+2].type == semicolon){
             parseCgiScriptName(_tokenVec[++i]);
+            i++;
         }
         else if (current.type == keyword && current.value == "return" && _tokenVec[i+3].type == semicolon){
             parseRedirect(_tokenVec[i+1], _tokenVec[i+2]);
-            i+=2;
+            i+=3;
+        }
+        else{
+            if (current.type == closebracket && i == (int)_tokenVec.size() - 1)
+                break;
+            std::cerr << "Error: config file: location unknown token" << std::endl;
         }
     }
 }

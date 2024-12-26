@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:56:01 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 13:40:11 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,25 +218,31 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
         }
         else if (token.type == keyword && token.value == "root" && tokenVec[i + 2].type == semicolon){
             parseRootDir(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "index" && tokenVec[i + 2].type == semicolon){
             parseIndex(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "access_log" && tokenVec[i + 2].type == semicolon){
             parseAccesLogPath(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "errors_log" && tokenVec[i + 2].type == semicolon){
             parseErrorsLogPath(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "limit_body_size" && tokenVec[i + 2].type == semicolon){
             parseLimitBodySize(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "error_page" && tokenVec[i + 3].type == semicolon){
             parseErrorsPages(tokenVec[i + 1], tokenVec[i + 2]);
-            i += 2;
+            i += 3;
         }
         else if (token.type == keyword && token.value == "host" && tokenVec[i + 2].type == semicolon){
             parseHost(tokenVec[++i]);
+            i++;
         }
         else if (token.type == keyword && token.value == "location" && tokenVec[i+1].type == string && tokenVec[i+2].type == openbracket){
             int begin = i;
@@ -253,6 +259,9 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
             }
             else
                 std::cerr << "Error: config file: duplicate location" << std::endl;
+        }
+        else{
+            std::cerr << "Error: config file: unknown token" << std::endl;
         }
     }
 
