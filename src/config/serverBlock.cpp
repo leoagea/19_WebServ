@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 17:46:36 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 18:19:19 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
             i++;
             while(tokenVec[i].type != semicolon){
                 if (tokenVec[i].type == keyword)
-                    std::cerr << "Error: config file: expected ; before new line" << std::endl;
+                    _reportError(tokenVec[i].index, "expected ; before new line");
                 else
                     parseListeningPort(tokenVec[i]);
                 i++;
@@ -210,7 +210,7 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
                 _servername.erase(_servername.begin());
             while(tokenVec[i].type != semicolon){
                 if (tokenVec[i].type == keyword)
-                    std::cerr << "Error: config file: expected ; before new line" << std::endl;
+                    _reportError(tokenVec[i].index, "expected ; before new line");
                 else
                     parseServerName(tokenVec[i]);
                 i++;
@@ -258,10 +258,10 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
                 _locationblock.insert(std::make_pair(tokenVec[begin + 1].value, block));
             }
             else
-                std::cerr << "Error: config file: duplicate location" << std::endl;
+                _reportError(begin, "duplicate location");
         }
         else{
-            std::cerr << "Error: config file: unknown token" << std::endl;
+            _reportError(i, "unknown token");
         }
     }
 
@@ -276,20 +276,21 @@ void ServerBlock::parseListeningPort(t_token &token)
     {
         int port = atoi(token.value.c_str());
         if (port <= 1023 || port > UINT16_MAX){
-            _reportError(token.index, "port range exceeded");
-            std::cerr << "Error: config file: port range exceeded 1024 - 65535" << std::endl;
+            _reportError(token.index, "port range exceeded expected 1024 - 65535");
         }
         else{
             if (!_listeningports.empty()){
                 if (find(_listeningports.begin(), _listeningports.end(), port) == _listeningports.end())
                     _listeningports.push_back(port);
                 else
-                    std::cerr << "Error: config file: port already used" << std::endl;
+                    _reportError(token.index, "duplicate port");
             }
             else
                 _listeningports.push_back(port);
         }
     }
+    else
+        _reportError(token.index, "expected number");
 }
 
 void ServerBlock::parseServerName(t_token &token)
@@ -300,19 +301,31 @@ void ServerBlock::parseServerName(t_token &token)
             if (find(_servername.begin(), _servername.end(), token.value) == _servername.end())
                 _servername.push_back(token.value);
             else
-                std::cerr << "Error: config file: server name already used" << std::endl;
+                _reportError(token.index ,"duplicate server name");
         }
         else
             _servername.push_back(token.value);
     }
+    else
+        _reportError(token.index, "expected a string");
 }
 
 void ServerBlock::parseRootDir(t_token &token)
 {
     if (token.type == string){
-        if (PathChecking::isAbsolutePath(token.value) && PathChecking::exist(token.value) && PathChecking::isDirectory(token.value))
-            _rootdir = token.value;
+        if (PathChecking::isAbsolutePath(token.value))
+            if (PathChecking::exist(token.value))
+                if (PathChecking::isDirectory(token.value))
+                    _rootdir = token.value;
+                else
+                    _reportError(token.index, "expected a directory path");
+            else
+                _reportError(token.index, "path does not exist");
+        else
+            _reportError(token.index, "expected an absolute path");
     }
+    else
+        _reportError(token.index, "expected a path");
 }
 
 void ServerBlock::parseIndex(t_token &token)
@@ -325,9 +338,19 @@ void ServerBlock::parseIndex(t_token &token)
         else
             path = _rootdir + "/" + token.value;
 
-        if (PathChecking::isAbsolutePath(path) && PathChecking::exist(path) && PathChecking::isFile(path) && PathChecking::getReadPermission(path))
-            _index = path;
+        if (PathChecking::isAbsolutePath(path) && PathChecking::exist(path))
+            if (PathChecking::isFile(path))
+                if (PathChecking::getReadPermission(path))
+                    _index = path;
+                else
+                    _reportError(token.index, "file has no read permission");
+            else
+                _reportError(token.index, "expected a file");
+        else
+            _reportError(token.index, "does not exist");
     }
+    else
+        _reportError(token.index, "expected a file");
 }
 
 void ServerBlock::parseAccesLogPath(t_token &token)
@@ -345,12 +368,14 @@ void ServerBlock::parseAccesLogPath(t_token &token)
         if (!PathChecking::exist(path)){
             int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             if (fd  == -1)
-                std::cerr << "Error: config file: failed to create access log file" << std::endl;
+                _reportError(token.index, "failed to create access log file");
             else
                 close(fd);
         }
         _acceslogdpath = path;
     }
+    else
+        _reportError(token.index, "expected a path");
 }
 
 void ServerBlock::parseErrorsLogPath(t_token &token)
@@ -368,12 +393,14 @@ void ServerBlock::parseErrorsLogPath(t_token &token)
         if (!PathChecking::exist(path)){
             int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             if (fd  == -1)
-                std::cerr << "Error: config file: failed to create error log file" << std::endl;
+                _reportError(token.index, "failed to create error log file");
             else
                 close(fd);
         }
         _errorlogpath = path;
     }
+    else
+        _reportError(token.index, "expected a .log path");
 }
 
 void ServerBlock::parseLimitBodySize(t_token &token)
@@ -381,12 +408,12 @@ void ServerBlock::parseLimitBodySize(t_token &token)
     if (token.type == number){
         int maxbodysize = atoi(token.value.c_str());
         if (maxbodysize <= 0 || maxbodysize >= 1025)
-            std::cerr << "Error: config file: max body size range exceeded 1 - 1024" << std::endl;
+            _reportError(token.index, "max body size range exceeded 1 - 1024");
         else
             _bodysizelimit = maxbodysize;
     }
     else
-        std::cerr << "Error: config file: expected a number" << std::endl;
+        _reportError(token.index, "expected a number");
 }
 
 void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
@@ -403,20 +430,27 @@ void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
                     path = _rootdir + "/" + token.value;
             }
             
-            if (PathChecking::exist(path) && PathChecking::isFile(path) && PathChecking::getReadPermission(path)){
-                _errorpages[numpage] = path;
-            }
+            if (PathChecking::exist(path))
+                if (PathChecking::isFile(path))
+                    if (PathChecking::getReadPermission(path))
+                        _errorpages[numpage] = path;
+                    else
+                        _reportError(token.index, "file has no read permission");
+                else
+                    _reportError(token.index, "is not a file");
+            else
+                _reportError(token.index, "file does not exist");
         }
     }
     else
-        std::cerr << "Error: config file: expected number and a path" << std::endl;
+        _reportError(token.index, "expected a number and a path");
 }
 
 void ServerBlock::parseHost(t_token &token)
 {
     if (token.type == number){
         if (!isHostValid(token.value))
-            std::cerr << "Error: config file: host is unvalid" << std::endl;
+            _reportError(token.index, "expected IPv4 address");
         else{
             std::string n;
             std::stringstream ss(token.value);
@@ -431,6 +465,8 @@ void ServerBlock::parseHost(t_token &token)
             _host = token.value;
         }
     }
+    else
+        _reportError(token.index, "expected a ip address");
 }
 
 bool ServerBlock::isHostValid(std::string &host)

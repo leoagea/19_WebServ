@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 16:05:22 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 18:38:46 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ class locationBlock
         void parseCgiScriptName(t_token &);
         void parseRedirect(t_token &, t_token &);
         
-        bool isCGI(std::string &);
+        bool isCGI(std::string &, int);
 };
 
 std::ostream &operator<<(std::ostream &, const locationBlock &);
