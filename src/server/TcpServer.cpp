@@ -1,6 +1,19 @@
 /* TCP SERVER CLASS IMPLEMENTATION */
 #include "TcpServer.hpp"
 #include "Request.hpp"
+#include <fstream>
+
+const std::string readpage(std::ifstream &file)
+{
+    std::string ret = "";
+    std::string line;
+    while (getline(file, line))
+    {
+        line += "\n";
+        ret += line;
+    }
+    return ret;
+}
 
 TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
 {
@@ -142,17 +155,19 @@ void TcpServer::handleClient(int clientFd)
     buffer[bytesRead] = '\0';
     this->getSocketPort(_pollFds[0].fd);
     std::string bufferStr = buffer;
-    Request req(bufferStr);
+    std::ifstream file("test.html");
+    std::string htmlPage = readpage(file);
 
-    // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
-    
-    // std::cout << "Received:\n\n" << YELLOW << buffer << RES << "From fd " << clientFd << " on port " << std::endl;
     std::string response =  "HTTP/1.1 200 OK\r\n"                       /* FIRST LINE */
-                            "Content-Length: 13\r\n"                    /* HEADER */
+                            "Content-Length: 2013\r\n"                    /* HEADER */
                             "Connection: keep-alive\r\n"
                             "Keep-Alive: timeout=60\r\n"
-                            "\r\n"                                      /* EMPTY LINE */
-                            "Hello world !";                            /* BODY */
+                            "\r\n";                                     /* EMPTY LINE */
+    response += htmlPage;                                                   /* BODY */
+    bufferStr += htmlPage;
+    Request req(bufferStr, htmlPage);
+
+    // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
 
     send(clientFd, response.c_str(), response.size(), 0);
 }

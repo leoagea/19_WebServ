@@ -13,7 +13,7 @@
 #ifndef __SERVERBLOCK_HPP__
 # define __SERVERBLOCK_HPP__
 
-#define UINT16_MAX 65535
+//#define UINT16_MAX 65535
 
 #include <vector>
 #include <iostream>

@@ -23,7 +23,7 @@ OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Werror #-std=c++98 -fsanitize=address -g
+CPPFLAGS 	= -Wall -Wextra -Werror -fsanitize=address -g  #-std=c++98
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)

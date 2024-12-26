@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request(std::string& fullRequest)
+Request::Request(std::string& fullRequest, std::string &htmlPage) : _body(htmlPage)
 {
     //  FIRST LINE PARSING  //
     int i = -1;
@@ -20,14 +20,6 @@ Request::Request(std::string& fullRequest)
             if (++count == 2) 
                 break;
         }
-        i++;
-    }
-
-    //  BODY PARSING  //
-    while (fullRequest[i] <= 32 || fullRequest[i] >= 126)
-        i++;
-    while (fullRequest[i]) {
-        _body.append(fullRequest[i], 1);
         i++;
     }
 }
