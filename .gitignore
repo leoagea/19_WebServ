@@ -31,3 +31,6 @@
 *.out
 *.app
 Webserv
+
+# Settings
+.vscode
