@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 15:35:02 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 17:50:46 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,20 @@ int main(int ac, char **av)
     }
     
     ConfigFile config(configPath);
-    // ErrorReporter reporter(&config);
-    config.printErrors();
+    try
+    {
+        config.loadConfFile();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+
+    if (config.isParsingFailed()){
+        config.printErrors();
+        return 1;
+    }    
 
     return 0;
 }

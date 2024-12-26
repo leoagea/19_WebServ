@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 17:09:05 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 17:46:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,7 +276,7 @@ void ServerBlock::parseListeningPort(t_token &token)
     {
         int port = atoi(token.value.c_str());
         if (port <= 1023 || port > UINT16_MAX){
-            // _reportError(token.index, "port range exceeded");
+            _reportError(token.index, "port range exceeded");
             std::cerr << "Error: config file: port range exceeded 1024 - 65535" << std::endl;
         }
         else{
