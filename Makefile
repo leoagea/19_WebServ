@@ -17,12 +17,13 @@ OBJ_DIR 	= build
 
 SRC 		= 	$(SRC_DIR)/main.cpp \
 				$(SRC_DIR)/config/configFileParser.cpp $(SRC_DIR)/config/serverBlock.cpp $(SRC_DIR)/config/locationBlock.cpp $(SRC_DIR)/config/tokenizer.cpp  $(SRC_DIR)/config/PathChecking.cpp \
+				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/Request.cpp \
 
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g
+CPPFLAGS 	= -Wall -Wextra -Werror #-std=c++98 -fsanitize=address -g
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)
@@ -33,6 +34,7 @@ $(NAME): $(OBJ)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
 	@mkdir -p $(OBJ_DIR)/config
+	@mkdir -p $(OBJ_DIR)/server
 	$(CC) $(CPPFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
 -include $(DEPS)
