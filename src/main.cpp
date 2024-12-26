@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 16:39:09 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 14:57:59 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,18 @@
 
 int main(int ac, char **av)
 {
-    std::string defaultConfigFilePath = "config/config.conf";
+    std::string configPath;
     
     if(ac == 1)
-        ConfigFile config(defaultConfigFilePath);
+        configPath = DEFAULT_PATH;
     else if (ac == 2)
-        ConfigFile config(av[1]);
+        configPath = av[1];
     else{
         std::cerr << "Error: too many arguments" << std::endl;
+        return 1;
     }
+    
+    ConfigFile config(configPath);
+
+    return 0;
 }
