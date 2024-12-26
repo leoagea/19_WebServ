@@ -1,34 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   ErrorReporter.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 15:35:02 by lagea            ###   ########.fr       */
+/*   Created: 2024/12/26 15:19:33 by lagea             #+#    #+#             */
+/*   Updated: 2024/12/26 16:22:31 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef __ERRORREPORTER_HPP__
+# define __ERRORREPORTER_HPP__
+
 #include <iostream>
-#include "config/configFileParser.hpp"
 
-int main(int ac, char **av)
+class ConfigFile;
+
+class ErrorReporter
 {
-    std::string configPath;
-    
-    if(ac == 1)
-        configPath = DEFAULT_PATH;
-    else if (ac == 2)
-        configPath = av[1];
-    else{
-        std::cerr << "Error: too many arguments" << std::endl;
-        return 1;
-    }
-    
-    ConfigFile config(configPath);
-    // ErrorReporter reporter(&config);
-    config.printErrors();
+    public:
+        ErrorReporter(ConfigFile *);
+        ~ErrorReporter();
+        
+        void operator()(unsigned int, const std::string &);
 
-    return 0;
-}
+    private:
+        ConfigFile *_parser;
+};
+
+#endif

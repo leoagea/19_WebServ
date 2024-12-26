@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 13:40:11 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 17:09:05 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j) : _servername(1, "webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2)
+ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _servername(1, "webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2), _reportError(reporter)
 {
     initializeMapErrorPages();
     parseAllServerVariables(tokenVec, j);
@@ -253,7 +253,7 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
 
             std::vector<t_token> tmp(start, end);
             if (_locationblock.find(tokenVec[begin + 1].value) == _locationblock.end()){
-                locationBlock block(*this ,tmp);
+                locationBlock block(*this ,tmp, _reportError);
                 // std::cout << block << std::endl;
                 _locationblock.insert(std::make_pair(tokenVec[begin + 1].value, block));
             }
@@ -276,6 +276,7 @@ void ServerBlock::parseListeningPort(t_token &token)
     {
         int port = atoi(token.value.c_str());
         if (port <= 1023 || port > UINT16_MAX){
+            // _reportError(token.index, "port range exceeded");
             std::cerr << "Error: config file: port range exceeded 1024 - 65535" << std::endl;
         }
         else{

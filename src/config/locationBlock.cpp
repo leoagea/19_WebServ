@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 13:45:36 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 15:55:18 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
-locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0)
+locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0), _reportError(reporter)
 {
     // for(int i=0; i<(int)_tokenVec.size(); i++)
     //     std::cout << "type:  "<< _tokenVec[i].type << "   value:   " <<  _tokenVec[i].value << std::endl;

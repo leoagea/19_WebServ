@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 13:56:29 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 16:23:33 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,22 @@ ConfigFile::~ConfigFile()
 {
 }
 
+void ConfigFile::reportError(int tokenIndex, const std::string &msg)
+{
+    _errors.insert(std::make_pair(tokenIndex, msg));
+}
+
+void ConfigFile::printErrors() const
+{
+    if (!_errors.empty()){
+        std::map<int, std::string>::const_iterator it;
+
+        for (it = _errors.begin(); it != _errors.end(); it++){
+            std::cout << "Token " << it->first << " : " << it->second << std::endl;
+        }
+    }
+}
+
 std::vector<ServerBlock> ConfigFile::getServerBlockVector() const
 {
     return _serverlist;
@@ -87,11 +103,13 @@ bool ConfigFile::isConfPathValid(std::string &path)
 
 void ConfigFile::splitServerBlock()
 {
+    ErrorReporter reporter(this);
+    
     for(int i = 0; i < (int)_tokensVec.size(); i++){
         if(_tokensVec[i].type == keyword && _tokensVec[i].value == "server"){
             if(_tokensVec[i + 1].type == openbracket){
                 i += 2;
-                ServerBlock server(_tokensVec, &i);
+                ServerBlock server(_tokensVec, &i, reporter);
                 // std::cout << server << std::endl;
                 _serverlist.push_back(server);
             }

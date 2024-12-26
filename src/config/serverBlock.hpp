@@ -6,9 +6,11 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:55:08 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 16:05:34 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #ifndef __SERVERBLOCK_HPP__
 # define __SERVERBLOCK_HPP__
@@ -25,6 +27,7 @@
 #include <sstream>
 #include "fcntl.h"
 
+#include "ErrorReporter.hpp"
 #include "locationBlock.hpp"
 #include "tokenizer.hpp"
 #include "PathChecking.hpp"
@@ -35,10 +38,9 @@ class locationBlock;
 class ServerBlock 
 {
     public:
-        ServerBlock(std::vector<t_token> &, int *);
+        ServerBlock(std::vector<t_token> &, int *, const ErrorReporter &);
         ~ServerBlock();
 
-        ServerBlock getServerBlock() const;
         int getListeningPortByIndex(int) const;
         std::vector<int> getListeningPortsVector() const;
         std::string getServerNameByIndex(int) const;
@@ -70,6 +72,7 @@ class ServerBlock
         std::vector<int> _hostbytes;
         std::map<std::string ,class locationBlock> _locationblock;
         std::map<int, std::string> _errorpages;
+        ErrorReporter _reportError;
 
         void initializeMapErrorPages();
         void parseAllServerVariables(std::vector<t_token> &, int *);
