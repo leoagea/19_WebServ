@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 18:01:47 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 18:40:38 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void Tokenizer::verifTokenizerStringEmpty(std::string &tokenString)
 {
     for(int i=0; i < (int)tokenString.size(); i++)
         if(tokenString[i] != ' ')
-            std::cerr << "Error: config file: dunno" << std::endl;
+            std::cerr << "Error: config file: does not support tabulation" << std::endl;
 }
 
 std::ostream &operator<<(std::ostream &out, const Tokenizer &obj)
