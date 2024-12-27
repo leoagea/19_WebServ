@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 18:40:38 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/27 15:10:03 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ std::vector<t_token> Tokenizer::getTokensVector() const
 void Tokenizer::splitToken(std::string &configContent)
 {
     int index = 0;
+    unsigned int line = 0;
     
     for(int i=0; i < (int)configContent.size(); i++){
         std::string::iterator it;
@@ -42,6 +43,7 @@ void Tokenizer::splitToken(std::string &configContent)
             token.type = semicolon;
             token.value = ";";
             token.index = index++;
+            token.line = line++;
             _tokensVector.push_back(token);
             it = configContent.begin() + i;
             configContent.erase(it);
@@ -51,6 +53,7 @@ void Tokenizer::splitToken(std::string &configContent)
             token.type = openbracket;
             token.value = "{";
             token.index = index++;
+            token.line = line++;
             _tokensVector.push_back(token);
             it = configContent.begin() + i;
             configContent.erase(it);
@@ -59,6 +62,7 @@ void Tokenizer::splitToken(std::string &configContent)
             token.type = closebracket;
             token.value = "}";
             token.index = index++;
+            token.line = line++;
             _tokensVector.push_back(token);
             it = configContent.begin() + i;
             configContent.erase(it);
@@ -80,6 +84,7 @@ void Tokenizer::splitToken(std::string &configContent)
             token.value = configContent.substr(start, i - start);
             token.type = number;
             token.index = index++;
+            token.line = line;
             _tokensVector.push_back(token);
             configContent.erase(it, it2);
             i = start - 1;
@@ -98,6 +103,7 @@ void Tokenizer::splitToken(std::string &configContent)
             else
                 token.type = string;
             token.index = index++;
+            token.line = line;
             _tokensVector.push_back(token);
             configContent.erase(it, it2);
             i = start - 1;
@@ -132,7 +138,7 @@ std::ostream &operator<<(std::ostream &out, const Tokenizer &obj)
     std::vector<t_token>::iterator it;
     out << BLUE << "List of token:" << RESET << std::endl;
     for (it = vec.begin(); it != vec.end(); it++){
-        out << "index:  " << it->index << "    type: " << it->type << "   value: " << it->value << std::endl;
+        out << "index:  " << it->index << "    type: " << it->type << "   value: " << it->value << "   line: " << it->line << std::endl;
     }
     return out;
 }

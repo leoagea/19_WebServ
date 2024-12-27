@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 17:44:33 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/27 15:23:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <iterator>
 
 #include "serverBlock.hpp"
 #include "tokenizer.hpp"

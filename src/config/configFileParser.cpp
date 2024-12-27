@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 17:49:49 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/27 15:30:13 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,37 @@ bool ConfigFile::isParsingFailed() const
 void ConfigFile::printErrors() const
 {
     if (!_errors.empty()){
-        std::map<int, std::string>::const_iterator it;
+        std::map<int, std::string>::const_iterator found;
 
-        for (it = _errors.begin(); it != _errors.end(); it++){
-            std::cout << "Token " << it->first << " : " << it->second << std::endl;
+        std::cout << std::endl;
+        std::vector<t_token>::const_iterator it = _tokensVec.begin();
+        std::vector<std::string>::const_iterator line;
+        unsigned int j = 0;
+        for (line = _configFileVector.begin(); line != _configFileVector.end(); line++){
+            std::string str = *line;
+            int i=0;
+            while (str[i]){
+                if (str[i] != ' ' && str[i] != '\n'){
+                    std::cout << *line;
+                    bool print = true;
+                    while (it->line == j){
+                        std::ptrdiff_t index = std::distance(_configFileVector.begin(), line) + 1;
+                        found = _errors.find(it->index);
+                        if (found != _errors.end()){
+                            if (print){
+                                std::cout << RED << "line: " << index << RESET;
+                                print = !print;
+                            }
+                            std::cout << " " << RED << found->second << RESET;
+                        }
+                        it++;
+                    }
+                    j++;
+                    std::cout << std::endl;
+                    break;
+                }
+                i++;
+            }
         }
     }
 }
