@@ -154,33 +154,23 @@ void TcpServer::handleClient(int clientFd)
         return;
     }
     buffer[bytesRead] = '\0';
-    this->getSocketPort(_pollFds[0].fd);
-    std::string bufferStr = buffer;
-    std::ifstream file("var/www/html/test.html");
-    std::string htmlPage = readpage(file);
+    std::string bufferStr = buffer;           /* REQUETE HTML  */
 
-    std::string response =  "HTTP/1.1 200 OK\r\n"                       /* FIRST LINE */
-                            "Content-Length: 2013\r\n"                    /* HEADER */
-                            "Connection: keep-alive\r\n"
-                            "Keep-Alive: timeout=60\r\n"
-                            "\r\n";                                     /* EMPTY LINE */
-    response += htmlPage;                                                   /* BODY */
-    bufferStr += htmlPage;
-    Request req(bufferStr, htmlPage);
-    std::string scriptPath = "var/www/cgi-bin/scripts/script.py";
-    CgiHandler cgi(req, scriptPath);
+    std::ifstream file("var/www/html/test.html");                     // HARDCODED RESPONSE   
+    std::string htmlPage = readpage(file);                            // HARDCODED RESPONSE
 
-    // std::cout << YELLOW << req.getStartLine() << RESET << std::endl;
-    // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
-    std::string rep =  "HTTP/1.1 200 OK\r\n"
-                       "Content-Type: text/html\r\n"
-                       "Content-Length: 122\r\n" 
-                       "Connection: keep-alive\r\n"
-                       "Keep-Alive: timeout=60\r\n"
-                       "\r\n";  // Ligne vide pour séparer les en-têtes et le corps
-    rep += cgi.execute();  // Ajout du contenu généré par le script CGI
+    std::string response =  "HTTP/1.1 200 OK\r\n"                     // HARDCODED RESPONSE
+                            "Content-Length: 2013\r\n"                // HARDCODED RESPONSE
+                            "Connection: keep-alive\r\n"              // HARDCODED RESPONSE
+                            "Keep-Alive: timeout=60\r\n"              // HARDCODED RESPONSE
+                            "\r\n";                                   // HARDCODED RESPONSE
+    response += htmlPage;                                             // HARDCODED RESPONSE    
+    bufferStr += htmlPage;                                            // HARDCODED RESPONSE
 
-    send(clientFd, rep.c_str(), rep.size(), 0);
+
+    Request req(bufferStr);
+    /* PARSING REQUEST TO RESPONSE */
+    send(clientFd, response.c_str(), response.size(), 0);    
 }
 
 void TcpServer::cleanupClient(int fd)

@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request(std::string& fullRequest, std::string &htmlPage) : _body(htmlPage)
+Request::Request(std::string& fullRequest)
 {
     //  FIRST LINE PARSING  //
     int i = -1;

@@ -6,7 +6,7 @@
 class Request 
 {
     public :
-        Request(std::string&fullRequest, std::string& htmlPage);
+        Request(std::string&fullRequest);
         ~Request();
 
         std::string getStartLine();
@@ -18,7 +18,6 @@ class Request
         std::string _header;
         std::string _empty = "\r\n";
         std::string _body;
-   
 };
 
 

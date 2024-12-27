@@ -17,7 +17,7 @@ OBJ_DIR 	= build
 
 SRC 		= 	$(SRC_DIR)/main.cpp \
 				$(SRC_DIR)/config/configFileParser.cpp $(SRC_DIR)/config/serverBlock.cpp $(SRC_DIR)/config/locationBlock.cpp $(SRC_DIR)/config/tokenizer.cpp  $(SRC_DIR)/config/PathChecking.cpp \
-				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/Request.cpp \
+				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/Request.cpp $(SRC_DIR)/server/Response.cpp\
 				$(SRC_DIR)/CGI/CgiHandler.cpp \
 
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
