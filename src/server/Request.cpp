@@ -26,7 +26,6 @@ Request::Request(std::string& fullRequest, std::string &htmlPage) : _body(htmlPa
 
 Request::~Request() {}
 
-
 std::string Request::getStartLine() { return _start_line; }
 
 std::string Request::getHeader() { return _header; }

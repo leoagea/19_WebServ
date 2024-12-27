@@ -1,5 +1,6 @@
 /* TCP SERVER CLASS IMPLEMENTATION */
 #include "TcpServer.hpp"
+#include "../CGI/CgiHandler.hpp"
 #include "Request.hpp"
 #include <fstream>
 
@@ -155,7 +156,7 @@ void TcpServer::handleClient(int clientFd)
     buffer[bytesRead] = '\0';
     this->getSocketPort(_pollFds[0].fd);
     std::string bufferStr = buffer;
-    std::ifstream file("test.html");
+    std::ifstream file("var/www/html/test.html");
     std::string htmlPage = readpage(file);
 
     std::string response =  "HTTP/1.1 200 OK\r\n"                       /* FIRST LINE */
@@ -166,10 +167,20 @@ void TcpServer::handleClient(int clientFd)
     response += htmlPage;                                                   /* BODY */
     bufferStr += htmlPage;
     Request req(bufferStr, htmlPage);
+    std::string scriptPath = "var/www/cgi-bin/scripts/script.py";
+    CgiHandler cgi(req, scriptPath);
 
+    // std::cout << YELLOW << req.getStartLine() << RESET << std::endl;
     // PARSING REQUETE HTTP ET ENVOIE DE LA REPONSE AVEC SEND
+    std::string rep =  "HTTP/1.1 200 OK\r\n"
+                       "Content-Type: text/html\r\n"
+                       "Content-Length: 122\r\n" 
+                       "Connection: keep-alive\r\n"
+                       "Keep-Alive: timeout=60\r\n"
+                       "\r\n";  // Ligne vide pour séparer les en-têtes et le corps
+    rep += cgi.execute();  // Ajout du contenu généré par le script CGI
 
-    send(clientFd, response.c_str(), response.size(), 0);
+    send(clientFd, rep.c_str(), rep.size(), 0);
 }
 
 void TcpServer::cleanupClient(int fd)
