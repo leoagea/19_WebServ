@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 18:39:18 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/27 17:36:38 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,6 +161,14 @@ void locationBlock::parseAllLocationVariables()
             if (current.type == closebracket && i == (int)_tokenVec.size() - 1)
                 break;
             _reportError(current.index, "unknown token");
+            char stop = 0;
+            while (_tokenVec[i].type != semicolon || (stop == 0 || stop == 1)){
+                if (_tokenVec[i].type == openbracket)
+                    stop = 1;
+                else if (stop && _tokenVec[i].type == closebracket)
+                    break;
+                i++;
+            }
         }
     }
 }
