@@ -6,26 +6,29 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 13:56:29 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 14:01:53 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configFileParser.hpp"
 
-ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
+ConfigFile::ConfigFile(std::string path) : _filepath(path) ,_tokenizerString("")
 {
-    if (!isConfPathValid(path)){
-        std::cerr << "Error: config file: wrong extension, expected .conf" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+}
 
+ConfigFile::~ConfigFile()
+{
+}
+
+void ConfigFile::loadConfFile()
+{
+    if (!isConfPathValid(_filepath))
+        throw std::runtime_error("Error: config file: wrong extension, expected .conf");
     
-    std::fstream file(path.c_str());
+    std::fstream file(_filepath.c_str());
     
-    if (!file.is_open()){
-        std::cerr << "Error: config file: failed to open" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if (!file.is_open())
+        throw std::runtime_error("Error: config file: failed to open");
 
     std::string line;
     while (getline(file, line)){
@@ -40,24 +43,60 @@ ConfigFile::ConfigFile(std::string path) : _tokenizerString("")
         _configFileVector.push_back(line);
     }
 
-    if (_tokenizerString.empty()){
-        std::cerr << "Error: config file: empty file" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    if (_tokenizerString.empty())
+        throw std::runtime_error("Error: config file: empty file");
 
-    // std::cout << _tokenizerString << std::endl;
-    
-    Tokenizer token(_tokenizerString);
-    _tokensVec = token.getTokensVector();
-
-    //Print all tokens
-    // std::cout << token << std::endl;
-    
-    splitServerBlock();
+    parseConfFile();
 }
 
-ConfigFile::~ConfigFile()
+void ConfigFile::reportError(int tokenIndex, const std::string &msg)
 {
+    _errors.insert(std::make_pair(tokenIndex, msg));
+}
+
+bool ConfigFile::isParsingFailed() const
+{
+    if (_errors.empty())
+        return false;
+    return true;
+}
+
+void ConfigFile::printErrors() const
+{
+    if (!_errors.empty()){
+        std::map<int, std::string>::const_iterator found;
+
+        std::cout << std::endl;
+        std::vector<t_token>::const_iterator it = _tokensVec.begin();
+        std::vector<std::string>::const_iterator line;
+        unsigned int j = 0;
+        for (line = _configFileVector.begin(); line != _configFileVector.end(); line++){
+            std::string str = *line;
+            int i=0;
+            while (str[i]){
+                if (str[i] != ' ' && str[i] != '\n'){
+                    std::cout << *line;
+                    bool print = true;
+                    while (it->line == j){
+                        std::ptrdiff_t index = std::distance(_configFileVector.begin(), line) + 1;
+                        found = _errors.find(it->index);
+                        if (found != _errors.end()){
+                            if (print){
+                                std::cout << RED << "line: " << index << RESET;
+                                print = !print;
+                            }
+                            std::cout << " " << RED << found->second << RESET;
+                        }
+                        it++;
+                    }
+                    j++;
+                    std::cout << std::endl;
+                    break;
+                }
+                i++;
+            }
+        }
+    }
 }
 
 std::vector<ServerBlock> ConfigFile::getServerBlockVector() const
@@ -75,6 +114,17 @@ ServerBlock ConfigFile::getServerBlockByIndex(int index) const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void ConfigFile::parseConfFile()
+{
+    Tokenizer token(_tokenizerString);
+    _tokensVec = token.getTokensVector();
+
+    //Print all tokens
+    // std::cout << token << std::endl;
+    
+    splitServerBlock();
+}
+
 bool ConfigFile::isConfPathValid(std::string &path)
 {
     std::string extension = ".conf";
@@ -87,11 +137,14 @@ bool ConfigFile::isConfPathValid(std::string &path)
 
 void ConfigFile::splitServerBlock()
 {
+    ErrorReporter reporter(this);
+    
     for(int i = 0; i < (int)_tokensVec.size(); i++){
         if(_tokensVec[i].type == keyword && _tokensVec[i].value == "server"){
             if(_tokensVec[i + 1].type == openbracket){
                 i += 2;
-                ServerBlock server(_tokensVec, &i);
+                ServerBlock server(_tokensVec, &i, reporter);
+                // Print everything in the server for debugging purpose
                 // std::cout << server << std::endl;
                 _serverlist.push_back(server);
             }

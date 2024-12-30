@@ -6,9 +6,11 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/24 17:04:49 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/26 18:38:46 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #ifndef __LOCATIONBLOCK_HPP__
 # define __LOCATIONBLOCK_HPP__
@@ -17,6 +19,7 @@
 #include <vector>
 #include <map>
 
+#include "ErrorReporter.hpp"
 #include "tokenizer.hpp"
 #include "PathChecking.hpp"
 #include "serverBlock.hpp"
@@ -39,7 +42,7 @@ class ServerBlock;
 class locationBlock
 {
     public:
-        locationBlock(ServerBlock &, std::vector<t_token> &);
+        locationBlock(ServerBlock &, std::vector<t_token> &, const ErrorReporter &);
         ~locationBlock();
         
         bool getCgi() const;
@@ -71,6 +74,7 @@ class locationBlock
         std::pair<bool, std::string> _cgi; //used to store token nam,e of cgi path, and if token has been read
         std::string _cgipath;
         unsigned char _allowedmethods;
+        ErrorReporter _reportError;
 
         void parseAllLocationVariables();
         void parseRootDir(t_token &);
@@ -81,7 +85,7 @@ class locationBlock
         void parseCgiScriptName(t_token &);
         void parseRedirect(t_token &, t_token &);
         
-        bool isCGI(std::string &);
+        bool isCGI(std::string &, int);
 };
 
 std::ostream &operator<<(std::ostream &, const locationBlock &);

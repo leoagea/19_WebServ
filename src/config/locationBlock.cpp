@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 13:45:36 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 14:01:07 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
-locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0)
+locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0), _reportError(reporter)
 {
     // for(int i=0; i<(int)_tokenVec.size(); i++)
     //     std::cout << "type:  "<< _tokenVec[i].type << "   value:   " <<  _tokenVec[i].value << std::endl;
@@ -105,17 +105,17 @@ void locationBlock::parseAllLocationVariables()
 {
     if (_tokenVec[0].type == keyword && _tokenVec[0].value == "location"){
         if (_tokenVec[2].type != openbracket){
-            std::cerr << "Error: config file: expected: location path {}" << std::endl;
+            _reportError(_tokenVec[2].index, "expected location string {}");
         }
         else{
             
-            if (isCGI(_tokenVec[1].value))
+            if (isCGI(_tokenVec[1].value, _tokenVec[1].index))
                 _iscgi = true;
             else{
                 
                 if (_tokenVec[1].value[_tokenVec[1].value.size() - 1] != '/' && _tokenVec[3].type == keyword && _tokenVec[3].value == "return")
                     _isredirect = true;
-                _uri = _server.getServerNameByIndex(0) + _tokenVec[1].value;
+                _uri = _server.getServerName() + _tokenVec[1].value;
             }
         }
     }
@@ -139,7 +139,7 @@ void locationBlock::parseAllLocationVariables()
             i++;
             while (_tokenVec[i].type != semicolon){
                 if (_tokenVec[i].type != string)
-                    std::cerr << "Error: config file: location allowed method: expected only string" << std::endl;
+                    _reportError(_tokenVec[i].index, "expected only string");
                 else
                     parseAllowedMethod(_tokenVec[i]);
                 i++;
@@ -160,7 +160,15 @@ void locationBlock::parseAllLocationVariables()
         else{
             if (current.type == closebracket && i == (int)_tokenVec.size() - 1)
                 break;
-            std::cerr << "Error: config file: location unknown token" << std::endl;
+            _reportError(current.index, "unknown token");
+            char stop = 0;
+            while (_tokenVec[i].type != semicolon || (stop == 0 || stop == 1)){
+                if (_tokenVec[i].type == openbracket)
+                    stop = 1;
+                else if (stop && _tokenVec[i].type == closebracket)
+                    break;
+                i++;
+            }
         }
     }
 }
@@ -169,40 +177,35 @@ void locationBlock::parseRootDir(t_token &token)
 {
     std::string path = token.value;
     
-    if (PathChecking::isAbsolutePath(path)){
-        if (PathChecking::exist(path)){
-            if (PathChecking::isDirectory(path)){
+    if (PathChecking::isAbsolutePath(path))
+        if (PathChecking::exist(path))
+            if (PathChecking::isDirectory(path))
                 if (path[path.size() - 1] == '/')
                     _root = path;
                 else
                     _root = path + "/";
-            }
             else
-                std::cerr << "Error: config file: location root: is not a directory" << std::endl;
-        }
+                _reportError(token.index, "is not directory");
         else
-            std::cerr << "Error: config file: location root: path does not exist" << std::endl;
-    }
+            _reportError(token.index, "path does not exist");
     else
-        std::cerr << "Error: config file: location root: not an absolute path" << std::endl;
+        _reportError(token.index, "path is not an absolute path");
 }
 
 void locationBlock::parseIndex(t_token &token)
 {
     std::string path = _root + token.value;
     
-    if (PathChecking::exist(path)){
-        if (PathChecking::isFile(path)){
+    if (PathChecking::exist(path))
+        if (PathChecking::isFile(path))
             if (PathChecking::getReadPermission(path))
                 _index = path;
             else
-                std::cerr << "Error: config file: location index: no read permission" << std::endl;
-        }
+                _reportError(token.index, "file has no read permission");
         else
-            std::cerr << "Error: config file: location index: not a file" << std::endl;
-    }
+            _reportError(token.index, "is not a file");
     else
-        std::cerr << "Error: config file: location index: does not exist" << std::endl;
+        _reportError(token.index, "file does not exist");
 }
 
 void locationBlock::parseAutoIndex(t_token &token)
@@ -212,7 +215,7 @@ void locationBlock::parseAutoIndex(t_token &token)
     else if (token.value == "off")
         _autoindex = false;
     else
-        std::cerr << "Error: config file: location auto index: expected only on or off" << std::endl;
+        _reportError(token.index, "expected only on or off");
 }
 
 void locationBlock::parseAllowedMethod(t_token &token)
@@ -226,45 +229,41 @@ void locationBlock::parseAllowedMethod(t_token &token)
     else if (token.value == "UPLOAD" && !(_allowedmethods & UPLOAD))
         _allowedmethods |= UPLOAD;
     else if (_allowedmethods & GET || _allowedmethods & POST || _allowedmethods & DELETE || _allowedmethods & UPLOAD)
-        std::cerr << "Error: config file: location allowedmethod: method already allowed" << std::endl;
+        _reportError(token.index, "method already allowed");
     else
-        std::cerr << "Error: config file: location allowedmethod: unkown method, expected only get post delete upload" << std::endl;
+        _reportError(token.index, "expected only get post delete or upload");
 }
 
 void locationBlock::parseInclude(t_token &token)
 {
-    if (token.type == keyword){
-        if (token.value == "cgi_param"){
+    if (token.type == keyword)
+        if (token.value == "cgi_param")
             if (_iscgi)
                 _cgi.first = true;
             else
-                std::cerr << "Error: config file: location: cannot include param outside cgi location" << std::endl; 
-        }
+                _reportError(token.index, "cannot include param outside cgi location");
         else
-            std::cerr << "Error: config file: location: expected cgi_param" << std::endl;
-    }
+            _reportError(token.index, "expected cgi_param");
     else
-        std::cerr << "Error: config file: location: expected token cgi_param" << std::endl;
+        _reportError(token.index, "expected token cgi_param");
 }
 
 void locationBlock::parseCgiScriptName(t_token &token)
 {
     std::string path = _root + token.value;
     
-    if (PathChecking::exist(path)){
-        if (PathChecking::isFile(path)){
+    if (PathChecking::exist(path))
+        if (PathChecking::isFile(path))
             if (PathChecking::getExecPermission(path)){
                 _cgipath = path;
                 _cgi.second = token.value;
             }
             else
-                std::cerr << "Error: config file: location: cgi script has not exec permission" << std::endl;
-        }
+                _reportError(token.index, "cgi script has no exec permission");
         else
-            std::cerr << "Error: config file: location: cgi script is not file" << std::endl;
-    }
+            _reportError(token.index, "cgi script is not a file");
     else
-        std::cerr << "Error: config file: location: cgi script does not exist" << std::endl;
+        _reportError(token.index, "cgi script does not exist");
 }
 
 void locationBlock::parseRedirect(t_token &status, t_token &redirect)
@@ -274,35 +273,35 @@ void locationBlock::parseRedirect(t_token &status, t_token &redirect)
             int statuscode = atoi(status.value.c_str());
             
             if (statuscode != 301)
-                std::cerr << "Error: config file: location redirect: expected only 301 return code (HTTP Redirect)" << std::endl;
+                _reportError(status.index, "expected only 301 return code (HTTP Redirect)");
             else
                 _redirect.first = statuscode;
             
             _redirect.second = redirect.value;
-            std::string servername = _server.getServerNameByIndex(0);
-            if (servername[servername.size() - 1] != '/' && redirect.value[redirect.value.size() - 1] == '/')
+            std::string servername = _server.getServerName();
+            if (servername[servername.size() - 1] != '/' && redirect.value[0] == '/')
                 _uri = servername + redirect.value;
-            else if (servername[servername.size() - 1] != '/' && redirect.value[redirect.value.size() - 1] != '/')
+            else if (servername[servername.size() - 1] != '/' && redirect.value[0] != '/')
                 _uri = servername + "/" + redirect.value;
-            else if (servername[servername.size() - 1] == '/' && redirect.value[redirect.value.size() - 1] != '/')
+            else if (servername[servername.size() - 1] == '/' && redirect.value[0] != '/')
                 _uri = servername + redirect.value; 
-            else if (servername[servername.size() - 1] == '/' && redirect.value[redirect.value.size() - 1] == '/'){
+            else if (servername[servername.size() - 1] == '/' && redirect.value[0] == '/'){
                 servername.erase(servername.size() - 1);
                 _uri = servername + redirect.value; 
             }
             else
-                std::cerr << "Error: while retrieving redirect location name";
+                _reportError(redirect.index, "failed to retrieve redirect location name");
         }
         else
-            std::cerr << "Error: expected return token only in redirect location" << std::endl;
+            _reportError(status.index, "expected return token only in redirect location");
     }
 }
 
-bool locationBlock::isCGI(std::string &path)
+bool locationBlock::isCGI(std::string &path, int index)
 {
     if (!PathChecking::isAbsolutePath(path)){
         if (path != ".py$"){
-            std::cerr << "Error: config file: cgi not supported, expected only php" << std::endl;
+            _reportError(index, "cgi not supported expected only py");
             return false;
         }
         return true;
