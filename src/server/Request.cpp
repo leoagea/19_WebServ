@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request(std::string& fullRequest)
+Request::Request(std::string& fullRequest) : _empty("\r\n")
 {
     //  FIRST LINE PARSING  //
     int i = -1;

@@ -16,7 +16,7 @@ class Request
     private :
         std::string _start_line;
         std::string _header;
-        std::string _empty = "\r\n";
+        std::string _empty;
         std::string _body;
    
 };
