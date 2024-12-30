@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 19:23:24 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/17 21:02:58 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 17:33:45 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,10 @@
 #define BCYAN     "\033[96m"
 #define BWHITE    "\033[97m"
 
+// Leveling for logs
+#define CINFO    "\033[32m"      // Vert
+#define CWARNING "\033[33m"      // Jaune
+#define CERROR   "\033[31m"      // Rouge
+#define CFATAL   "\033[1;31m"    // Rouge gras (ou plus intense)
 
 #endif
