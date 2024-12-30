@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 18:19:19 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/27 17:33:53 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,15 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
                 _reportError(begin, "duplicate location");
         }
         else{
+            char stop = 0;
             _reportError(i, "unknown token");
+            while (tokenVec[i].type != semicolon || (stop == 0 || stop == 1)){
+                if (tokenVec[i].type == openbracket)
+                    stop = 1;
+                else if (stop && tokenVec[i].type == closebracket)
+                    break;
+                i++;
+            }
         }
     }
 
@@ -375,7 +383,7 @@ void ServerBlock::parseAccesLogPath(t_token &token)
         _acceslogdpath = path;
     }
     else
-        _reportError(token.index, "expected a path");
+        _reportError(token.index, "expected a .log path");
 }
 
 void ServerBlock::parseErrorsLogPath(t_token &token)
@@ -441,6 +449,8 @@ void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
             else
                 _reportError(token.index, "file does not exist");
         }
+        else
+            _reportError(token.index, "error page not handle");
     }
     else
         _reportError(token.index, "expected a number and a path");
