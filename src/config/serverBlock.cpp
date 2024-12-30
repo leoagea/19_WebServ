@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 13:50:49 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 17:27:33 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ std::ofstream *ServerBlock::getAccessLogStream() const
     std::ofstream *file = new std::ofstream;
     std::string path = _acceslogdpath;
     if ((PathChecking::exist(path)) && PathChecking::isFile(path) && PathChecking::getWritePermission(path)){
-        file->open(path.c_str());
+        file->open(path.c_str(), std::ios::app);
         if (!file->is_open()){
             delete file;
             throw std::runtime_error("Error: failed to open access log file");
@@ -74,7 +74,7 @@ std::ofstream *ServerBlock::getErrorsLogStream() const
     std::ofstream *file = new std::ofstream;
     std::string path = _errorlogpath;
     if ((PathChecking::exist(path)) && PathChecking::isFile(path) && PathChecking::getWritePermission(path)){
-        file->open(path.c_str());
+        file->open(path.c_str(), std::ios::app);
         if (!file->is_open()){
             delete file;
             throw std::runtime_error("Error: failed to open access log file");
