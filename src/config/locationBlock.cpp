@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/27 17:36:38 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 14:01:07 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void locationBlock::parseAllLocationVariables()
                 
                 if (_tokenVec[1].value[_tokenVec[1].value.size() - 1] != '/' && _tokenVec[3].type == keyword && _tokenVec[3].value == "return")
                     _isredirect = true;
-                _uri = _server.getServerNameByIndex(0) + _tokenVec[1].value;
+                _uri = _server.getServerName() + _tokenVec[1].value;
             }
         }
     }
@@ -278,14 +278,14 @@ void locationBlock::parseRedirect(t_token &status, t_token &redirect)
                 _redirect.first = statuscode;
             
             _redirect.second = redirect.value;
-            std::string servername = _server.getServerNameByIndex(0);
-            if (servername[servername.size() - 1] != '/' && redirect.value[redirect.value.size() - 1] == '/')
+            std::string servername = _server.getServerName();
+            if (servername[servername.size() - 1] != '/' && redirect.value[0] == '/')
                 _uri = servername + redirect.value;
-            else if (servername[servername.size() - 1] != '/' && redirect.value[redirect.value.size() - 1] != '/')
+            else if (servername[servername.size() - 1] != '/' && redirect.value[0] != '/')
                 _uri = servername + "/" + redirect.value;
-            else if (servername[servername.size() - 1] == '/' && redirect.value[redirect.value.size() - 1] != '/')
+            else if (servername[servername.size() - 1] == '/' && redirect.value[0] != '/')
                 _uri = servername + redirect.value; 
-            else if (servername[servername.size() - 1] == '/' && redirect.value[redirect.value.size() - 1] == '/'){
+            else if (servername[servername.size() - 1] == '/' && redirect.value[0] == '/'){
                 servername.erase(servername.size() - 1);
                 _uri = servername + redirect.value; 
             }

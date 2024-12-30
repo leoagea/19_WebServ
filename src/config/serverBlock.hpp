@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 16:05:34 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 13:47:32 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,8 @@ class ServerBlock
         ServerBlock(std::vector<t_token> &, int *, const ErrorReporter &);
         ~ServerBlock();
 
-        int getListeningPortByIndex(int) const;
-        std::vector<int> getListeningPortsVector() const;
-        std::string getServerNameByIndex(int) const;
-        std::vector<std::string> getServerNameVector() const;
+        int getListeningPort() const;
+        std::string getServerName() const;
         std::string getRootDir() const;
         std::string getIndex() const;
         std::string getAccesLogFilePath() const;
@@ -61,8 +59,8 @@ class ServerBlock
         locationBlock getLocationBlockByString(std::string &) const;
         
     private:
-        std::vector<int> _listeningports; //index 0 is default port
-        std::vector<std::string> _servername;
+        int _listeningports;
+        std::string _servername;
         std::string _rootdir;
         std::string _index;
         std::string _acceslogdpath;

@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/27 17:33:53 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 13:50:49 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _servername(1, "webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2), _reportError(reporter)
+ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2), _reportError(reporter)
 {
     initializeMapErrorPages();
     parseAllServerVariables(tokenVec, j);
@@ -23,36 +23,12 @@ ServerBlock::~ServerBlock()
     
 }
 
-//Return -1 if index is out of bound in the vector
-int ServerBlock::getListeningPortByIndex(int indexOfVector) const
-{
-    try{
-        _listeningports.at(indexOfVector);
-    }
-    catch (std::exception &e){
-        return -1;
-    }
-    return _listeningports.at(indexOfVector);
-}
-
-std::vector<int> ServerBlock::getListeningPortsVector() const
+int ServerBlock::getListeningPort() const
 {
     return _listeningports;
 }
 
-//Rerturn empty string if index is out of bound
-std::string ServerBlock::getServerNameByIndex(int indexOfVector) const
-{
-    try{
-        _servername.at(indexOfVector);
-    }
-    catch (std::exception &e){
-        return "";
-    }
-    return _servername.at(indexOfVector);
-}
-
-std::vector<std::string> ServerBlock::getServerNameVector() const
+std::string ServerBlock::getServerName() const
 {
     return _servername;
 }
@@ -195,26 +171,12 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
     for (i = *j; i < (int)tokenVec.size() && tokenVec[i].type != closebracket; i++){
         t_token token = tokenVec[i];
         if (token.type == keyword && token.value == "listen"){
+            parseListeningPort(tokenVec[++i]);
             i++;
-            while(tokenVec[i].type != semicolon){
-                if (tokenVec[i].type == keyword)
-                    _reportError(tokenVec[i].index, "expected ; before new line");
-                else
-                    parseListeningPort(tokenVec[i]);
-                i++;
-            }
         }
         else if (token.type == keyword && token.value == "server_name"){
+            parseServerName(tokenVec[++i]);
             i++;
-            if (_servername[0] == "webserv")
-                _servername.erase(_servername.begin());
-            while(tokenVec[i].type != semicolon){
-                if (tokenVec[i].type == keyword)
-                    _reportError(tokenVec[i].index, "expected ; before new line");
-                else
-                    parseServerName(tokenVec[i]);
-                i++;
-            }
         }
         else if (token.type == keyword && token.value == "root" && tokenVec[i + 2].type == semicolon){
             parseRootDir(tokenVec[++i]);
@@ -286,16 +248,8 @@ void ServerBlock::parseListeningPort(t_token &token)
         if (port <= 1023 || port > UINT16_MAX){
             _reportError(token.index, "port range exceeded expected 1024 - 65535");
         }
-        else{
-            if (!_listeningports.empty()){
-                if (find(_listeningports.begin(), _listeningports.end(), port) == _listeningports.end())
-                    _listeningports.push_back(port);
-                else
-                    _reportError(token.index, "duplicate port");
-            }
-            else
-                _listeningports.push_back(port);
-        }
+        else
+            _listeningports = port;
     }
     else
         _reportError(token.index, "expected number");
@@ -305,14 +259,7 @@ void ServerBlock::parseServerName(t_token &token)
 {
     if (token.type == string)
     {
-        if (!_servername.empty()){
-            if (find(_servername.begin(), _servername.end(), token.value) == _servername.end())
-                _servername.push_back(token.value);
-            else
-                _reportError(token.index ,"duplicate server name");
-        }
-        else
-            _servername.push_back(token.value);
+        _servername = token.value;
     }
     else
         _reportError(token.index, "expected a string");
@@ -516,29 +463,11 @@ std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
     out << BLUE << "Server Block" << RESET << std::endl;
     
     out << CYAN << "Listening Port" << RESET << std::endl;
-    {
-        std::vector<int>::iterator it;
-        std::vector<int> vec = obj.getListeningPortsVector();
-        int i;
-        for (i = 0, it = vec.begin(); it != vec.end(); i++,  it++){
-            out << "Port "<< i << ":  " << *it << std::endl;
-        }
-    }
-    std::cout << "Test: getListeningPortByIndex: index = -1, index = 0" << std::endl;
-    std::cout << "index -1:  " << obj.getListeningPortByIndex(-1) << "   index 0:  " << obj.getListeningPortByIndex(0) << std::endl;
+    out << "Port:  " << obj.getListeningPort() << std::endl;
     
     out << CYAN << "Server Name" << RESET << std::endl;
-    {
-        std::vector<std::string>::iterator it;
-        std::vector<std::string> vec = obj.getServerNameVector();
-        int i;
-        for (i = 0, it = vec.begin(); it != vec.end(); i++,  it++){
-            out << "Port "<< i << ":  " << *it << std::endl;
-        }
-    }
-    std::cout << "Test: getServerNametByIndex: index = -1, index = 0" << std::endl;
-    std::cout << "index -1:  " << obj.getServerNameByIndex(-1) << "   index 0:  " << obj.getServerNameByIndex(0) << std::endl;
-
+    out << "Name:  " << obj.getServerName() << std::endl;
+    
     out << CYAN << "Root Dir" << RESET << std::endl;
     std::string pathRoot = obj.getRootDir();
     out << "Dir:  " << pathRoot << std::endl;

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/27 15:30:13 by lagea            ###   ########.fr       */
+/*   Updated: 2024/12/30 14:01:53 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,7 @@ void ConfigFile::splitServerBlock()
             if(_tokensVec[i + 1].type == openbracket){
                 i += 2;
                 ServerBlock server(_tokensVec, &i, reporter);
+                // Print everything in the server for debugging purpose
                 // std::cout << server << std::endl;
                 _serverlist.push_back(server);
             }
