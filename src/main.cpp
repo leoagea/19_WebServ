@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 18:09:46 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 14:02:13 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,11 @@ int main(int ac, char **av)
     Log log(&config, 0);
     LogReporter reportLog(&log);
     
-    reportLog(ACCESS, INFO, "Hello INFO");
-    reportLog(ACCESS, WARNING, "Hello WARNING");
-    reportLog(ACCESS, ERROR, "Hello ERROR");
-    reportLog(ACCESS, FATAL, "Hello FATAL");
-    reportLog(ERRORS, INFO, "Hello INFO");
+    // reportLog(ACCESS, INFO, "Hello INFO");
+    // reportLog(ACCESS, WARNING, "Hello WARNING");
+    // reportLog(ACCESS, ERROR, "Hello ERROR");
+    // reportLog(ACCESS, FATAL, "Hello FATAL");
+    // reportLog(ERRORS, INFO, "Hello INFO");
     
     // int ports = config.getServerBlockByIndex(0).getListeningPort();
     // TcpServer server(ports);

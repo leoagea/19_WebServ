@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 17:27:33 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 14:01:26 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,16 +268,13 @@ void ServerBlock::parseServerName(t_token &token)
 void ServerBlock::parseRootDir(t_token &token)
 {
     if (token.type == string){
-        if (PathChecking::isAbsolutePath(token.value))
-            if (PathChecking::exist(token.value))
-                if (PathChecking::isDirectory(token.value))
-                    _rootdir = token.value;
-                else
-                    _reportError(token.index, "expected a directory path");
+        if (PathChecking::exist(token.value))
+            if (PathChecking::isDirectory(token.value))
+                _rootdir = token.value;
             else
-                _reportError(token.index, "path does not exist");
+                _reportError(token.index, "expected a directory path");
         else
-            _reportError(token.index, "expected an absolute path");
+            _reportError(token.index, "path does not exist");
     }
     else
         _reportError(token.index, "expected a path");
@@ -293,7 +290,7 @@ void ServerBlock::parseIndex(t_token &token)
         else
             path = _rootdir + "/" + token.value;
 
-        if (PathChecking::isAbsolutePath(path) && PathChecking::exist(path))
+        if (PathChecking::exist(path))
             if (PathChecking::isFile(path))
                 if (PathChecking::getReadPermission(path))
                     _index = path;
@@ -311,7 +308,7 @@ void ServerBlock::parseIndex(t_token &token)
 void ServerBlock::parseAccesLogPath(t_token &token)
 {
     if (token.type == string && isLogExtensionValid(token.value)){
-        std::string path =token.value;
+        std::string path = token.value;
         
         if(!PathChecking::isAbsolutePath(token.value)){
             if (_rootdir[_rootdir.size() - 1] == '/')
