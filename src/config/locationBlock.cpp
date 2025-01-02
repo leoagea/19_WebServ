@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 14:01:07 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 14:07:53 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,19 +177,16 @@ void locationBlock::parseRootDir(t_token &token)
 {
     std::string path = token.value;
     
-    if (PathChecking::isAbsolutePath(path))
-        if (PathChecking::exist(path))
-            if (PathChecking::isDirectory(path))
-                if (path[path.size() - 1] == '/')
-                    _root = path;
-                else
-                    _root = path + "/";
+    if (PathChecking::exist(path))
+        if (PathChecking::isDirectory(path))
+            if (path[path.size() - 1] == '/')
+                _root = path;
             else
-                _reportError(token.index, "is not directory");
+                _root = path + "/";
         else
-            _reportError(token.index, "path does not exist");
+            _reportError(token.index, "is not directory");
     else
-        _reportError(token.index, "path is not an absolute path");
+        _reportError(token.index, "path does not exist");
 }
 
 void locationBlock::parseIndex(t_token &token)
