@@ -1,6 +1,3 @@
 Faire un docker nginx avec le meme fichier de config que nous
     Tester les permissions requises par le directory root
-
-Verif le parsing des location
-
-Gerer les erreurs and print la config avec les messages d erreurs afficher
+Check si les index dans le config sont bien en .html pareil pour les errors pages et les log en .log
