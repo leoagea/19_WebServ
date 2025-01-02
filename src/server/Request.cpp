@@ -5,7 +5,7 @@ Request::Request(std::string& fullRequest)
     //  FIRST LINE PARSING  //
     int i = -1;
 
-    while (fullRequest[++i] != '\r')
+    while (fullRequest[++i] != '\r' && fullRequest.begin() + i != fullRequest.end())
         _start_line.append(1, fullRequest[i]);
     ++i;
 
@@ -14,6 +14,8 @@ Request::Request(std::string& fullRequest)
 
     while (true)
     {
+        if (fullRequest.begin() + i != fullRequest.end())
+            break;
         if (fullRequest[i] != '\r' && fullRequest[i] != '\n')
             count = 0;
 

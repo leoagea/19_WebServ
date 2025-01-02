@@ -2,6 +2,7 @@
 #include "TcpServer.hpp"
 #include "../CGI/CgiHandler.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include <fstream>
 
 const std::string   readpage(std::ifstream &file)
@@ -108,7 +109,7 @@ void    TcpServer::startServer()
 
     while (true)
     {
-        int pollCount = poll(&_pollFds[0], _pollFds.size(), -1);
+        int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
 
         if (pollCount < 0) 
         {
@@ -169,6 +170,7 @@ void    TcpServer::handleClient(int clientFd)
         std::cerr << R << IT << "Client: " << clientFd << " disconnected" << RES << std::endl;
         close(clientFd);
         cleanupClient(clientFd);
+
         return;
     }
 
@@ -187,6 +189,8 @@ void    TcpServer::handleClient(int clientFd)
 
     Request req(bufferStr);
     /* PARSING REQUEST TO RESPONSE */
+    Response res;
+    res.deleteMethod();
     send(clientFd, response.c_str(), response.size(), 0);    
 }
 
@@ -207,9 +211,7 @@ void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
     std::vector<int>::iterator it = serverSockets.begin();
 
     for (; it != serverSockets.end(); ++it) 
-    {
         close(*it);
-    }
 
     exit(1);
 }
