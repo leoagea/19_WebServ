@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:22:52 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:23:41 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 18:02:49 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,29 @@
 # define __STRUCT_H__
 
 #include <string>
+#include <sys/types.h>
+#include "Enum.h"
 
 struct s_info {
-    std::string name;  // nom de l'entrée
-    off_t raw_size;        // taille en octets
-    time_t mtime;      // date de dernière modification (format time_t)
+    std::string name;
+    off_t raw_size; //raw size in bytes
+    time_t mtime;
 	std::string format_size; //formated size into a string
 	std::string format_time; //formated time into a string
 };
+
+typedef struct s_redirect
+{
+    int htppcode;
+    std::string newpath;
+}t_redirect;
+
+typedef struct s_token
+{
+    e_tokenType type;
+    std::string value;
+    unsigned int index;
+    unsigned int line;
+}t_token;
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:37:59 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 17:19:55 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 17:58:44 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,23 @@ enum e_error
     ERROR,
     FATAL
 };
+
+enum e_allowed_methods{
+    GET = 1 << 0,
+    POST = 1 << 1,
+    DELETE = 1 << 2,
+    UPLOAD = 1 << 3
+};
+
+enum e_tokenType
+{
+    keyword,
+    openbracket,
+    closebracket,
+    semicolon,
+    number,
+    string
+};
+
 
 #endif

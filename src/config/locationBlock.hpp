@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/26 18:38:46 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 17:58:27 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,8 @@
 #include "tokenizer.hpp"
 #include "PathChecking.hpp"
 #include "serverBlock.hpp"
-
-enum e_allowed_methods{
-    GET = 1 << 0,
-    POST = 1 << 1,
-    DELETE = 1 << 2,
-    UPLOAD = 1 << 3
-};
-
-typedef struct s_redirect
-{
-    int htppcode;
-    std::string newpath;
-}t_redirect;
+#include "../../inc/Struct.h"
+#include "../../inc/Enum.h"
 
 class ServerBlock;
 

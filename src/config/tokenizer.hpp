@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:32:27 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/27 14:53:07 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/02 18:00:10 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,8 @@
 #include <vector>
 
 #include "../../inc/Color.h"
-
-enum e_tokenType
-{
-    keyword,
-    openbracket,
-    closebracket,
-    semicolon,
-    number,
-    string
-};
-
-typedef struct s_token
-{
-    e_tokenType type;
-    std::string value;
-    unsigned int index;
-    unsigned int line;
-}t_token;
+#include "../../inc/Enum.h"
+#include "../../inc/Struct.h"
 
 class Tokenizer
 {
