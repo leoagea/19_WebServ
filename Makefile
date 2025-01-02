@@ -6,7 +6,7 @@
 #    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2024/12/30 17:21:36 by lagea            ###   ########.fr        #
+#    Updated: 2025/01/02 15:47:25 by lagea            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ SRC 		= 	$(SRC_DIR)/main.cpp \
 				$(SRC_DIR)/config/configFileParser.cpp $(SRC_DIR)/config/serverBlock.cpp $(SRC_DIR)/config/locationBlock.cpp $(SRC_DIR)/config/tokenizer.cpp  $(SRC_DIR)/config/PathChecking.cpp $(SRC_DIR)/config/ErrorReporter.cpp \
 				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/Request.cpp \
 				$(SRC_DIR)/log/Log.cpp $(SRC_DIR)/log/LogReporter.cpp \
+				$(SRC_DIR)/errors/ErrorPageGenerator.cpp 
 				
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
@@ -37,6 +38,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)/config
 	@mkdir -p $(OBJ_DIR)/server
 	@mkdir -p $(OBJ_DIR)/log
+	@mkdir -p $(OBJ_DIR)/errors
 	$(CC) $(CPPFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
 -include $(DEPS)
