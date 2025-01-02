@@ -6,16 +6,22 @@ CgiHandler::~CgiHandler() {}
 
 std::string CgiHandler::execute()
 {
-    int pipeFd[2];
-    if (pipe(pipeFd) < 0) {
+    int     pipeFd[2];
+
+    if (pipe(pipeFd) < 0) 
+    {
         std::cerr << "Pipe creation failed" << std::endl;
         return "";
     }
+
     pid_t pid = fork();
-    if (pid < 0) {
+
+    if (pid < 0) 
+    {
         std::cerr << "Fork failed" << std::endl;
         return "";
     }
+
     if (pid == 0)
     {
         close(pipeFd[0]);
@@ -23,26 +29,33 @@ std::string CgiHandler::execute()
         close(pipeFd[1]);
 
         std::vector<char *> argv;
+
         argv.push_back(const_cast<char *>("/usr/bin/python3"));
         argv.push_back(const_cast<char *>(_scriptPath.c_str()));
         argv.push_back(NULL);
+
         execve("/usr/bin/python3", argv.data(), NULL);
         
         std::cerr << "Execve failed" << std::endl;
         return "";
     }
+
     if (pid > 0)
     {
         close(pipeFd[1]);
-        char buffer[8096];
-        int bytesRead = read(pipeFd[0], buffer, sizeof(buffer) - 1);
+
+        char    buffer[8096];
+        int     bytesRead = read(pipeFd[0], buffer, sizeof(buffer) - 1);
+
         if (bytesRead > 0)
         {
             buffer[bytesRead] = '\0';
-            _scriptOutput = buffer;
+            _scriptOutput     = buffer;
         }
+
         close(pipeFd[0]);
         waitpid(pid, nullptr, 0);
     }
+
     return _scriptOutput;
 }

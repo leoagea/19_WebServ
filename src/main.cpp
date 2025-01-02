@@ -10,33 +10,31 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include <iostream>
-// #include "config/configFileParser.hpp"
-// 
-// int main(int ac, char **av)
-// {
-    // std::string configPath;
-    // 
-    // if(ac == 1)
-        // configPath = DEFAULT_PATH;
-    // else if (ac == 2)
-        // configPath = av[1];
-    // else{
-        // std::cerr << "Error: too many arguments" << std::endl;
-        // return 1;
-    // }
-    // 
-    // ConfigFile config(configPath);
-// }
-
+#include <iostream>
 #include "server/TcpServer.hpp"
+#include "config/configFileParser.hpp"
 
-/* MAIN TEST VICENTE */
+int main(int ac, char **av)
+{
+    std::string configPath;
+    std::vector<int> ports;
+    
+    if(ac == 1)
+        configPath = DEFAULT_PATH;
+    else if (ac == 2)
+        configPath = av[1];
+    else{
+        std::cerr << "Error: too many arguments" << std::endl;
+        return 1;
+    }
+    
+    ConfigFile config(configPath);
 
-int main() {
-    std::vector<int> ports = {8080, 9090, 10101, 2341, 5643, 2135, 9999, 9001, 65000};
+    for(size_t i = 0; i < config.getServerBlockVector().size(); ++i)
+        ports.push_back(config.getServerBlockVector()[i].getListeningPortByIndex(0));
+
     TcpServer server(ports);
     server.startServer();
-    
+
     return 0;
 }

@@ -1,4 +1,4 @@
-#ifndef __CGI_HANDLER__
+#ifndef  __CGI_HANDLER__
 # define __CGI_HANDLER__
 
 # include "../server/Request.hpp"
@@ -18,11 +18,12 @@ class CgiHandler
         CgiHandler(Request &request, std::string &scriptPath);
         ~CgiHandler();
 
-        std::string execute();
+        std::string     execute();
+
     private :
-        std::map<std::string, std::string> _envVar;
-        std::string _scriptPath;
-        std::string _scriptOutput;
+        std::map<std::string, std::string>  _envVar;
+        std::string                         _scriptPath;
+        std::string                         _scriptOutput;
 };
 
 
