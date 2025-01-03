@@ -6,14 +6,16 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:15:59 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 16:24:07 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-Webserv::Webserv(const std::string &configPath) : _config(configPath)
+Webserv::Webserv(const std::string &configPath)
 {
+    ConfigFile config(configPath);
+    _config = config;
 }
 
 Webserv::~Webserv()
@@ -33,6 +35,18 @@ LogReporter Webserv::getLogReporterObject() const
 ErrorPageGnerator Webserv::getErrorPageGenObject() const
 {
     return _generator;
+}
+
+void Webserv::initialiseConfig()
+{
+    try
+    {
+        _config.loadConfFile(); 
+    }
+    catch(const std::exception& e)
+    {
+        throw std::runtime_error(e.what());
+    }
 }
 
 void Webserv::initialiseLogSystem()

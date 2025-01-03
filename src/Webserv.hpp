@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:53:34 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:15:14 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 16:22:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Webserv
         LogReporter getLogReporterObject() const;
         ErrorPageGnerator getErrorPageGenObject() const;
         
+        void initialiseConfig();
         void initialiseLogSystem();
         void initialiseErrorPageGenerator();
 

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:33:23 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 16:27:37 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int ac, char **av)
     Webserv data(configPath);
     try
     {
-        data.getConfigFileObject().loadConfFile();
+        data.initialiseConfig();
     }
     catch(const std::exception& e)
     {
@@ -62,7 +62,7 @@ int main(int ac, char **av)
     //Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
-    // Exemplde deComment utiliser listDirectory
+    // // Exemplde deComment utiliser listDirectory
     // std::string dir = ".";
     // std::vector<s_info> listing;
     // try
@@ -77,7 +77,8 @@ int main(int ac, char **av)
     // for (std::vector<s_info>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
     //     std::cout << it->format_time << " | "
     //             << it->format_size << " | "
-    //     		<< it->name
+    //     		<< it->name << "  |  "
+    //             << it->fullpath
     //             << std::endl;
     // }
 
