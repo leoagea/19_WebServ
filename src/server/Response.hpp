@@ -17,13 +17,16 @@ class Response
         Response();
         ~Response();
 
-        void            deleteMethod();
+        void            m_delete();
+	void		m_post();
+	void		m_get();
 
         int             getMethod();
 
     private :
         const int       _method;
-        const char*    _path;
+        const char*     _path;
+	std::string	_response;
 };
 
 

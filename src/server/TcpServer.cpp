@@ -190,7 +190,7 @@ void    TcpServer::handleClient(int clientFd)
     Request req(bufferStr);
     /* PARSING REQUEST TO RESPONSE */
     Response res;
-    res.deleteMethod();
+    res.m_delete();
     send(clientFd, response.c_str(), response.size(), 0);    
 }
 
