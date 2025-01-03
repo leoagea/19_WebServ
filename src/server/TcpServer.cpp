@@ -190,8 +190,19 @@ void    TcpServer::handleClient(int clientFd)
     Request req(bufferStr);
     /* PARSING REQUEST TO RESPONSE */
     Response res;
-    res.m_delete();
-    send(clientFd, response.c_str(), response.size(), 0);    
+
+    if (req.getMethod() == "GET")
+    {
+        std::cout << GREEN << req.getStartLine() << RESET << std::endl;
+        send(clientFd, response.c_str(), response.size(), 0);
+    }
+    if (req.getMethod() == "DELETE")
+    {
+        res.m_delete();
+        std::cout << GREEN << req.getStartLine() << RESET << std::endl;
+        send(clientFd, response.c_str(), response.size(), 0);
+    }
+    if (req.getMethod() == "POST") {}
 }
 
 void    TcpServer::cleanupClient(int fd)
