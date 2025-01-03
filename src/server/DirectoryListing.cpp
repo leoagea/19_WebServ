@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:51:02 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 16:26:34 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ std::vector<s_info> DirectoryListing::listDirectory(std::string &path)
         if (stat(fullPath.c_str(), &st) == 0) {
             s_info info;
             info.name  = entry->d_name;
+            info.fullpath = fullPath;
             info.raw_size  = st.st_size;
             info.mtime = st.st_mtime;
 			info.format_size = DirectoryListing::formatFileSize(info.raw_size);
