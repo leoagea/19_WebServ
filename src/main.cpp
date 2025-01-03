@@ -23,7 +23,8 @@
 
 int main(int ac, char **av)
 {
-    std::string configPath;
+    std::string         configPath;
+    std::vector<int>    ports;
     
     if(ac == 1)
         configPath = DEFAULT_PATH;
@@ -87,6 +88,12 @@ int main(int ac, char **av)
     // int ports = config.getServerBlockByIndex(0).getListeningPort();
     // TcpServer server(ports);
     // server.startServer();
+
+    for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
+        ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
+
+    TcpServer   server(ports);
+    server.startServer();
 
     return 0;
 }
