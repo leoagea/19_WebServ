@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:27:37 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 17:01:30 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,11 +83,6 @@ int main(int ac, char **av)
     //             << std::endl;
     // }
 
-
-    
-    // int ports = config.getServerBlockByIndex(0).getListeningPort();
-    // TcpServer server(ports);
-    // server.startServer();
 
     for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
         ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
