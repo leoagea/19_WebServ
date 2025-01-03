@@ -16,10 +16,10 @@ private:
     std::string _contentType;
     std::string _contentLength;
     bool _keepAlive;
-    std::string _method;                     // Méthode HTTP (GET, POST, DELETE)
+    std::string _method;                     // méthode HTTP (GET, POST, DELETE)
     std::string _url;                        // à voir comment setup
-    std::string _httpVersion;                // Version HTTP (HTTP/1.1, HTTP/2, etc.)
-    std::map<std::string, std::string> _headers; // En-têtes HTTP
+    std::string _httpVersion;                // Version HTTP (HTTP/1.1, HTTP/2, etc.)? askip il faut
+    std::map<std::string, std::string> _headers;
 
 public:
     Response();
