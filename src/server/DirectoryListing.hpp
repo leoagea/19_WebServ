@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:21:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:38:35 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 19:07:50 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ namespace DirectoryListing
 {
     std::vector<s_info> listDirectory(std::string &path);
     std::string formatFileSize(off_t bytes);
+    std::string generateDirectoryListingHTML(const std::string &directoryName, const std::vector<s_info> &files);
 }
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:26:34 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 19:08:08 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,82 @@ std::string DirectoryListing::formatFileSize(off_t bytes)
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(1) << size << " " << units[i];
     return oss.str();
+}
+
+// Return HTML page into a string
+std::string DirectoryListing::generateDirectoryListingHTML(const std::string &directoryName, const std::vector<s_info> &files)
+{
+    std::ostringstream html;
+
+    html << "<!DOCTYPE html>\n"
+         << "<html lang=\"fr\">\n"
+         << "<head>\n"
+         << "  <meta charset=\"utf-8\">\n"
+         << "  <title>Index of " << directoryName << "</title>\n"
+         << "  <style>\n"
+         << "    body {\n"
+         << "      font-family: Arial, sans-serif;\n"
+         << "      background-color: #f8f8f8;\n"
+         << "      color: #333;\n"
+         << "      margin: 0;\n"
+         << "      padding: 20px;\n"
+         << "    }\n"
+         << "    h1 {\n"
+         << "      background: #2c3e50;\n"
+         << "      color: #ecf0f1;\n"
+         << "      padding: 15px;\n"
+         << "      margin-top: 0;\n"
+         << "      border-radius: 4px;\n"
+         << "    }\n"
+         << "    table {\n"
+         << "      width: 100%;\n"
+         << "      max-width: 960px;\n"
+         << "      border-collapse: collapse;\n"
+         << "      margin: 20px auto;\n"
+         << "      box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n"
+         << "    }\n"
+         << "    th, td {\n"
+         << "      padding: 12px 15px;\n"
+         << "      border-bottom: 1px solid #ccc;\n"
+         << "      text-align: left;\n"
+         << "    }\n"
+         << "    th {\n"
+         << "      background: #e74c3c;\n"
+         << "      color: #fff;\n"
+         << "      font-weight: normal;\n"
+         << "    }\n"
+         << "    tr:nth-child(even) {\n"
+         << "      background: #fafafa;\n"
+         << "    }\n"
+         << "    tr:hover {\n"
+         << "      background: #f1f1f1;\n"
+         << "    }\n"
+         << "  </style>\n"
+         << "</head>\n"
+         << "<body>\n"
+         << "  <h1>Index of " << directoryName << "</h1>\n"
+         << "  <table>\n"
+         << "    <thead>\n"
+         << "      <tr>\n"
+         << "        <th>Nom</th>\n"
+         << "        <th>Taille</th>\n"
+         << "        <th>Dernière modification</th>\n"
+         << "      </tr>\n"
+         << "    </thead>\n"
+         << "    <tbody>\n";
+
+    for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it) {
+        html << "    <tr>\n"
+             << "      <td>" << it->name << "</td>\n"
+             << "      <td>" << it->format_size << "</td>\n"
+             << "      <td>" << it->format_time << "</td>\n"
+             << "    </tr>\n";
+    }
+
+    html << "    </tbody>\n"
+         << "  </table>\n"
+         << "</body>\n"
+         << "</html>\n";
+
+    return html.str();
 }
