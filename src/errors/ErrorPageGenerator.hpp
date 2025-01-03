@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 14:34:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 15:36:37 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:07:48 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 class ErrorPageGnerator
 {
     public:
+        ErrorPageGnerator();
         ErrorPageGnerator(ServerBlock &);
         ~ErrorPageGnerator();
 

@@ -6,11 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:55:38 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 18:07:42 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:05:44 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Log.hpp"
+
+Log::Log()
+{
+}
 
 Log::Log(ConfigFile *parser, int server) : _server(parser->getServerBlockByIndex(server)) 
 {

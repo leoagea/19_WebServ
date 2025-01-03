@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 13:47:32 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:06:21 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class locationBlock;
 class ServerBlock 
 {
     public:
+        ServerBlock();
         ServerBlock(std::vector<t_token> &, int *, const ErrorReporter &);
         ~ServerBlock();
 

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:31:18 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 17:00:55 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:07:24 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 class LogReporter
 {
     public:
+        LogReporter();
         LogReporter(Log *log);
         ~LogReporter();
         

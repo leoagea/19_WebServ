@@ -6,11 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 14:01:53 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:05:10 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configFileParser.hpp"
+
+ConfigFile::ConfigFile()
+{
+}
 
 ConfigFile::ConfigFile(std::string path) : _filepath(path) ,_tokenizerString("")
 {

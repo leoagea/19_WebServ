@@ -6,11 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 14:48:53 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 15:50:58 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:08:01 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ErrorPageGenerator.hpp"
+
+ErrorPageGnerator::ErrorPageGnerator()
+{
+}
 
 ErrorPageGnerator::ErrorPageGnerator(ServerBlock &server)
 {

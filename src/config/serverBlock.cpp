@@ -6,11 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 14:01:26 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:06:33 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
+
+ServerBlock::ServerBlock()
+{
+}
 
 ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2), _reportError(reporter)
 {

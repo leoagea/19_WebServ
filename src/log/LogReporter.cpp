@@ -6,11 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:56:21 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/30 17:21:50 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:07:37 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "LogReporter.hpp"
+
+LogReporter::LogReporter()
+{
+}
 
 LogReporter::LogReporter(Log *log) : _log(log)
 {
