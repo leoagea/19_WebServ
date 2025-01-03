@@ -5,6 +5,10 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 
 class Response
@@ -23,6 +27,7 @@ private:
 
 public:
     Response();
+	void logRequest(const std::string& clientIP, const std::string& requestLine, const std::string& statusCode);
 	void parseRequest(const std::string &rawRequest);
     void setStatusCode(int code);
     void setBody(const std::string &body);

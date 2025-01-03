@@ -42,6 +42,7 @@ class TcpServer
 
 		std::string resolvePath(const std::string &requestedPath);
 		std::string extractRequestedPath(const std::string &request);
+		bool fileExists(const std::string& path);
         
     private :
         static const size_t _maxPollFds = 4096;

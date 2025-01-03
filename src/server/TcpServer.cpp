@@ -170,6 +170,10 @@ std::string TcpServer::resolvePath(const std::string &requestedPath)
 }
 
 
+bool fileExists(const std::string& path) {
+    return access(path.c_str(), F_OK) != -1;
+}
+
 void TcpServer::handleClient(int clientFd)
 {
     char buffer[REQUEST_HTTP_SIZE];
@@ -191,6 +195,11 @@ void TcpServer::handleClient(int clientFd)
     response.get(fullPath);
 
     std::string fullResponse = response.generateResponse();
+
+    // std::string clientIP =;
+    // std::string requestLine = "GET " + requestedPath + " HTTP/1.1";
+    // std::string statusCode = ;
+    //response.logRequest(clientIP, requestLine, statusCode);  // Log dans le format requis
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 
     std::cout << "Request for: " << requestedPath << " -> " << fullPath << std::endl;

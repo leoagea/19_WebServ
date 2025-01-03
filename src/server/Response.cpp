@@ -158,3 +158,17 @@ void Response::get(const std::string &filePath)
         setContentType("text/html; charset=UTF-8");
     }
 }
+//pour print comme serv python si on veut, faut juste rajouter le clienp et status dans tcp
+void Response::logRequest(const std::string& clientIP, const std::string& requestLine, const std::string& statusCode) {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm tm = *std::localtime(&now_time);
+
+
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%d/%b/%Y %H:%M:%S");
+
+    std::string dateTime = oss.str();
+    std::cout << clientIP << " - - [" << dateTime << "] \"" << requestLine << "\" " << statusCode << " -" << std::endl;
+}
