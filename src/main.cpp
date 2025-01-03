@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:41:35 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/03 15:33:23 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "log/Log.hpp"
 #include "log/LogReporter.hpp"
 #include "errors/ErrorPageGenerator.hpp"
+#include "Webserv.hpp"
 #include "server/DirectoryListing.hpp"
 #include "../inc/Enum.h"
 #include "../inc/Struct.h"
@@ -33,10 +34,10 @@ int main(int ac, char **av)
         return 1;
     }
     
-    ConfigFile config(configPath);
+    Webserv data(configPath);
     try
     {
-        config.loadConfFile();
+        data.getConfigFileObject().loadConfFile();
     }
     catch(const std::exception& e)
     {
@@ -44,42 +45,41 @@ int main(int ac, char **av)
         return 1;
     }
 
-    if (config.isParsingFailed()){
-        config.printErrors();
+    if (data.getConfigFileObject().isParsingFailed()){
+        data.getConfigFileObject().printErrors();
         return 1;
     }
 
-    Log log(&config, 0);
-    LogReporter reportLog(&log);
+    data.initialiseLogSystem();
 
-        // reportLog(ACCESS, INFO, "Hello INFO");
-    // reportLog(ACCESS, WARNING, "Hello WARNING");
-    // reportLog(ACCESS, ERROR, "Hello ERROR");
-    // reportLog(ACCESS, FATAL, "Hello FATAL");
-    // reportLog(ERRORS, INFO, "Hello INFO");
+    // Exemple de comment utiliser les system de log
+    // data.getLogReporterObject()(ACCESS, INFO, "Hello INFO");
+    // data.getLogReporterObject()(ACCESS, WARNING, "Hello WARNING");
+    // data.getLogReporterObject()(ACCESS, ERROR, "Hello ERROR");
+    // data.getLogReporterObject()(ACCESS, FATAL, "Hello FATAL");
+    // data.getLogReporterObject()(ERRORS, INFO, "Hello INFO");
     
-    ServerBlock server = config.getServerBlockByIndex(0);
-    ErrorPageGnerator generator(server);
+    //Exemple pour monter comment generer une page d erreur
+    // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
-    // std::cout << generator.generateErrorPageCode(403) << std::endl;
+    // Exemplde deComment utiliser listDirectory
+    // std::string dir = ".";
+    // std::vector<s_info> listing;
+    // try
+    // {
+    //     listing = DirectoryListing::listDirectory(dir);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    // }
     
-    std::string dir = ".";
-    std::vector<s_info> listing;
-    try
-    {
-        listing = DirectoryListing::listDirectory(dir);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
-    
-    for (std::vector<s_info>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
-        std::cout << it->format_time << " | "
-                << it->format_size << " | "
-        		<< it->name
-                << std::endl;
-    }
+    // for (std::vector<s_info>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
+    //     std::cout << it->format_time << " | "
+    //             << it->format_size << " | "
+    //     		<< it->name
+    //             << std::endl;
+    // }
 
 
     
