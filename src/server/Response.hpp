@@ -1,7 +1,37 @@
-#ifndef __REPSONSE__
-# define __RESPONSE__
+// Response.hpp
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
+
+#include <string>
+#include <fstream>
+#include <map>
 
 
+class Response
+{
+private:
+    std::string _statusCode;
+    std::string _statusMessage;
+    std::string _body;
+    std::string _contentType;
+    std::string _contentLength;
+    bool _keepAlive;
+    std::string _method;                     // Méthode HTTP (GET, POST, DELETE)
+    std::string _url;                        // à voir comment setup
+    std::string _httpVersion;                // Version HTTP (HTTP/1.1, HTTP/2, etc.)
+    std::map<std::string, std::string> _headers; // En-têtes HTTP
 
+public:
+    Response();
+	void parseRequest(const std::string &rawRequest);
+    void setStatusCode(int code);
+    void setBody(const std::string &body);
+    void setContentType(const std::string &type);
+    void setKeepAlive(bool keepAlive);
+    std::string generateResponse();
+	std::string extractHeaders(const std::string &fullResponse);
+    void get(const std::string &filePath);
+    static std::string readFile(const std::string &filePath);
+};
 
 #endif

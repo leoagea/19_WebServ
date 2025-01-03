@@ -143,6 +143,33 @@ void TcpServer::acceptNewClient(int serverSocket)
     _pollFds.push_back(clientPollFd);
 }
 
+//à fusionner avec le parsing, request et path à modif
+std::string TcpServer::extractRequestedPath(const std::string &request)
+{
+    size_t methodEnd = request.find(' ');
+    if (methodEnd == std::string::npos)
+        return "";
+
+    size_t pathStart = methodEnd + 1;
+    size_t pathEnd = request.find(' ', pathStart);
+    if (pathEnd == std::string::npos)
+        return "";
+
+    return request.substr(pathStart, pathEnd - pathStart);
+}
+
+
+//implémenter le rep racine
+std::string TcpServer::resolvePath(const std::string &requestedPath)
+{
+    const std::string rootDirectory = "var/www/html";
+    if (requestedPath.empty() || requestedPath == "/")
+        return rootDirectory + "/index.html";
+
+    return rootDirectory + requestedPath;
+}
+
+
 void TcpServer::handleClient(int clientFd)
 {
     char buffer[REQUEST_HTTP_SIZE];
@@ -154,24 +181,51 @@ void TcpServer::handleClient(int clientFd)
         return;
     }
     buffer[bytesRead] = '\0';
-    std::string bufferStr = buffer;           /* REQUETE HTML  */
 
-    std::ifstream file("var/www/html/test.html");                     // HARDCODED RESPONSE   
-    std::string htmlPage = readpage(file);                            // HARDCODED RESPONSE
+    std::string bufferStr = buffer;
+    std::string requestedPath = extractRequestedPath(bufferStr);
 
-    std::string response =  "HTTP/1.1 200 OK\r\n"                     // HARDCODED RESPONSE
-                            "Content-Length: 2013\r\n"                // HARDCODED RESPONSE
-                            "Connection: keep-alive\r\n"              // HARDCODED RESPONSE
-                            "Keep-Alive: timeout=60\r\n"              // HARDCODED RESPONSE
-                            "\r\n";                                   // HARDCODED RESPONSE
-    response += htmlPage;                                             // HARDCODED RESPONSE    
-    bufferStr += htmlPage;                                            // HARDCODED RESPONSE
+    std::string fullPath = resolvePath(requestedPath);
+    Response response;
+	//choper le path et verif, à modifier quand on ajoute les autres requests
+    response.get(fullPath);
 
+    std::string fullResponse = response.generateResponse();
+    send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 
-    Request req(bufferStr);
-    /* PARSING REQUEST TO RESPONSE */
-    send(clientFd, response.c_str(), response.size(), 0);    
+    std::cout << "Request for: " << requestedPath << " -> " << fullPath << std::endl;
 }
+
+
+// void TcpServer::handleClient(int clientFd)
+// {
+//     char buffer[REQUEST_HTTP_SIZE];
+//     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+//     if (bytesRead == 0) {
+//         std::cerr << R << IT << "Client: " << clientFd << " disconnected" << RES << std::endl;
+//         close(clientFd);
+//         cleanupClient(clientFd);
+//         return;
+//     }
+//     buffer[bytesRead] = '\0';
+//     std::string bufferStr = buffer;           /* REQUETE HTML  */
+
+//     std::ifstream file("var/www/html/test.html");                     // HARDCODED RESPONSE   
+//     std::string htmlPage = readpage(file);                            // HARDCODED RESPONSE
+
+//     std::string response =  "HTTP/1.1 200 OK\r\n"                     // HARDCODED RESPONSE
+//                             "Content-Length: 2013\r\n"                // HARDCODED RESPONSE
+//                             "Connection: keep-alive\r\n"              // HARDCODED RESPONSE
+//                             "Keep-Alive: timeout=60\r\n"              // HARDCODED RESPONSE
+//                             "\r\n";                                   // HARDCODED RESPONSE
+//     response += htmlPage;                                             // HARDCODED RESPONSE    
+//     bufferStr += htmlPage;                                            // HARDCODED RESPONSE
+
+
+//     Request req(bufferStr);
+//     /* PARSING REQUEST TO RESPONSE */
+//     send(clientFd, response.c_str(), response.size(), 0);    
+// }
 
 void TcpServer::cleanupClient(int fd)
 {

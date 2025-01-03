@@ -14,6 +14,8 @@
 # include <cctype>
 # include <fcntl.h>
 # include "../../inc/Color.h"
+#include "Response.hpp"
+
 
 # define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"
@@ -37,12 +39,15 @@ class TcpServer
         std::vector<pollfd> getPollFds();
         sockaddr_in getServerAddress();
         uint16_t getSocketPort(int socket);
+
+		std::string resolvePath(const std::string &requestedPath);
+		std::string extractRequestedPath(const std::string &request);
         
     private :
         static const size_t _maxPollFds = 4096;
-        std::vector<int> _serverSockets;    // Fd's from server socket only
+        std::vector<int> _serverSockets;
         std::vector<int> _ports;
-        std::vector<pollfd> _pollFds;       // Basically all fd's server and client
+        std::vector<pollfd> _pollFds;
         sockaddr_in _serverAddress;
 
         void setupSocket();
