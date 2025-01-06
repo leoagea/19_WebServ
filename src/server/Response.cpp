@@ -6,6 +6,7 @@ Response::~Response() {}
 
 void	 Response::m_delete()
 {
+    std::cout << _path << std::endl;
     if (remove(_path) < 0)
     {
         std::cerr << "Failed to remove file with delete method" << std::endl;

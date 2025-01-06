@@ -12,6 +12,7 @@
 # include <poll.h>
 # include <algorithm>
 # include <cctype>
+# include <ctime>
 # include <fcntl.h>
 # include "../../inc/Color.h"
 
@@ -37,6 +38,7 @@ class TcpServer
         std::vector<pollfd>     getPollFds();
         sockaddr_in             getServerAddress();
         uint16_t                getSocketPort(int socket);
+	    void			        generateLog(std::string color, const std::string& message, const char *logType);
         
     private :
         static const size_t     _maxPollFds = 4096;
@@ -51,7 +53,6 @@ class TcpServer
         void                    handleClient(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
-	void			generateLog(char *color, std::string& message);
 };
 
 #endif

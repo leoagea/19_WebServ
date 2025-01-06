@@ -193,16 +193,16 @@ void    TcpServer::handleClient(int clientFd)
 
     if (req.getMethod() == "GET")
     {
-        std::cout << GREEN << req.getStartLine() << RESET << std::endl;
+        generateLog(BBLUE, req.getStartLine(), "INFO");
         send(clientFd, response.c_str(), response.size(), 0);
     }
     if (req.getMethod() == "DELETE")
     {
         res.m_delete();
-        std::cout << GREEN << req.getStartLine() << RESET << std::endl;
+        generateLog(BBLUE, req.getStartLine(), "INFO");
         send(clientFd, response.c_str(), response.size(), 0);
     }
-    if (req.getMethod() == "POST") {}
+    if (req.getMethod() == "POST") { generateLog(BBLUE, req.getStartLine(), "INFO"); }
 }
 
 void    TcpServer::cleanupClient(int fd)
@@ -239,6 +239,38 @@ uint16_t    TcpServer::getSocketPort(int socket)
     }
 
     return htons(sin.sin_port);
+}
+	
+void	TcpServer::generateLog(std::string color, const std::string& message, const char *logType)
+{
+    std::time_t now = std::time(nullptr);
+    std::tm* local_time = std::localtime(&now);
+
+    std::cout << color << "[" << logType << "] ";
+    std::cout << (local_time->tm_year + 1900) << "-";
+
+    if (local_time->tm_mon + 1 < 10)  
+        std::cout << '0' << (local_time->tm_mon + 1) << "-";
+    else
+        std::cout << (local_time->tm_mon + 1) << "-";
+    if (local_time->tm_mday < 10)
+        std::cout << '0' << local_time->tm_mday << ' ';
+    else
+        std::cout << local_time->tm_mday << ' ';
+    if (local_time->tm_hour < 10)
+        std::cout << '0' << local_time->tm_hour << ":";
+    else
+        std::cout << local_time->tm_hour << ":";
+    if (local_time->tm_min < 10)
+        std::cout << '0' << local_time->tm_min << ":";
+    else
+        std::cout << local_time->tm_min << ":";
+    if (local_time->tm_sec < 10)
+        std::cout << '0' << local_time->tm_sec;
+    else
+        std::cout << local_time->tm_sec;
+
+    std::cout << " => "<< message << RES << std::endl;	
 }
 
 std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
