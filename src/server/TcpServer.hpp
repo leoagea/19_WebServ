@@ -51,6 +51,7 @@ class TcpServer
         void                    handleClient(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
+	void			generateLog(char *color, std::string& message);
 };
 
 #endif
