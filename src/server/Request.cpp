@@ -5,7 +5,7 @@ Request::Request(std::string& fullRequest) : _empty("\r\n")
     //  FIRST LINE PARSING  //
     int i = -1;
 
-    while (fullRequest[++i] != '\r' && fullRequest.begin() + i != fullRequest.end())
+    while (fullRequest[++i] != '\r')
         _start_line.append(1, fullRequest[i]);
     ++i;
 
@@ -31,6 +31,19 @@ Request::Request(std::string& fullRequest) : _empty("\r\n")
 }
 
 Request::~Request() {}
+
+std::string Request::getMethod()
+{
+    int i = 0;
+    std::string str;
+
+    while (_start_line[i] != ' ')
+    {
+        str.append(1, _start_line[i]);
+        i++;
+    }
+    return str;
+}
 
 std::string Request::getStartLine() { return _start_line; }
 

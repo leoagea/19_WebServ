@@ -13,6 +13,7 @@ class Request
         std::string     getHeader();
         std::string     getBody();
 
+        std::string     getMethod();
     private :
         std::string _start_line;
         std::string _header;

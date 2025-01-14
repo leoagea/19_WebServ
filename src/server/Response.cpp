@@ -6,6 +6,7 @@ Response::~Response() {}
 
 void	 Response::m_delete()
 {
+    std::cout << _path << std::endl;
     if (remove(_path) < 0)
     {
         std::cerr << "Failed to remove file with delete method" << std::endl;
@@ -19,16 +20,18 @@ void	 Response::m_delete()
     _response = "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/plain\r\n"
                 "Content-Length: 19\r\n"
+                "Connection: keep-alive\r\n"
+                "Keep-Alive: timeout=60\r\n"
                 "\r\n"
                 "File deleted successfully";
 }
 
-void	Response::m_post()
-{	
-	if (open(const_cast<char *>(_path), O_CREAT, 0777) < 0)
-	{
+// void	Response::m_post()
+// {	
+// 	if (open(const_cast<char *>(_path), O_CREAT, 0777) < 0)
+// 	{
 
-	}		
-}
+// 	}		
+// }
 
 int	Response::getMethod() { return _method; }

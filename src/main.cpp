@@ -85,11 +85,11 @@ int main(int ac, char **av)
     // }
 
 
-    // for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
-    //     ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
+    for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
+        ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
 
-    // TcpServer   server(ports);
-    // server.startServer();
+    TcpServer   server(ports);
+    server.startServer();
 
     return 0;
 }
