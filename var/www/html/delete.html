@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supprimer une Voiture</title>
+    <title>Supprimer un Fichier</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,13 +52,12 @@
 </head>
 <body>
     <header>
-        <h1>Supprimer une Voiture</h1>
+        <h1>Supprimer un Fichier</h1>
     </header>
     <div class="container">
-        <form action="/delete.html" method="POST">
-            <input type="hidden" name="_method" value="DELETE">
-            <label for="car-id">ID de la voiture à supprimer :</label>
-            <input type="text" id="car-id" name="car-id" required>
+        <form action="/delete_file" method="POST" enctype="multipart/form-data">
+            <label for="file-to-delete">Fichier à supprimer :</label>
+            <input type="file" id="file-to-delete" name="file-to-delete" required>
 
             <button type="submit" class="button">Supprimer</button>
         </form>

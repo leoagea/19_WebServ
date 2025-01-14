@@ -1,0 +1,18 @@
+Pour les messages d erreur:
+    quuand une erreur arrive, on enregiste l index du token auquel l erreur survient dans une map<index, msg erreur>
+    print a traves ma liste de tokens tout le fichier de config
+    regarde a chaque ligne si une erreur est dans la map pour l index du token
+    si une erreur est la on la print a cote de la ligne du fichier de config
+
+
+Fermer les fichiers d access_log et de error_log avant de quitter le prgramme si une erreur est detecte dans le parsing
+
+
+Pour les erreurs : 
+    creer une map d erreurs et une methode reportError dans configfile pour inserer une erreur dans la map
+    creer une classe ErrorReporter qui prend un objet configfile en private puis on overload l operator () en appelant configfile->reportError
+    dans les classes serverblock et location on passe en parametre un object errorreporter qu on assigne a un objet errorreporter en private
+    puis quand une erreur arrive on call l overload() errorreporter
+
+
+-----------------------------32485833633178595744233378214--
