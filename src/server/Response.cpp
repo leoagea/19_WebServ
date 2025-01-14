@@ -87,7 +87,8 @@ std::string Response::generateResponse()
     response += "HTTP/1.1 " + _statusCode + " " + _statusMessage + "\r\n";
     response += "Content-Type: " + _contentType + "\r\n";
     response += "Content-Length: " + _contentLength + "\r\n";
-    response += "Connection: " + std::string(_keepAlive ? "keep-alive" : "close") + "\r\n";
+    response += "Connection: keep-alive\r\n";
+    response += "Keep-Alive: timeout=75\r\n";
     response += "\r\n";
     response += _body;
 

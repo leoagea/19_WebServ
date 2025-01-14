@@ -23,7 +23,7 @@ TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
 {
     setupSocket();
 
-    std::cout << G << IT << "Server initialized on port(s): ";
+    std::cout << IT << "Server initialized on port(s): ";
 
     for (size_t i = 0; i < _ports.size(); ++i) 
     {
@@ -31,7 +31,7 @@ TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
         if (i < _ports.size() - 1)
             std::cout << ", ";
     }
-    std::cout << RES << std::endl;
+    std::cout << RES << "\n" << std::endl;
 }
 
 TcpServer::~TcpServer()
@@ -105,8 +105,7 @@ void    TcpServer::makeNonBlocking(int socket)
 
 void    TcpServer::startServer()
 {
-    std::cout << B << IT << "Server is running...\n" << RES << std::endl;
-
+    TcpServer::generateLog(BLUE, "Server is running...", "INFO");
     while (true)
     {
         int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
@@ -148,7 +147,7 @@ void    TcpServer::acceptNewClient(int serverSocket)
         std::cerr << R << IT << "Accept failed" << RES << std::endl;
         return;
     }
-    std::cout << G << IT << "New client connected on file descriptor " << clientFd << RES << std::endl;
+    TcpServer::generateLog(BLUE, "New client connected", "INFO");
 
     makeNonBlocking(clientFd);
 
@@ -196,7 +195,8 @@ void TcpServer::handleClient(int clientFd) {
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
 
     if (bytesRead <= 0) {
-        std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
+        TcpServer::generateLog(BLUE, "A client has disconnected", "INFO");
+        // std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
         close(clientFd);
         cleanupClient(clientFd);
 
@@ -208,7 +208,6 @@ void TcpServer::handleClient(int clientFd) {
 
     Response response;
     if (bufferStr.find("POST") == 0) {
-        // Extraire le corps de la requête
         size_t headerEnd = bufferStr.find("\r\n\r\n");
         if (headerEnd != std::string::npos) {
             std::string body = bufferStr.substr(headerEnd + 4);
@@ -229,41 +228,9 @@ void TcpServer::handleClient(int clientFd) {
     }
 
     std::string fullResponse = response.generateResponse();
+
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
-
-
-
-// void TcpServer::handleClient(int clientFd) {
-//     char buffer[REQUEST_HTTP_SIZE];
-//     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-//     if (bytesRead <= 0) {
-//         std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
-//         close(clientFd);
-//         cleanupClient(clientFd);
-//         return;
-//     }
-
-//     buffer[bytesRead] = '\0';
-//     std::string bufferStr = buffer;
-//     Response response;
-//     response.parseRequest(bufferStr);
-
-//     // à changer avec le parsing de leo
-//     if (1){
-//         std::string requestedPath = extractRequestedPath(bufferStr);
-//         std::string fullPath = resolvePath(requestedPath);
-
-//         response.get(fullPath);
-//     }
-//     else {
-//         response.setStatusCode(405); // Method Not Allowed
-//         response.setBody("<h1>405 Method Not Allowed</h1>");
-//     }
-//     std::string fullResponse = response.generateResponse();
-//     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
-// }
-
 
 void TcpServer::cleanupClient(int fd)
 {
