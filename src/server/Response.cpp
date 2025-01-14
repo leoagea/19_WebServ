@@ -64,47 +64,46 @@ std::string Response::generateResponse()
     return response;
 }
 
-//post
-void Response::parseRequest(const std::string &rawRequest)
-{
-    std::istringstream stream(rawRequest);
-    std::string line;
-	//lecture des headers
-    if (std::getline(stream, line))
-    {
-        std::istringstream lineStream(line);
-        lineStream >> _method >> _url >> _httpVersion;
-    }
-	//entete http
-    while (std::getline(stream, line))
-    {
-        if (line == "\r" || line.empty())
-            break;
+// void Response::parseRequest(const std::string &rawRequest)
+// {
+//     std::istringstream stream(rawRequest);
+//     std::string line;
+// 	//lecture des headers
+//     if (std::getline(stream, line))
+//     {
+//         std::istringstream lineStream(line);
+//         lineStream >> _method >> _url >> _httpVersion;
+//     }
+// 	//entete http
+//     while (std::getline(stream, line))
+//     {
+//         if (line == "\r" || line.empty())
+//             break;
 
-        // Extraction la clé + value
-        size_t colonPos = line.find(':');
-        if (colonPos != std::string::npos)
-        {
-            std::string key = line.substr(0, colonPos);
-            std::string value = line.substr(colonPos + 1);
+//         // Extraction la clé + value
+//         size_t colonPos = line.find(':');
+//         if (colonPos != std::string::npos)
+//         {
+//             std::string key = line.substr(0, colonPos);
+//             std::string value = line.substr(colonPos + 1);
 
-            // clear les espaces
-            key.erase(0, key.find_first_not_of(" \t"));
-            key.erase(key.find_last_not_of(" \t") + 1);
-            value.erase(0, value.find_first_not_of(" \t"));
-            value.erase(value.find_last_not_of(" \t") + 1);
+//             // clear les espaces
+//             key.erase(0, key.find_first_not_of(" \t"));
+//             key.erase(key.find_last_not_of(" \t") + 1);
+//             value.erase(0, value.find_first_not_of(" \t"));
+//             value.erase(value.find_last_not_of(" \t") + 1);
 
-            _headers[key] = value;
-        }
-    }
-    // Lire le corps de la requête s'il exitse?
-    // std::string body;
-    // while (std::getline(stream, line))
-    //     body += line + "\n";
-    // if (!body.empty())
-    //     _body = body;
-    // 
-}
+//             _headers[key] = value;
+//         }
+//     }
+//     // Lire le corps de la requête s'il exitse?
+//     // std::string body;
+//     // while (std::getline(stream, line))
+//     //     body += line + "\n";
+//     // if (!body.empty())
+//     //     _body = body;
+//     // 
+// }
 
 //extract pour print que le headers (check)
 std::string Response::extractHeaders(const std::string &fullResponse)
@@ -153,11 +152,107 @@ void Response::get(const std::string &filePath)
     }
     else
     {
-        setBody("<h1>404 Not Found</h1>");
+        setBody("<h1>404 Not Fo8und</h1>");
         setStatusCode(404);
         setContentType("text/html; charset=UTF-8");
     }
 }
+
+bool Response::isDirectoryWritable(const std::string& directory) {
+    struct stat dirInfo;
+    if (stat(directory.c_str(), &dirInfo) != 0 || !S_ISDIR(dirInfo.st_mode)) {
+        return false;
+    }
+    return access(directory.c_str(), W_OK) == 0;
+}
+
+
+std::string Response::extractBoundary(const std::string& requestData) {
+    size_t pos = requestData.find("boundary=");
+    if (pos == std::string::npos) {
+        return "";
+    }
+    size_t endPos = requestData.find("\r\n", pos);
+    return "--" + requestData.substr(pos + 9, endPos - (pos + 9));
+}
+
+
+bool Response::extractFileData(const std::string& requestData, const std::string& boundary, std::string& filename, std::string& fileContent) {
+    size_t boundaryPos = requestData.find(boundary);
+    if (boundaryPos == std::string::npos) {
+        return false;
+    }
+
+    size_t fileHeaderPos = requestData.find("\r\n\r\n", boundaryPos);
+    if (fileHeaderPos == std::string::npos) {
+        return false;
+    }
+    size_t fileStartPos = fileHeaderPos + 4;
+
+    size_t fileEndPos = requestData.find(boundary, fileStartPos);
+    if (fileEndPos == std::string::npos) {
+        return false;
+    }
+
+    // Extraction des informations d'en-tête du fichier
+    size_t filenamePos = requestData.find("filename=\"", boundaryPos);
+    if (filenamePos == std::string::npos) {
+        return false;
+    }
+    size_t filenameStart = filenamePos + 10;
+    size_t filenameEnd = requestData.find("\"", filenameStart);
+    if (filenameEnd == std::string::npos) {
+        return false;
+    }
+    filename = requestData.substr(filenameStart, filenameEnd - filenameStart);
+
+    // Extraction du contenu du fichier
+    fileContent = requestData.substr(fileStartPos, fileEndPos - fileStartPos - 2);
+    return true;
+}
+
+
+void Response::post(const std::string &requestData)
+{
+    std::string uploadFolder = "./uploadFolder";
+    if (!isDirectoryWritable(uploadFolder))
+    {
+        setStatusCode(500);
+        setBody("<h1>500 Internal Server Error</h1><p>Le répertoire de sauvegarde n'est pas accessible.</p>");
+        return;
+    }
+    std::string boundary = extractBoundary(requestData);
+    std::string filename, fileContent;
+    if (!extractFileData(requestData, boundary, filename, fileContent))
+    {
+        setStatusCode(400);
+        setBody("<h1>400 Bad Request</h1><p>Échec lors de l'extraction des données du fichier.</p>");
+        return;
+    }
+    size_t dotPos = filename.find_last_of('.');
+    if (dotPos == std::string::npos || filename.substr(dotPos) != ".txt")
+    {
+        setStatusCode(400);
+        setBody("<h1>400 Bad Request</h1><p>Seuls les fichiers texte (.txt) sont autorisés.</p>");
+        return;
+    }
+    std::string filePath = uploadFolder + "/" + filename;
+    std::ofstream outputFile(filePath, std::ios::binary);
+    if (!outputFile.is_open())
+    {
+        setStatusCode(500);
+        setBody("<h1>500 Internal Server Error</h1><p>Impossible de sauvegarder le fichier.</p>");
+        return;
+    }
+    outputFile.write(fileContent.c_str(), fileContent.size());
+    outputFile.close();
+
+    setStatusCode(201);
+    setBody("<h1>201 Created</h1><p>Fichier texte sauvegardé avec succès : " + filename + "</p>");
+}
+
+
+
 //pour print comme serv python si on veut, faut juste rajouter le clienp et status dans tcp
 void Response::logRequest(const std::string& clientIP, const std::string& requestLine, const std::string& statusCode) {
     auto now = std::chrono::system_clock::now();

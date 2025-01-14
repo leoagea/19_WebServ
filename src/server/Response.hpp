@@ -9,6 +9,8 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 class Response
@@ -36,7 +38,14 @@ public:
     std::string generateResponse();
 	std::string extractHeaders(const std::string &fullResponse);
     void get(const std::string &filePath);
-    static std::string readFile(const std::string &filePath);
+	static std::string readFile(const std::string &filePath);
+
+	bool extractFileData(const std::string& requestData, const std::string& boundary, std::string& filename, std::string& fileContent);
+	std::string extractBoundary(const std::string& requestData);
+	bool isDirectoryWritable(const std::string& directory);
+	void post(const std::string& requestData);
+	
+
 };
 
 #endif

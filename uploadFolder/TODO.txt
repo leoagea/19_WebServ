@@ -1,0 +1,8 @@
+Faire un docker nginx avec le meme fichier de config que nous
+    Tester les permissions requises par le directory root
+
+Verif le parsing des location
+
+Gerer les erreurs and print la config avec les messages d erreurs afficher
+
+-----------------------------20629913551128158799561473960--
