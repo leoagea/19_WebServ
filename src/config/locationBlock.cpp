@@ -56,22 +56,22 @@ bool locationBlock::getAutoIndexLoc() const
 
 bool locationBlock::getAllowedMethodGET() const
 {
-    return _allowedmethods & GET;
+    return _allowedmethods == GET;
 }
 
 bool locationBlock::getAllowedMethodPOST() const
 {
-    return _allowedmethods & POST;
+    return _allowedmethods == POST;
 }
 
 bool locationBlock::getAllowedMethodDELETE() const
 {
-    return _allowedmethods & DELETE;
+    return _allowedmethods == DELETE;
 }
 
 bool locationBlock::getAllowedMethodUPLOAD() const
 {
-    return _allowedmethods & UPLOAD;
+    return _allowedmethods == UPLOAD;
 }
 
 std::string locationBlock::getCgiScriptName() const
@@ -217,15 +217,15 @@ void locationBlock::parseAutoIndex(t_token &token)
 
 void locationBlock::parseAllowedMethod(t_token &token)
 {
-    if (token.value == "GET" && !(_allowedmethods & GET))
-        _allowedmethods |= GET;
-    else if (token.value == "POST" && !(_allowedmethods & POST))
-        _allowedmethods |= POST;
-    else if (token.value == "DELETE" && !(_allowedmethods & DELETE))
-        _allowedmethods |= DELETE;
-    else if (token.value == "UPLOAD" && !(_allowedmethods & UPLOAD))
-        _allowedmethods |= UPLOAD;
-    else if (_allowedmethods & GET || _allowedmethods & POST || _allowedmethods & DELETE || _allowedmethods & UPLOAD)
+    if (token.value == "GET" && !(_allowedmethods == GET))
+        _allowedmethods = GET;
+    else if (token.value == "POST" && !(_allowedmethods == POST))
+        _allowedmethods = POST;
+    else if (token.value == "DELETE" && !(_allowedmethods == DELETE))
+        _allowedmethods = DELETE;
+    else if (token.value == "UPLOAD" && !(_allowedmethods == UPLOAD))
+        _allowedmethods = UPLOAD;
+    else if (_allowedmethods == GET || _allowedmethods == POST || _allowedmethods == DELETE || _allowedmethods == UPLOAD)
         _reportError(token.index, "method already allowed");
     else
         _reportError(token.index, "expected only get post delete or upload");

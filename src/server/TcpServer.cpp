@@ -160,14 +160,43 @@ void    TcpServer::acceptNewClient(int serverSocket)
     _pollFds.push_back(clientPollFd);
 }
 
-void    TcpServer::handleClient(int clientFd)
+//à fusionner avec le parsing, request et path à modif
+std::string TcpServer::extractRequestedPath(const std::string &request)
 {
-    char    buffer[REQUEST_HTTP_SIZE];
-    int     bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+    size_t methodEnd = request.find(' ');
+    if (methodEnd == std::string::npos)
+        return "";
 
-    if (bytesRead == 0) 
-    {
-        std::cerr << R << IT << "Client: " << clientFd << " disconnected" << RES << std::endl;
+    size_t pathStart = methodEnd + 1;
+    size_t pathEnd = request.find(' ', pathStart);
+    if (pathEnd == std::string::npos)
+        return "";
+
+    return request.substr(pathStart, pathEnd - pathStart);
+}
+
+
+//implémenter le rep racine
+std::string TcpServer::resolvePath(const std::string &requestedPath)
+{
+    const std::string rootDirectory = "var/www/html";
+    if (requestedPath.empty() || requestedPath == "/")
+        return rootDirectory + "/index.html";
+
+    return rootDirectory + requestedPath;
+}
+
+
+bool fileExists(const std::string& path) {
+    return access(path.c_str(), F_OK) != -1;
+}
+
+void TcpServer::handleClient(int clientFd) {
+    char buffer[REQUEST_HTTP_SIZE];
+    int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+
+    if (bytesRead <= 0) {
+        std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
         close(clientFd);
         cleanupClient(clientFd);
 
@@ -175,37 +204,68 @@ void    TcpServer::handleClient(int clientFd)
     }
 
     buffer[bytesRead] = '\0';
+    std::string bufferStr = buffer;
 
-    std::ifstream   file("var/www/html/test.html");                       // REQUETE HTML
-    std::string     bufferStr = buffer;                                   // HARDCODED RESPONSE 
-    std::string     htmlPage =  readpage(file);                           // HARDCODED RESPONSE
-    std::string     response =  "HTTP/1.1 200 OK\r\n"                     // HARDCODED RESPONSE
-                                "Content-Length: 2013\r\n"                // HARDCODED RESPONSE
-                                "Connection: keep-alive\r\n"              // HARDCODED RESPONSE
-                                "Keep-Alive: timeout=60\r\n"              // HARDCODED RESPONSE
-                                "\r\n";                                   // HARDCODED RESPONSE
-    response  += htmlPage;                                                // HARDCODED RESPONSE    
-    bufferStr += htmlPage;                                                // HARDCODED RESPONSE
-
-    Request req(bufferStr);
-    /* PARSING REQUEST TO RESPONSE */
-    Response res;
-
-    if (req.getMethod() == "GET")
-    {
-        generateLog(BBLUE, req.getStartLine(), "INFO");
-        send(clientFd, response.c_str(), response.size(), 0);
+    Response response;
+    if (bufferStr.find("POST") == 0) {
+        // Extraire le corps de la requête
+        size_t headerEnd = bufferStr.find("\r\n\r\n");
+        if (headerEnd != std::string::npos) {
+            std::string body = bufferStr.substr(headerEnd + 4);
+            response.post(body);
+        } else {
+            response.setStatusCode(400);
+            response.setBody("<h1>400 Bad Request</h1>");
+        }
+    } 
+    else if (bufferStr.find("GET") == 0) {
+        std::string requestedPath = extractRequestedPath(bufferStr);
+        std::string fullPath = resolvePath(requestedPath);
+        response.get(fullPath);
+    } 
+    else {
+        response.setStatusCode(405);
+        response.setBody("<h1>405 Method Not Allowed</h1>");
     }
-    if (req.getMethod() == "DELETE")
-    {
-        res.m_delete();
-        generateLog(BBLUE, req.getStartLine(), "INFO");
-        send(clientFd, response.c_str(), response.size(), 0);
-    }
-    if (req.getMethod() == "POST") { generateLog(BBLUE, req.getStartLine(), "INFO"); }
+
+    std::string fullResponse = response.generateResponse();
+    send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
 
-void    TcpServer::cleanupClient(int fd)
+
+
+// void TcpServer::handleClient(int clientFd) {
+//     char buffer[REQUEST_HTTP_SIZE];
+//     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+//     if (bytesRead <= 0) {
+//         std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
+//         close(clientFd);
+//         cleanupClient(clientFd);
+//         return;
+//     }
+
+//     buffer[bytesRead] = '\0';
+//     std::string bufferStr = buffer;
+//     Response response;
+//     response.parseRequest(bufferStr);
+
+//     // à changer avec le parsing de leo
+//     if (1){
+//         std::string requestedPath = extractRequestedPath(bufferStr);
+//         std::string fullPath = resolvePath(requestedPath);
+
+//         response.get(fullPath);
+//     }
+//     else {
+//         response.setStatusCode(405); // Method Not Allowed
+//         response.setBody("<h1>405 Method Not Allowed</h1>");
+//     }
+//     std::string fullResponse = response.generateResponse();
+//     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
+// }
+
+
+void TcpServer::cleanupClient(int fd)
 {
     for (size_t i = 0; i < _pollFds.size(); ++i) 
     {

@@ -28,10 +28,10 @@ enum e_error
 };
 
 enum e_allowed_methods{
-    GET = 1 << 0,
-    POST = 1 << 1,
-    DELETE = 1 << 2,
-    UPLOAD = 1 << 3
+    GET = 1,
+    POST = 2,
+    DELETE = 3,
+    UPLOAD = 4
 };
 
 enum e_tokenType

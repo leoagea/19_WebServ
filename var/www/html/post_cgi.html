@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Présentation de Voiture</title>
+    <title>Formulaire POST - Ajout Voiture</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,16 +26,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-        .details {
-            margin-top: 1rem;
-        }
-        .details h2 {
-            margin: 0.5rem 0;
-        }
         .button {
             display: inline-block;
             margin-top: 1rem;
@@ -48,27 +38,35 @@
         .button:hover {
             background-color: #005bb5;
         }
+        label, input {
+            display: block;
+            margin-top: 0.5rem;
+        }
+        input {
+            padding: 0.5rem;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Présentation de la Voiture</h1>
+        <h1>Ajouter une Voiture</h1>
     </header>
     <div class="container">
-        <img src="car-image.jpg" alt="Photo de la voiture">
-        <div class="details">
-            <h2>Nom du modèle : Tesla Model S</h2>
-            <p><strong>Prix :</strong> 90 000 €</p>
-            <p><strong>Caractéristiques :</strong></p>
-            <ul>
-                <li>Autonomie : 600 km</li>
-                <li>Vitesse maximale : 250 km/h</li>
-                <li>0-100 km/h en 3.1 secondes</li>
-                <li>Énergie : 100% électrique</li>
-            </ul>
-            <!-- Modification de l'attribut href -->
-            <a href="post_text.html" class="button">Upload un fichier text</a>
-        </div>
+        <form action="/post_cgi.html" method="POST">
+            <label for="car-model">Nom du modèle :</label>
+            <input type="text" id="car-model" name="car-model" required>
+
+            <label for="price">Prix :</label>
+            <input type="number" id="price" name="price" required>
+
+            <label for="features">Caractéristiques :</label>
+            <textarea id="features" name="features" rows="5" required></textarea>
+
+            <button type="submit" class="button">Envoyer</button>
+        </form>
     </div>
 </body>
 </html>
