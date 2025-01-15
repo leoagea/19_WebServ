@@ -14,9 +14,11 @@
 # include <cctype>
 # include <ctime>
 # include <fcntl.h>
+# include <stdexcept>
 # include "../../inc/Color.h"
 # include "Response.hpp"
 # include "../config/serverBlock.hpp"
+# include "../config/configFileParser.hpp"
 
 # define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"
@@ -38,7 +40,7 @@ typedef struct Client
 class TcpServer 
 {
     public :
-        TcpServer(const std::vector<int> & ports);
+        TcpServer(const std::vector<int> & ports, ConfigFile config);
         ~TcpServer();
 
         void                    startServer();
@@ -61,6 +63,7 @@ class TcpServer
         std::vector<pollfd>     _pollFds;
         std::map<int, ServBlo>  _clientMap;
         sockaddr_in             _serverAddress;
+        ConfigFile              _config;
 
         void                    setupSocket();
         void                    makeNonBlocking(int socket);
@@ -68,6 +71,8 @@ class TcpServer
         void                    handleClient(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
+
+        ServerBlock             &getServerBlockBySocket(int);
 };
 
 #endif

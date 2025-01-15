@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 19:09:11 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/15 14:47:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "../inc/Enum.h"
 #include "../inc/Struct.h"
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
     std::string         configPath;
     std::vector<int>    ports;
@@ -35,7 +35,7 @@ int main(int ac, char **av)
         return 1;
     }
     
-    Webserv data(configPath);
+    Webserv data(configPath, env);
     try
     {
         data.initialiseConfig();

@@ -19,7 +19,7 @@ const std::string   readpage(std::ifstream &file)
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports) : _ports(ports)
+TcpServer::TcpServer(const std::vector<int> & ports, ConfigFile config) : _ports(ports), _config(config)
 {
     setupSocket();
 
@@ -255,6 +255,22 @@ void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
         close(*it);
 
     exit(1);
+}
+
+//Return the serverblock associate with the socket
+//Otherwise throw a runtime error
+ServerBlock &TcpServer::getServerBlockBySocket(int socket)
+{
+    int port = static_cast<int>(getSocketPort(socket));
+
+    std::vector<ServerBlock> servVect = _config.getServerBlockVector();
+    std::vector<ServerBlock>::iterator it;
+
+    for (it = servVect.begin(); it != servVect.end(); it++)
+        if (port == it->getListeningPort())
+            return *it;
+
+    throw std::runtime_error("No serverblock found");
 }
 
 uint16_t    TcpServer::getSocketPort(int socket)
