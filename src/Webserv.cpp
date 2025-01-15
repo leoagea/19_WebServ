@@ -6,16 +6,17 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:24:07 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/15 14:45:56 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-Webserv::Webserv(const std::string &configPath)
+Webserv::Webserv(const std::string &configPath, char **env)
 {
     ConfigFile config(configPath);
     _config = config;
+    initialiseEnv(env);
 }
 
 Webserv::~Webserv()
@@ -35,6 +36,11 @@ LogReporter Webserv::getLogReporterObject() const
 ErrorPageGnerator Webserv::getErrorPageGenObject() const
 {
     return _generator;
+}
+
+std::map<std::string, std::string> Webserv::getEnvMap() const
+{
+    return _env;
 }
 
 void Webserv::initialiseConfig()
@@ -63,4 +69,18 @@ void Webserv::initialiseErrorPageGenerator()
     ErrorPageGnerator generator(server);
 
     _generator = generator;
+}
+
+void Webserv::initialiseEnv(char **env)
+{
+    int i = -1;
+    
+    while (env[++i]){
+        std::stringstream ss(env[i]);
+        std::string key;
+        std::string val;
+        getline(ss, key, '=');
+        getline(ss, val);
+        _env[key] = val;
+    }
 }

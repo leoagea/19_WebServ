@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:53:34 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:22:04 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/15 14:45:32 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,23 +21,25 @@
 class Webserv
 {
     public:
-        Webserv(const std::string &);
+        Webserv(const std::string &, char **env);
         ~Webserv();
         
         ConfigFile getConfigFileObject() const;
         LogReporter getLogReporterObject() const;
         ErrorPageGnerator getErrorPageGenObject() const;
+        std::map<std::string, std::string> getEnvMap() const;
         
         void initialiseConfig();
         void initialiseLogSystem();
         void initialiseErrorPageGenerator();
+        void initialiseEnv(char **);
 
     private:
         ConfigFile _config;
         Log _log;
         LogReporter _reportLog;
         ErrorPageGnerator _generator;
-        
+        std::map<std::string, std::string> _env;
 };
 
 #endif
