@@ -64,17 +64,17 @@ int main(int ac, char **av, char **env)
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
     // Exemplde deComment utiliser listDirectory
-    std::string dir = ".";
-    std::vector<s_info> listing;
-    try
-    {
-        listing = DirectoryListing::listDirectory(dir);
-        DirectoryListing::generateDirectoryListingHTML(dir, listing);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
+    // std::string dir = ".";
+    // std::vector<s_info> listing;
+    // try
+    // {
+    //     listing = DirectoryListing::listDirectory(dir);
+    //     DirectoryListing::generateDirectoryListingHTML(dir, listing);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    // }
     
     // for (std::vector<s_info>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
     //     std::cout << it->format_time << " | "
@@ -88,7 +88,7 @@ int main(int ac, char **av, char **env)
     for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
         ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
 
-    TcpServer   server(ports);
+    TcpServer   server(ports, data.getConfigFileObject());
     server.startServer();
 
     return 0;

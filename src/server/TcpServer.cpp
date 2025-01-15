@@ -19,7 +19,7 @@ const std::string   readpage(std::ifstream &file)
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports, ConfigFile config) : _ports(ports), _config(config)
+TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config) : _ports(ports), _clientMap(), _config(config)
 {
     setupSocket();
 
@@ -147,11 +147,9 @@ void    TcpServer::acceptNewClient(int serverSocket)
         std::cerr << R << IT << "Accept failed" << RES << std::endl;
         return;
     }
-    
-    // ICI AJOUTER A MAP DE CLIENT POUR GERER LES CLIENTS INDEPENDAMMENT EN FONCTION DU SERVEUR ASSOCIE
+    _clientMap[clientFd] = getServerBlockBySocket(serverSocket);
 
     TcpServer::generateLog(BLUE, "New client connected", "INFO");
-
     makeNonBlocking(clientFd);
 
     struct pollfd clientPollFd;
@@ -259,18 +257,17 @@ void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
 
 //Return the serverblock associate with the socket
 //Otherwise throw a runtime error
-ServerBlock &TcpServer::getServerBlockBySocket(int socket)
+ServerBlock TcpServer::getServerBlockBySocket(int socket)
 {
     int port = static_cast<int>(getSocketPort(socket));
-
     std::vector<ServerBlock> servVect = _config.getServerBlockVector();
+
     std::vector<ServerBlock>::iterator it;
-
     for (it = servVect.begin(); it != servVect.end(); it++)
-        if (port == it->getListeningPort())
-            return *it;
-
-    throw std::runtime_error("No serverblock found");
+        if (port == it->getListeningPort()) {
+            break;
+        }
+    return *it;
 }
 
 uint16_t    TcpServer::getSocketPort(int socket)

@@ -40,7 +40,7 @@ typedef struct Client
 class TcpServer 
 {
     public :
-        TcpServer(const std::vector<int> & ports, ConfigFile config);
+        TcpServer(const std::vector<int> & ports, const ConfigFile &config);
         ~TcpServer();
 
         void                    startServer();
@@ -72,7 +72,7 @@ class TcpServer
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
 
-        ServerBlock             &getServerBlockBySocket(int);
+        ServerBlock             getServerBlockBySocket(int);
 };
 
 #endif
