@@ -13,7 +13,7 @@ const std::string   readpage(std::ifstream &file)
     while (getline(file, line))
     {
         line += "\n";
-        ret += line;
+        ret  += line;
     }
 
     return ret;
@@ -124,7 +124,7 @@ void    TcpServer::startServer()
 
                 for (size_t j = 0; j < _serverSockets.size(); ++j)
                 {
-                    if (_pollFds[i].fd == _serverSockets[   j])
+                    if (_pollFds[i].fd == _serverSockets[j])
                     {
                         acceptNewClient(_serverSockets[j]);
                         isServerSocket = true;
@@ -147,6 +147,9 @@ void    TcpServer::acceptNewClient(int serverSocket)
         std::cerr << R << IT << "Accept failed" << RES << std::endl;
         return;
     }
+    
+    // ICI AJOUTER A MAP DE CLIENT POUR GERER LES CLIENTS INDEPENDAMMENT EN FONCTION DU SERVEUR ASSOCIE
+
     TcpServer::generateLog(BLUE, "New client connected", "INFO");
 
     makeNonBlocking(clientFd);
@@ -288,7 +291,7 @@ void	TcpServer::generateLog(std::string color, const std::string& message, const
         std::cout << '0' << local_time->tm_hour << ":";
     else
         std::cout << local_time->tm_hour << ":";
-    if (local_time->tm_min < 10)
+    if (local_time->tm_min < 10)  
         std::cout << '0' << local_time->tm_min << ":";
     else
         std::cout << local_time->tm_min << ":";

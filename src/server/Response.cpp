@@ -183,7 +183,7 @@ void Response::get(const std::string &filePath)
     }
     else
     {
-        setBody("<h1>404 Not Fo8und</h1>");
+        setBody("<h1>404 Not Found</h1>");
         setStatusCode(404);
         setContentType("text/html; charset=UTF-8");
     }
