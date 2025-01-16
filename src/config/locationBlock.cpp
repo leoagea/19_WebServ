@@ -6,14 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/15 15:43:40 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/16 16:39:09 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
 locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), \
-         _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0), _reportError(reporter)
+         _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedget(false), _allowedpost(false), \
+         _alloweddelete(false), _allowedupload(false), _reportError(reporter)
 {
     parseAllLocationVariables();
 }
@@ -54,22 +55,22 @@ bool locationBlock::getAutoIndexLoc() const
 
 bool locationBlock::getAllowedMethodGET() const
 {
-    return _allowedmethods == GET;
+    return _allowedget;
 }
 
 bool locationBlock::getAllowedMethodPOST() const
 {
-    return _allowedmethods == POST;
+    return _allowedpost;
 }
 
 bool locationBlock::getAllowedMethodDELETE() const
 {
-    return _allowedmethods == DELETE;
+    return _alloweddelete;
 }
 
 bool locationBlock::getAllowedMethodUPLOAD() const
 {
-    return _allowedmethods == UPLOAD;
+    return _allowedupload;
 }
 
 std::string locationBlock::getCgiScriptName() const
@@ -215,15 +216,15 @@ void locationBlock::parseAutoIndex(t_token &token)
 
 void locationBlock::parseAllowedMethod(t_token &token)
 {
-    if (token.value == "GET" && !(_allowedmethods == GET))
-        _allowedmethods = GET;
-    else if (token.value == "POST" && !(_allowedmethods == POST))
-        _allowedmethods = POST;
-    else if (token.value == "DELETE" && !(_allowedmethods == DELETE))
-        _allowedmethods = DELETE;
-    else if (token.value == "UPLOAD" && !(_allowedmethods == UPLOAD))
-        _allowedmethods = UPLOAD;
-    else if (_allowedmethods == GET || _allowedmethods == POST || _allowedmethods == DELETE || _allowedmethods == UPLOAD)
+    if (token.value == "GET" && !(_allowedget))
+        _allowedget = true;
+    else if (token.value == "POST" && !(_allowedpost))
+        _allowedpost = true;
+    else if (token.value == "DELETE" && !(_alloweddelete))
+        _alloweddelete = true;
+    else if (token.value == "UPLOAD" && !(_allowedupload))
+        _allowedupload = true;
+    else if (_allowedget || _allowedpost || _alloweddelete || _allowedupload)
         _reportError(token.index, "method already allowed");
     else
         _reportError(token.index, "expected only get post delete or upload");
