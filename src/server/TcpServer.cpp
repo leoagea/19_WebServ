@@ -186,15 +186,13 @@ std::string TcpServer::resolvePath(const std::string &requestedPath)
     return rootDirectory + requestedPath;
 }
 
+bool fileExists(const std::string& path) { return access(path.c_str(), F_OK) != -1; }
 
-bool fileExists(const std::string& path) {
-    return access(path.c_str(), F_OK) != -1;
-}
 
-void TcpServer::handleClient(int clientFd) {
+void TcpServer::handleClient(int clientFd) 
+{
     char buffer[REQUEST_HTTP_SIZE];
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-
     if (bytesRead <= 0) {
         TcpServer::generateLog(BLUE, "A client has disconnected", "INFO");
         // Erase clientFd from clientMap
@@ -206,7 +204,6 @@ void TcpServer::handleClient(int clientFd) {
 
     buffer[bytesRead] = '\0';
     std::string bufferStr = buffer;
-
     Response response;
     if (bufferStr.find("POST") == 0) {
         size_t headerEnd = bufferStr.find("\r\n\r\n");
