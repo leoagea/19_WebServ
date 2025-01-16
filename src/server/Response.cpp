@@ -174,7 +174,6 @@ std::string Response::readFile(const std::string &filePath)
 void Response::get(const std::string &filePath)
 {
     std::string fileContent = readFile(filePath);
-    
     if (!fileContent.empty())
     {
         setBody(fileContent);

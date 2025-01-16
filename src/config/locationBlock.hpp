@@ -6,7 +6,7 @@
 /*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/16 16:15:55 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/01/16 16:42:04 by kmailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,10 @@ class locationBlock
         bool _iscgi;
         std::pair<bool, std::string> _cgi; //used to store token nam,e of cgi path, and if token has been read
         std::string _cgipath;
-        unsigned char _allowedmethods;
+        bool _allowedget;
+        bool _allowedpost;
+        bool _alloweddelete;
+        bool _allowedupload;
         ErrorReporter _reportError;
 
         void parseAllLocationVariables();
