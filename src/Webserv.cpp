@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:24:07 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/15 15:47:39 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-Webserv::Webserv(const std::string &configPath)
+Webserv::Webserv(const std::string &configPath) : _config(), _log(), _reportLog(), _generator()
 {
     ConfigFile config(configPath);
     _config = config;

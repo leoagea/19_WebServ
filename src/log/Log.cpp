@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:55:38 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:05:44 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/16 15:13:46 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Log.hpp"
 
-Log::Log()
+Log::Log() : _error(NULL) , _access(NULL)
 {
 }
 
@@ -28,7 +28,7 @@ Log::~Log()
 
 void Log::reportErrorLog(e_error level, std::string &msg)
 {
-    if (_error->is_open()){
+    if (_error && _error->is_open()){
         if (level == INFO || level == WARNING || level == ERROR || level == FATAL){
             _error->seekp(std::ios::end);
             (*_error) << CINFO << getTimeStamp() << " ";
@@ -47,7 +47,7 @@ void Log::reportErrorLog(e_error level, std::string &msg)
 
 void Log::reportAccessLog(e_error level, std::string &msg)
 {
-    if (_access->is_open()){
+    if (_access &&_access->is_open()){
         if (level == INFO || level == WARNING || level == ERROR || level == FATAL){
             _access->seekp(std::ios::end);
             (*_access) << CINFO << getTimeStamp() << " ";
