@@ -6,13 +6,13 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/27 15:10:03 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/15 15:41:48 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tokenizer.hpp"
 
-Tokenizer::Tokenizer(std::string &configContent)
+Tokenizer::Tokenizer(std::string &configContent) : _tokensVector()
 {
     splitToken(configContent);
 }

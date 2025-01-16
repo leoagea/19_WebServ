@@ -6,17 +6,19 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:06:33 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/16 15:32:00 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock()
+ServerBlock::ServerBlock() : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), \
+        _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError()
 {
 }
 
-ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(4, -2), _reportError(reporter)
+ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), \
+        _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError(reporter)
 {
     initializeMapErrorPages();
     parseAllServerVariables(tokenVec, j);
@@ -413,13 +415,13 @@ void ServerBlock::parseHost(t_token &token)
             std::string n;
             std::stringstream ss(token.value);
             getline(ss, n, '.');
-            _hostbytes[0] = atoi(n.c_str());
+            _hostbytes.push_back(atoi(n.c_str()));
             getline(ss, n, '.');
-            _hostbytes[1] = atoi(n.c_str());
+            _hostbytes.push_back(atoi(n.c_str()));
             getline(ss, n, '.');
-            _hostbytes[2] = atoi(n.c_str());
+            _hostbytes.push_back(atoi(n.c_str()));
             getline(ss, n, '.');
-            _hostbytes[3] = atoi(n.c_str());
+            _hostbytes.push_back(atoi(n.c_str()));
             _host = token.value;
         }
     }
@@ -429,21 +431,19 @@ void ServerBlock::parseHost(t_token &token)
 
 bool ServerBlock::isHostValid(std::string &host)
 {
-    int n;
     std::string token;
     std::stringstream ss(host);
     
-    int i=0;
-    while (host[i]){
-        int start = i;
-        while(isdigit(host[i]))
+    while (getline(ss, token, '.')){
+        int i = 0;
+        while(token[i]){
+            if (!isdigit(token[i]))
+                return false;
             i++;
-        if (host[i] && host[i] != '.')
-            return false;
-        n = atoi(host.substr(start, i - start).c_str());
+        }
+        int n = atoi(token.c_str());
         if (n < 0 || n > 255)
             return false;
-        i++;
     }
     return true;
 }
