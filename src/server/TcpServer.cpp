@@ -177,12 +177,11 @@ std::string TcpServer::extractRequestedPath(const std::string &request)
 
 
 //implémenter le rep racine
-std::string TcpServer::resolvePath(const std::string &requestedPath)
+std::string TcpServer::resolvePath(const std::string &requestedPath, int clientFd)
 {
-    const std::string rootDirectory = "var/www/html";
+    const std::string rootDirectory = _clientMap[clientFd].getRootDir();
     if (requestedPath.empty() || requestedPath == "/")
-        return rootDirectory + "/index.html";
-
+        return _clientMap[clientFd].getIndex();
     return rootDirectory + requestedPath;
 }
 
@@ -203,33 +202,58 @@ void TcpServer::handleClient(int clientFd) {
 
         return;
     }
-
     buffer[bytesRead] = '\0';
     std::string bufferStr = buffer;
-
     Response response;
-    if (bufferStr.find("POST") == 0) {
+    std::string requestedPath = extractRequestedPath(bufferStr);
+    std::string fullPath = resolvePath(requestedPath, clientFd);
+    int getBool = 0;
+    int postBool = 0;
+    int deleteBool= 0;
+
+    if (_clientMap[clientFd].getLocationBlockByString(requestedPath).getAutoIndexLoc()) {
+        
+    }
+    try
+    {
+        getBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodGET();
+        std::cout <<  _clientMap[clientFd].getLocationBlockByString(requestedPath) << std::endl;
+        if (getBool) {
+            response.get(fullPath);
+        }
+    }
+    catch(const std::exception& e)
+    {  
+        std::cout << e.what() << std::endl;
+        response.setStatusCode(400);
+        response.setBody("<h1>400 Bad Request get</h1>");
+        return ;
+    }
+    try
+    {
+        postBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodPOST();
         size_t headerEnd = bufferStr.find("\r\n\r\n");
-        if (headerEnd != std::string::npos) {
+        if (postBool) {
             std::string body = bufferStr.substr(headerEnd + 4);
             response.post(body);
-        } else {
-            response.setStatusCode(400);
-            response.setBody("<h1>400 Bad Request</h1>");
         }
-    } 
-    else if (bufferStr.find("GET") == 0) {
-        std::string requestedPath = extractRequestedPath(bufferStr);
-        std::string fullPath = resolvePath(requestedPath);
-        response.get(fullPath);
-    } 
-    else {
-        response.setStatusCode(405);
-        response.setBody("<h1>405 Method Not Allowed</h1>");
     }
-
+    catch(const std::exception& e)
+    {
+        response.setStatusCode(400);
+        response.setBody("<h1>400 Bad Request post</h1>");
+        return ;
+    }
+    try
+    {
+        deleteBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodDELETE();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
     std::string fullResponse = response.generateResponse();
-
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
 

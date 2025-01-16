@@ -50,8 +50,6 @@ class TcpServer
         std::vector<pollfd>     getPollFds();
         sockaddr_in             getServerAddress();
         uint16_t                getSocketPort(int socket);
-
-		std::string             resolvePath(const std::string &requestedPath);
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
@@ -65,6 +63,7 @@ class TcpServer
         sockaddr_in             _serverAddress;
         ConfigFile              _config;
 
+		std::string             resolvePath(const std::string &requestedPath, int clientFd);
         void                    setupSocket();
         void                    makeNonBlocking(int socket);
         void                    acceptNewClient(int serverSocket);
