@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 19:09:11 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/16 15:31:11 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,18 +63,18 @@ int main(int ac, char **av)
     //Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
-    // Exemplde deComment utiliser listDirectory
-    std::string dir = ".";
-    std::vector<s_info> listing;
-    try
-    {
-        listing = DirectoryListing::listDirectory(dir);
-        DirectoryListing::generateDirectoryListingHTML(dir, listing);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
+    // // Exemplde deComment utiliser listDirectory
+    // std::string dir = ".";
+    // std::vector<s_info> listing;
+    // try
+    // {
+    //     listing = DirectoryListing::listDirectory(dir);
+    //     DirectoryListing::generateDirectoryListingHTML(dir, listing);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    // }
     
     // for (std::vector<s_info>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
     //     std::cout << it->format_time << " | "
