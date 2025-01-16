@@ -197,7 +197,7 @@ void TcpServer::handleClient(int clientFd) {
 
     if (bytesRead <= 0) {
         TcpServer::generateLog(BLUE, "A client has disconnected", "INFO");
-        // std::cerr << "Client: " << clientFd << " disconnected or error" << std::endl;
+        // Erase clientFd from clientMap
         close(clientFd);
         cleanupClient(clientFd);
 
