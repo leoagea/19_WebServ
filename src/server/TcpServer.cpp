@@ -207,67 +207,58 @@ void TcpServer::handleClient(int clientFd) {
     std::string bufferStr = buffer;
     Response response;
 
-    std::string requestedPath = extractRequestedPath(bufferStr);
-
-    std::cout << requestedPath << std::endl;
-    std::string fullPath = resolvePath(requestedPath, clientFd);
-    int getBool = 0;
-    // int postBool = 0;
-    // int deleteBool= 0;
-    std::string dir = ".";
-    std::vector<s_info> listing;
-    // std::string toRemove = "myapp";
-    // size_t pos = requestedPath.find(toRemove); // Trouver la position de "myapp"
-    // if (pos != std::string::npos) {
-    //     requestedPath.erase(pos, toRemove.length()); // Supprimer "myapp"
-    // }
+    std::string UrlPath = extractRequestedPath(bufferStr);
+    std::string requestedPath = UrlPath;
     try
     {
-        if (_clientMap[clientFd].getLocationBlockByString(requestedPath).getAutoIndexLoc()) {
-        listing = DirectoryListing::listDirectory(dir);
-        DirectoryListing::generateDirectoryListingHTML(dir, listing);
-        }
-        else {
-            try
-            {
-                getBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodGET();
-                if (getBool) {
-
-                    std::cout << "path" << _clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc() << std::endl;
-                    response.get(_clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc());
-                }
-            }
-            catch(const std::exception& e)
-            { 
-                if (_clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodGET())
-                response.setStatusCode(400);
-                response.setBody("<h1>400 Bad Request get</h1>");
-                return ;
-            }
+        if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri() ) {
+            requestedPath = _clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc();
         }
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+    }
+    std::string fullPath = resolvePath(requestedPath, clientFd);
+    int getBool = 0;
+   // int postBool = 0;
+    // int deleteBool= 0;
+    std::string dir = ".";
+    std::vector<s_info> listing;
+    try
+    {
+        //_clientMap[clientFd].getLocationBlockByString(UrlPath).getAutoIndexLoc()
+        if (0) {
+            listing = DirectoryListing::listDirectory(dir);
+            DirectoryListing::generateDirectoryListingHTML(dir, listing);
+        }
+        else {
+            try
+            {
+                getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
+                response.get(fullPath, getBool);
+            }
+            catch(const std::exception& e)
+            { 
+                response.setStatusCode(400);
+                response.setBody("<h1>400 Bad Request get</h1>");
+            }
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "oui" << '\n';
         response.setStatusCode(400);
         response.setBody("<h1>400 Bad Request get</h1>");
     }
 
-    // try
-    // {
-    //     postBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodPOST();
-    //     size_t headerEnd = bufferStr.find("\r\n\r\n");
-    //     if (postBool) {
-    //         std::string body = bufferStr.substr(headerEnd + 4);
-    //         response.post(body);
-    //     }
-    // }
-    // catch(const std::exception& e)
-    // {
-    //     response.setStatusCode(400);
-    //     response.setBody("<h1>400 Bad Request post</h1>");
-    //     return ;
-    // }
+                // postBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodPOST();
+                // size_t headerEnd = bufferStr.find("\r\n\r\n");
+                // std::cout << getBool << std::endl;
+                // if (postBool) {
+                //     std::string body = bufferStr.substr(headerEnd + 4);
+                //     response.post(body);
+                // }
     // try
     // {
     //     deleteBool = _clientMap[clientFd].getLocationBlockByString(requestedPath).getAllowedMethodDELETE();
@@ -279,7 +270,6 @@ void TcpServer::handleClient(int clientFd) {
     // {
     //     std::cerr << e.what() << '\n';
     // }
-    
     std::string fullResponse = response.generateResponse();
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
