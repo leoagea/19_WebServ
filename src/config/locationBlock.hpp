@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:58:27 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 16:13:33 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,13 +56,16 @@ class locationBlock
         std::string _uri;
         std::string _root;
         std::string _index;
-        bool _autoindex;
+        int _autoindex;
         bool _isredirect; //to indicate if location redirect to another location
         std::pair<int, std::string> _redirect;
         bool _iscgi;
-        std::pair<bool, std::string> _cgi; //used to store token nam,e of cgi path, and if token has been read
+        std::pair<int, std::string> _cgi; //used to store token nam,e of cgi path, and if token has been read
         std::string _cgipath;
-        unsigned char _allowedmethods;
+        int _allowedget;
+        int _allowedpost;
+        int _alloweddelete;
+        int _allowedupload;
         ErrorReporter _reportError;
 
         void parseAllLocationVariables();
