@@ -26,7 +26,7 @@
 # define B                 "\033[94m"
 # define IT                "\033[3m"
 # define RES               "\033[0m"
-
+ 
 typedef struct sockaddr_in sockaddr_in;
 typedef        ServerBlock ServBlo;
 
