@@ -6,14 +6,14 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/16 19:00:34 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 15:47:38 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
 locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), \
-         _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedget(false), _allowedpost(false), \
+         _index(""), _rootIndex(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedget(false), _allowedpost(false), \
          _alloweddelete(false), _allowedupload(false), _reportError(reporter)
 {
     parseAllLocationVariables();
@@ -41,11 +41,16 @@ std::string locationBlock::getRootDirLoc() const
     return _root;    
 }
 
-//return empty string if index is not redefined in location
-//otherwise return path to index
+//return index name
 std::string locationBlock::getIndexLoc() const
 {
     return _index;
+}
+
+//return index concatenate with the root dir
+std::string locationBlock::getRootIndexConcatenate() const
+{
+    return _rootIndex;
 }
 
 bool locationBlock::getAutoIndexLoc() const
@@ -194,8 +199,10 @@ void locationBlock::parseIndex(t_token &token)
     
     if (PathChecking::exist(path))
         if (PathChecking::isFile(path))
-            if (PathChecking::getReadPermission(path))
-                _index = path;
+            if (PathChecking::getReadPermission(path)){
+                _rootIndex = path;
+                _index = token.value;
+            }
             else
                 _reportError(token.index, "file has no read permission");
         else
@@ -318,7 +325,10 @@ std::ostream &operator<<(std::ostream &out, const locationBlock &obj)
     out << "Root dir:  " << obj.getRootDirLoc() << std::endl;
     
     out << MAGENTA << "Index" << RESET << std::endl; 
-    out << "Index path:  '" << obj.getIndexLoc() << "'" << std::endl;
+    out << "Index name:  '" << obj.getIndexLoc() << "'" << std::endl;
+    
+    out << MAGENTA << "Index concatenate" << RESET << std::endl; 
+    out << "Index path:  '" << obj.getRootIndexConcatenate() << "'" << std::endl;
     
     out << MAGENTA << "Auto index" << RESET << std::endl; 
     out << "bool:  " << obj.getAutoIndexLoc() << std::endl;

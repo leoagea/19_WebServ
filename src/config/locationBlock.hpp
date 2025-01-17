@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   locationBlock.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/16 16:42:04 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/01/17 15:46:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class locationBlock
         std::string getUri() const;
         std::string getRootDirLoc() const;
         std::string getIndexLoc() const;
+        std::string getRootIndexConcatenate() const;
         bool getAutoIndexLoc() const;
         bool getAllowedMethodGET() const;
         bool getAllowedMethodPOST() const;
@@ -56,6 +57,7 @@ class locationBlock
         std::string _uri;
         std::string _root;
         std::string _index;
+        std::string _rootIndex;
         bool _autoindex;
         bool _isredirect; //to indicate if location redirect to another location
         std::pair<int, std::string> _redirect;
