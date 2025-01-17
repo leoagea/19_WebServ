@@ -18,7 +18,8 @@ class CgiHandler
         CgiHandler(Request &request, std::string &scriptPath);
         ~CgiHandler();
 
-        std::string     execute();
+        std::string     executepy();
+        std::string     executego();
 
     private :
         std::map<std::string, std::string>  _envVar;

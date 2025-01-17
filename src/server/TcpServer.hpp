@@ -30,13 +30,6 @@
 typedef struct sockaddr_in sockaddr_in;
 typedef        ServerBlock ServBlo;
 
-typedef struct Client
-{
-        int             server_fd;
-        int             client_fd;
-        ServerBlock     server;
-}       Client;
-
 class TcpServer 
 {
     public :
