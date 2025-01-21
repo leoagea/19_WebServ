@@ -15,16 +15,16 @@
 class CgiHandler
 {
     public :
-        CgiHandler(Request &request, std::string &scriptPath);
+        CgiHandler(std::map<std::string, std::string> envMap);
         ~CgiHandler();
 
-        std::string     executepy();
-        std::string     executego();
+        void     executepy(std::string cgi_path);
+        void     executego(std::string cgi_path);
 
     private :
-        std::map<std::string, std::string>  _envVar;
-        std::string                         _scriptPath;
-        std::string                         _scriptOutput;
+        std::map<std::string, std::string>  _envpMap;
+        std::vector<char *>                 _envpVect;
+
 };
 
 

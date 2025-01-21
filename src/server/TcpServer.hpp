@@ -19,6 +19,7 @@
 # include "Response.hpp"
 # include "../config/serverBlock.hpp"
 # include "../config/configFileParser.hpp"
+# include "../CGI/CgiHandler.hpp"
 
 # define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"
@@ -33,7 +34,7 @@ typedef        ServerBlock ServBlo;
 class TcpServer 
 {
     public :
-        TcpServer(const std::vector<int> & ports, const ConfigFile &config);
+        TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap);
         ~TcpServer();
 
         void                    startServer();
@@ -48,7 +49,8 @@ class TcpServer
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
-        
+        bool                    isPyCgi();
+        bool                    isGoCgi();
     private :
         static const size_t     _maxPollFds = 4096;
         std::vector<int>        _serverSockets;
@@ -57,6 +59,7 @@ class TcpServer
         std::map<int, ServBlo>  _clientMap;
         sockaddr_in             _serverAddress;
         ConfigFile              _config;
+        std::map<std::string, std::string> _envMap;
 
         void                    setupSocket();
         void                    makeNonBlocking(int socket);

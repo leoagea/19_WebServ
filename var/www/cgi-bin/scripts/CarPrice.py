@@ -3,10 +3,9 @@ import os
 import sys
 
 min_price = 115000
-
 max_price = 120000
-
 path = "/home/vdarras/Cursus/webserv/var/www/cgi-bin/database/CarPrice.csv"
+output_file = "car_proposal.html"
 
 if not os.path.exists(path) or not os.access(path, os.R_OK):
     print("Error: file not found or not readable", file=sys.stderr)
@@ -23,10 +22,8 @@ with open(path, 'r') as csvfile:
         rows.append(row)
 
 price_index = fields.index("Selling_Price")
-
 brand_index = fields.index("Brand")
 model_index = fields.index("Model")
-price_index = fields.index("Selling_Price")
 km_index = fields.index("KM_Driven")
 
 filtered_rows = []
@@ -39,7 +36,8 @@ for row in rows:
     except ValueError:
         continue
 
-print("""
+with open(output_file, 'w', encoding='utf-8') as f:
+    f.write("""
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -81,8 +79,8 @@ print("""
     <h1>Liste des voitures disponibles</h1>
 """)
 
-if filtered_rows:
-    print("""
+    if filtered_rows:
+        f.write("""
     <table>
         <tr>
             <th>Marque</th>
@@ -92,8 +90,8 @@ if filtered_rows:
         </tr>
     """)
 
-    for row in filtered_rows:
-        print(f"""
+        for row in filtered_rows:
+            f.write(f"""
         <tr>
             <td>{row[brand_index]}</td>
             <td>{row[model_index]}</td>
@@ -102,11 +100,11 @@ if filtered_rows:
         </tr>
         """)
 
-    print("</table>")
-else:
-    print("<h2>Aucune voiture trouvée dans cette gamme de prix.</h2>")
+        f.write("</table>")
+    else:
+        f.write("<h2>Aucune voiture trouvée dans cette gamme de prix.</h2>")
 
-print("""
+    f.write("""
 </body>
 </html>
 """)

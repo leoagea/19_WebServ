@@ -19,10 +19,9 @@ const std::string   readpage(std::ifstream &file)
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config) : _ports(ports), _clientMap(), _config(config)
+TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap)
 {
     setupSocket();
-
     std::cout << IT << "Server initialized on port(s): ";
 
     for (size_t i = 0; i < _ports.size(); ++i) 
@@ -71,7 +70,7 @@ void    TcpServer::setupSocket()
         
         if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
         {
-            std::cerr << R << IT << "Binding of the socket to an ip address and a port failed" << RES << std::endl;
+            std::cerr << R << IT << "Binding of the socket to an ip address and a port failed : "<< errno << RES << std::endl;
             exitCloseFds(_serverSockets);
         }
 
@@ -191,9 +190,12 @@ bool fileExists(const std::string& path) { return access(path.c_str(), F_OK) != 
 
 void TcpServer::handleClient(int clientFd) 
 {
+    CgiHandler cgi(_envMap);
+    
     char buffer[REQUEST_HTTP_SIZE];
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-    if (bytesRead <= 0) {
+    if (bytesRead <= 0) 
+    {
         TcpServer::generateLog(BLUE, "A client has disconnected", "INFO");
         // Erase clientFd from clientMap
         close(clientFd);
@@ -205,6 +207,15 @@ void TcpServer::handleClient(int clientFd)
     buffer[bytesRead] = '\0';
     std::string bufferStr = buffer;
     Response response;
+
+    // std::string path;
+
+    // if (isPyCgi())
+    //     cgi.executepy(path);
+
+    // else if (isGoCgi())
+    //     cgi.executego(path);
+
     if (bufferStr.find("POST") == 0) {
         size_t headerEnd = bufferStr.find("\r\n\r\n");
         if (headerEnd != std::string::npos) {
@@ -312,6 +323,10 @@ void	TcpServer::generateLog(std::string color, const std::string& message, const
 
     std::cout << " => "<< message << RES << std::endl;	
 }
+
+bool    TcpServer::isPyCgi() { return 1; }
+
+bool    TcpServer::isGoCgi() { return 1; }
 
 std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
 
