@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/15 14:47:04 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/16 15:36:00 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int main(int ac, char **av, char **env)
     //Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
-    // Exemplde deComment utiliser listDirectory
+    // // Exemplde deComment utiliser listDirectory
     // std::string dir = ".";
     // std::vector<s_info> listing;
     // try
