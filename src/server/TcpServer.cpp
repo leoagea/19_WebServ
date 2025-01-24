@@ -225,8 +225,6 @@ void TcpServer::handleClient(int clientFd)
    	int postBool = 0;
     int deleteBool= 0;
     std::vector<s_info> listing;
-
-    std::cout << "qwd" << UrlPath << std::endl;
     try
     {
         if (_clientMap[clientFd].getLocationBlockByString(UrlPath).getAutoIndexLoc()) {
@@ -237,7 +235,6 @@ void TcpServer::handleClient(int clientFd)
         else {
             try
             {
-            std::cerr << "oui" << '\n';
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
                 response.get(fullPath, getBool);
 				if (bufferStr.find("POST ") == 0) {
