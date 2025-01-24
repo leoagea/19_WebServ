@@ -14,7 +14,7 @@ Request::Request(std::string& fullRequest) : _empty("\r\n")
 		_header.append(1, fullRequest[i]);
 
 		if (fullRequest[i] == '\r'){
-			if (++count == 2) 
+			if (++count == 2)
 				break;
 		}
 		i++;
@@ -57,39 +57,25 @@ void parseHttpRequest(const std::string &rawRequest, std::string &method, std::s
     bool isBody = false;
 
     while (std::getline(requestStream, line)) {
-        // Suppression du caractère de retour chariot
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
         }
 
         if (isBody) {
         
-            body += line + "\n";    //  corps de la requête
+            body += line + "\n"; 
         } else if (line.empty()) {
         
-            isBody = true;    // si Ligne vide == début du corps
+            isBody = true;
         } else if (method.empty() && url.empty()) {
             // Première ligne : méthode et URL
             std::istringstream firstLine(line);
             firstLine >> method >> url;
         }
     }
-
-    // Suppression du dernier saut de ligne dans le corps
     if (!body.empty() && body.back() == '\n') {
         body.pop_back();
     }
-}
-
-void processHttpRequest(int clientSocket)
-{
-    std::string rawRequest = readRequest(clientSocket);
-        // Parsing url et corps
-    std::string method, url, body;
-    parseHttpRequest(rawRequest, method, url, body);
-
-    // Gestion de la requête
-   // handleRequest(method, url, body);
 }
 
 std::string Request::getMethod()
@@ -111,31 +97,5 @@ std::string Request::getHeader()    { return _header; }
 
 std::string Request::getBody()      { return _body; }
 
-
-void sendResponse(int clientFd, const std::string& httpResponse) {
-    ssize_t bytesSent = send(clientFd, httpResponse.c_str(), httpResponse.size(), 0);
-    if (bytesSent == -1) {
-        std::cerr << "Error sending response to client!" << std::endl;
-    } else {
-        std::cout << "Sent " << bytesSent << " bytes to client." << std::endl;
-    }
-}
-
-void handleRequest(const std::string &method, const std::string &url, const std::string &body)
-{
-    Response response;
-
-    if (method == "POST" && url == "/post_text.html")
-    {
-        response.post(body);
-        std::string httpResponse = response.generateResponse();
-    }
-    else
-    {
-        response.setStatusCode(404);
-        response.setBody("<h1>404 Not Found</h1>");
-        std::string httpResponse = response.generateResponse();
-    }
-}
 
 Request::~Request() {}

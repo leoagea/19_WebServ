@@ -27,14 +27,6 @@ void	 Response::m_delete()
                 "File deleted successfully";
 }
 
-// void	Response::m_post()
-// {	
-// 	if (open(const_cast<char *>(_path), O_CREAT, 0777) < 0)
-// 	{
-
-// 	}		
-// }
-
 int	Response::getMethod() { return _method_int; }
 
 Response::Response()
@@ -229,45 +221,48 @@ bool Response::extractFileData(const std::string& requestData, const std::string
     return true;
 }
 
-
 void Response::post(const std::string &requestData)
 {
     std::string uploadFolder = "./uploadFolder";
     if (!isDirectoryWritable(uploadFolder))
     {
         setStatusCode(500);
-        setBody("<h1>500 Internal Server Error</h1><p>Le répertoire de sauvegarde n'est pas accessible.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Le répertoire de sauvegarde n'est pas accessible.</p>");
         return;
     }
+
     std::string boundary = extractBoundary(requestData);
     std::string filename, fileContent;
     if (!extractFileData(requestData, boundary, filename, fileContent))
     {
         setStatusCode(400);
-        setBody("<h1>400 Bad Request</h1><p>Échec lors de l'extraction des données du fichier.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Échec lors de l'extraction des données du fichier.</p>");
         return;
     }
+
     size_t dotPos = filename.find_last_of('.');
     if (dotPos == std::string::npos || filename.substr(dotPos) != ".txt")
     {
         setStatusCode(400);
-        setBody("<h1>400 Bad Request</h1><p>Seuls les fichiers texte (.txt) sont autorisés.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Seuls les fichiers texte (.txt) sont autorisés.</p>");
         return;
     }
+
     std::string filePath = uploadFolder + "/" + filename;
     std::ofstream outputFile(filePath, std::ios::binary);
     if (!outputFile.is_open())
     {
         setStatusCode(500);
-        setBody("<h1>500 Internal Server Error</h1><p>Impossible de sauvegarder le fichier.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Impossible de sauvegarder le fichier.</p>");
         return;
     }
+
     outputFile.write(fileContent.c_str(), fileContent.size());
     outputFile.close();
-
     setStatusCode(201);
-    setBody("<h1>201 Created</h1><p>Fichier texte sauvegardé avec succès : " + filename + "</p>");
+    _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
 }
+
 
 
 
