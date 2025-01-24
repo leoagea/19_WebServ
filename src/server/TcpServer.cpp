@@ -206,12 +206,14 @@ void TcpServer::handleClient(int clientFd) {
     std::string bufferStr = buffer;
     Response response;
 
-    std::string UrlPath = extractRequestedPath(bufferStr);
+     std::string UrlPath = extractRequestedPath(bufferStr);
     std::string requestedPath = UrlPath;
+    std::string rootPath;
     try
     {
         if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri() ) {
             requestedPath = _clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc();
+            rootPath = _clientMap[clientFd].getRootDir();
         }
     }
     catch(const std::exception& e)
@@ -222,18 +224,20 @@ void TcpServer::handleClient(int clientFd) {
     int getBool = 0;
    	int postBool = 0;
     int deleteBool= 0;
-    std::string dir = ".";
     std::vector<s_info> listing;
-	//_clientMap[clientFd].getLocationBlockByString(requestedPath).getAutoIndexLoc()
+
+    std::cout << "qwd" << UrlPath << std::endl;
     try
     {
-        if (0) {
-            listing = DirectoryListing::listDirectory(dir);
-            DirectoryListing::generateDirectoryListingHTML(dir, listing);
+        if (_clientMap[clientFd].getLocationBlockByString(UrlPath).getAutoIndexLoc()) {
+            std::cerr << rootPath << '\n';
+            listing = DirectoryListing::listDirectory(rootPath);
+            response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
         }
         else {
             try
             {
+            std::cerr << "oui" << '\n';
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
                 response.get(fullPath, getBool);
 				if (bufferStr.find("POST ") == 0) {
@@ -250,7 +254,7 @@ void TcpServer::handleClient(int clientFd) {
 							response.setBody("<h1>405 Method Not Allowed</h1>");
 						}
 						else {
-								response.post(body);
+							response.post(body);
             			}
 					}
 				}
@@ -283,7 +287,7 @@ void TcpServer::handleClient(int clientFd) {
     catch(const std::exception& e)
     {
         response.setStatusCode(400);
-        response.setBody("<h1>400 Bad Request get</h1>");
+        response.setBody("<h1>400 Bad Request 1</h1>");
     }
     std::string fullResponse = response.generateResponse();
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
