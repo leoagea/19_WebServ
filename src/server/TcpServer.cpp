@@ -221,9 +221,11 @@ void TcpServer::handleClient(int clientFd)
         std::cerr << e.what() << '\n';
     }
     std::string fullPath = resolvePath(requestedPath, clientFd);
+    
     int getBool = 0;
    	int postBool = 0;
     int deleteBool= 0;
+    std::cout << (UrlPath != "/") << UrlPath << "a " << std::endl;
     std::vector<s_info> listing;
     try
     {
