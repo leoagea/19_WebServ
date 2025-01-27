@@ -92,18 +92,14 @@ void Response::sendRedirect(int clientFd, const std::string &requestedPath, std:
 std::string Response::generateResponse()
 {
     std::string response;
-    
-    // Modifier l'URL dans le body (si le body contient l'URL "myapp")
     if (_body.find("myapp") != std::string::npos) {
-        // Remplacer "myapp" par "delete.html" dans le corps de la réponse
         size_t pos = _body.find("myapp");
         while (pos != std::string::npos) {
-            _body.replace(pos, 5, "delete.html");  // Remplacer "myapp" par "delete.html"
+            _body.replace(pos, 5, "delete.html");
             pos = _body.find("myapp", pos + 1);
         }
     }
 
-    // Générer la réponse HTTP standard
     response += "HTTP/1.1 " + _statusCode + " " + _statusMessage + "\r\n";
     response += "Location: oui \r\n";
     response += "Content-Type: " + _contentType + "\r\n";
@@ -111,7 +107,7 @@ std::string Response::generateResponse()
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
     response += "\r\n";
-    response += _body;  // Le body contient désormais l'URL modifiée
+    response += _body;
 
     return response;
 }

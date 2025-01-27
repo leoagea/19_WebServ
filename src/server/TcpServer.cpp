@@ -175,7 +175,7 @@ std::string TcpServer::extractRequestedPath(const std::string &request)
     return request.substr(pathStart, pathEnd - pathStart);
 }
 
-std::string getFullUrl(const std::string& requestBuffer) {
+std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
     size_t methodEnd = requestBuffer.find(' ');
     if (methodEnd == std::string::npos) {
         return "";
@@ -196,7 +196,7 @@ std::string getFullUrl(const std::string& requestBuffer) {
             host = requestBuffer.substr(hostHeaderStart, hostHeaderEnd - hostHeaderStart);
         }
     }
-    std::string fullUrl = "http://" + host + path;
+    std::string fullUrl = path;
     return fullUrl;
 }
 

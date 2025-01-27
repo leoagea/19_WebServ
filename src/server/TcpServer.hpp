@@ -44,6 +44,7 @@ class TcpServer
         std::vector<pollfd>     getPollFds();
         sockaddr_in             getServerAddress();
         uint16_t                getSocketPort(int socket);
+        std::string             getFullUrl(const std::string& requestBuffer);
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
