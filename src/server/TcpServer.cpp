@@ -175,6 +175,30 @@ std::string TcpServer::extractRequestedPath(const std::string &request)
     return request.substr(pathStart, pathEnd - pathStart);
 }
 
+std::string getFullUrl(const std::string& requestBuffer) {
+    size_t methodEnd = requestBuffer.find(' ');
+    if (methodEnd == std::string::npos) {
+        return "";
+    }
+    std::string method = requestBuffer.substr(0, methodEnd);
+    size_t pathStart = methodEnd + 1;
+    size_t pathEnd = requestBuffer.find(' ', pathStart);
+    if (pathEnd == std::string::npos) {
+        return "";
+    }
+    std::string path = requestBuffer.substr(pathStart, pathEnd - pathStart);
+    std::string host = "";
+    size_t hostHeaderStart = requestBuffer.find("\nHost: ");
+    if (hostHeaderStart != std::string::npos) {
+        hostHeaderStart += 7;
+        size_t hostHeaderEnd = requestBuffer.find('\r', hostHeaderStart);
+        if (hostHeaderEnd != std::string::npos) {
+            host = requestBuffer.substr(hostHeaderStart, hostHeaderEnd - hostHeaderStart);
+        }
+    }
+    std::string fullUrl = "http://" + host + path;
+    return fullUrl;
+}
 
 //implémenter le rep racine
 std::string TcpServer::resolvePath(const std::string &requestedPath, int clientFd)
@@ -204,9 +228,13 @@ void TcpServer::handleClient(int clientFd)
     }
     buffer[bytesRead] = '\0';
     std::string bufferStr = buffer;
+    std::string requestBuffer = buffer;
+    std::string fullUrl = getFullUrl(requestBuffer);
+    std::cout << fullUrl << std::endl;
+
     Response response;
 
-     std::string UrlPath = extractRequestedPath(bufferStr);
+    std::string UrlPath = extractRequestedPath(bufferStr);
     std::string requestedPath = UrlPath;
     std::string rootPath;
     try
