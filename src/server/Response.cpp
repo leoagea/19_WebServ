@@ -27,14 +27,6 @@ void	 Response::m_delete()
                 "File deleted successfully";
 }
 
-// void	Response::m_post()
-// {	
-// 	if (open(const_cast<char *>(_path), O_CREAT, 0777) < 0)
-// 	{
-
-// 	}		
-// }
-
 int	Response::getMethod() { return _method_int; }
 
 Response::Response()
@@ -80,11 +72,36 @@ void Response::setKeepAlive(bool keepAlive)
     _keepAlive = keepAlive;
 }
 
-//rep générée
+void Response::sendRedirect(int clientFd, const std::string &requestedPath, std::string prefix) {
+    std::string newUrl = requestedPath;
+
+    if (newUrl.find(prefix) == 0) {
+        newUrl = "/" + newUrl.substr(prefix.length());
+    }
+    newUrl = newUrl;
+    std::cout << "path 2 " << requestedPath << std::endl;
+    std::string response = 
+        "HTTP/1.1 302 Found\r\n"
+        "Location: " + newUrl + "\r\n"
+        "Content-Length: 0\r\n"
+        "\r\n";
+    
+    send(clientFd, response.c_str(), response.size(), 0);
+}
+
 std::string Response::generateResponse()
 {
     std::string response;
+    if (_body.find("myapp") != std::string::npos) {
+        size_t pos = _body.find("myapp");
+        while (pos != std::string::npos) {
+            _body.replace(pos, 5, "delete.html");
+            pos = _body.find("myapp", pos + 1);
+        }
+    }
+
     response += "HTTP/1.1 " + _statusCode + " " + _statusMessage + "\r\n";
+    response += "Location: oui \r\n";
     response += "Content-Type: " + _contentType + "\r\n";
     response += "Content-Length: " + _contentLength + "\r\n";
     response += "Connection: keep-alive\r\n";
@@ -95,46 +112,6 @@ std::string Response::generateResponse()
     return response;
 }
 
-// void Response::parseRequest(const std::string &rawRequest)
-// {
-//     std::istringstream stream(rawRequest);
-//     std::string line;
-// 	//lecture des headers
-//     if (std::getline(stream, line))
-//     {
-//         std::istringstream lineStream(line);
-//         lineStream >> _method >> _url >> _httpVersion;
-//     }
-// 	//entete http
-//     while (std::getline(stream, line))
-//     {
-//         if (line == "\r" || line.empty())
-//             break;
-
-//         // Extraction la clé + value
-//         size_t colonPos = line.find(':');
-//         if (colonPos != std::string::npos)
-//         {
-//             std::string key = line.substr(0, colonPos);
-//             std::string value = line.substr(colonPos + 1);
-
-//             // clear les espaces
-//             key.erase(0, key.find_first_not_of(" \t"));
-//             key.erase(key.find_last_not_of(" \t") + 1);
-//             value.erase(0, value.find_first_not_of(" \t"));
-//             value.erase(value.find_last_not_of(" \t") + 1);
-
-//             _headers[key] = value;
-//         }
-//     }
-//     // Lire le corps de la requête s'il exitse?
-//     // std::string body;
-//     // while (std::getline(stream, line))
-//     //     body += line + "\n";
-//     // if (!body.empty())
-//     //     _body = body;
-//     // 
-// }
 
 //extract pour print que le headers (check)
 std::string Response::extractHeaders(const std::string &fullResponse)
@@ -171,21 +148,19 @@ std::string Response::readFile(const std::string &filePath)
     return content;
 }
 
-void Response::get(const std::string &filePath)
+void Response::get(const std::string &filePath, bool getBool)
 {
     std::string fileContent = readFile(filePath);
-    
+
     if (!fileContent.empty())
     {
         setBody(fileContent);
         setStatusCode(200);
         setContentType("text/html; charset=UTF-8");
     }
-    else
+    else if (!getBool)
     {
-        setBody("<h1>404 Not Found</h1>");
-        setStatusCode(404);
-        setContentType("text/html; charset=UTF-8");
+        throw std::runtime_error("get error");
     }
 }
 
@@ -242,45 +217,48 @@ bool Response::extractFileData(const std::string& requestData, const std::string
     return true;
 }
 
-
 void Response::post(const std::string &requestData)
 {
     std::string uploadFolder = "./uploadFolder";
     if (!isDirectoryWritable(uploadFolder))
     {
         setStatusCode(500);
-        setBody("<h1>500 Internal Server Error</h1><p>Le répertoire de sauvegarde n'est pas accessible.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Le répertoire de sauvegarde n'est pas accessible.</p>");
         return;
     }
+
     std::string boundary = extractBoundary(requestData);
     std::string filename, fileContent;
     if (!extractFileData(requestData, boundary, filename, fileContent))
     {
         setStatusCode(400);
-        setBody("<h1>400 Bad Request</h1><p>Échec lors de l'extraction des données du fichier.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Échec lors de l'extraction des données du fichier.</p>");
         return;
     }
+
     size_t dotPos = filename.find_last_of('.');
     if (dotPos == std::string::npos || filename.substr(dotPos) != ".txt")
     {
         setStatusCode(400);
-        setBody("<h1>400 Bad Request</h1><p>Seuls les fichiers texte (.txt) sont autorisés.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Seuls les fichiers texte (.txt) sont autorisés.</p>");
         return;
     }
+
     std::string filePath = uploadFolder + "/" + filename;
     std::ofstream outputFile(filePath, std::ios::binary);
     if (!outputFile.is_open())
     {
         setStatusCode(500);
-        setBody("<h1>500 Internal Server Error</h1><p>Impossible de sauvegarder le fichier.</p>");
+        setBody(_body + "<p><strong>Erreur :</strong> Impossible de sauvegarder le fichier.</p>");
         return;
     }
+
     outputFile.write(fileContent.c_str(), fileContent.size());
     outputFile.close();
-
     setStatusCode(201);
-    setBody("<h1>201 Created</h1><p>Fichier texte sauvegardé avec succès : " + filename + "</p>");
+    _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
 }
+
 
 
 

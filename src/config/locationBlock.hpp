@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 17:58:27 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 15:46:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class locationBlock
         std::string getUri() const;
         std::string getRootDirLoc() const;
         std::string getIndexLoc() const;
+        std::string getRootIndexConcatenate() const;
         bool getAutoIndexLoc() const;
         bool getAllowedMethodGET() const;
         bool getAllowedMethodPOST() const;
@@ -56,13 +57,17 @@ class locationBlock
         std::string _uri;
         std::string _root;
         std::string _index;
+        std::string _rootIndex;
         bool _autoindex;
         bool _isredirect; //to indicate if location redirect to another location
         std::pair<int, std::string> _redirect;
         bool _iscgi;
         std::pair<bool, std::string> _cgi; //used to store token nam,e of cgi path, and if token has been read
         std::string _cgipath;
-        unsigned char _allowedmethods;
+        bool _allowedget;
+        bool _allowedpost;
+        bool _alloweddelete;
+        bool _allowedupload;
         ErrorReporter _reportError;
 
         void parseAllLocationVariables();

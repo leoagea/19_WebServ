@@ -10,6 +10,9 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            background: url('car-image.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
             color: #333;
         }
         header {
@@ -51,6 +54,13 @@
         .button-container {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+        .back-button {
+            background-color: #6c757d;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
@@ -59,13 +69,14 @@
         <h1>Upload de Fichier</h1>
     </header>
     <div class="container">
-        <form action="/post_text.html" method="POST" enctype="multipart/form-data">
+        <form action="/post_text" method="POST" enctype="multipart/form-data">
             <label for="file-upload">Choisissez un fichier à télécharger :</label>
             <input type="file" id="file-upload" name="file" required>
 
             <div class="button-container">
                 <button type="submit" class="button">Envoyer</button>
                 <a href="https://www.youtube.com/watch?v=r_aojYqud_0" class="button" target="_blank">Aller sur YouTube</a>
+                <button type="button" class="button back-button" onclick="history.back()">Retour</button>
             </div>
         </form>
     </div>

@@ -6,17 +6,16 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/02 14:07:53 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 15:47:38 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
-locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), _index(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedmethods(0), _reportError(reporter)
+locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), \
+         _index(""), _rootIndex(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedget(false), _allowedpost(false), \
+         _alloweddelete(false), _allowedupload(false), _reportError(reporter)
 {
-    // for(int i=0; i<(int)_tokenVec.size(); i++)
-    //     std::cout << "type:  "<< _tokenVec[i].type << "   value:   " <<  _tokenVec[i].value << std::endl;
-    // std::cout << std::endl;
     parseAllLocationVariables();
 }
 
@@ -42,11 +41,16 @@ std::string locationBlock::getRootDirLoc() const
     return _root;    
 }
 
-//return empty string if index is not redefined in location
-//otherwise return path to index
+//return index name
 std::string locationBlock::getIndexLoc() const
 {
     return _index;
+}
+
+//return index concatenate with the root dir
+std::string locationBlock::getRootIndexConcatenate() const
+{
+    return _rootIndex;
 }
 
 bool locationBlock::getAutoIndexLoc() const
@@ -56,22 +60,22 @@ bool locationBlock::getAutoIndexLoc() const
 
 bool locationBlock::getAllowedMethodGET() const
 {
-    return _allowedmethods == GET;
+    return _allowedget;
 }
 
 bool locationBlock::getAllowedMethodPOST() const
 {
-    return _allowedmethods == POST;
+    return _allowedpost;
 }
 
 bool locationBlock::getAllowedMethodDELETE() const
 {
-    return _allowedmethods == DELETE;
+    return _alloweddelete;
 }
 
 bool locationBlock::getAllowedMethodUPLOAD() const
 {
-    return _allowedmethods == UPLOAD;
+    return _allowedupload;
 }
 
 std::string locationBlock::getCgiScriptName() const
@@ -115,11 +119,11 @@ void locationBlock::parseAllLocationVariables()
                 
                 if (_tokenVec[1].value[_tokenVec[1].value.size() - 1] != '/' && _tokenVec[3].type == keyword && _tokenVec[3].value == "return")
                     _isredirect = true;
-                _uri = _server.getServerName() + _tokenVec[1].value;
             }
         }
     }
-    
+     _uri = _tokenVec[1].value;
+     
     int i = 3;
     for(; i < (int)_tokenVec.size(); i++){
         t_token current = _tokenVec[i];
@@ -195,8 +199,10 @@ void locationBlock::parseIndex(t_token &token)
     
     if (PathChecking::exist(path))
         if (PathChecking::isFile(path))
-            if (PathChecking::getReadPermission(path))
-                _index = path;
+            if (PathChecking::getReadPermission(path)){
+                _rootIndex = path;
+                _index = token.value;
+            }
             else
                 _reportError(token.index, "file has no read permission");
         else
@@ -217,15 +223,15 @@ void locationBlock::parseAutoIndex(t_token &token)
 
 void locationBlock::parseAllowedMethod(t_token &token)
 {
-    if (token.value == "GET" && !(_allowedmethods == GET))
-        _allowedmethods = GET;
-    else if (token.value == "POST" && !(_allowedmethods == POST))
-        _allowedmethods = POST;
-    else if (token.value == "DELETE" && !(_allowedmethods == DELETE))
-        _allowedmethods = DELETE;
-    else if (token.value == "UPLOAD" && !(_allowedmethods == UPLOAD))
-        _allowedmethods = UPLOAD;
-    else if (_allowedmethods == GET || _allowedmethods == POST || _allowedmethods == DELETE || _allowedmethods == UPLOAD)
+    if (token.value == "GET" && !(_allowedget))
+        _allowedget = true;
+    else if (token.value == "POST" && !(_allowedpost))
+        _allowedpost = true;
+    else if (token.value == "DELETE" && !(_alloweddelete))
+        _alloweddelete = true;
+    else if (token.value == "UPLOAD" && !(_allowedupload))
+        _allowedupload = true;
+    else if (_allowedget || _allowedpost || _alloweddelete || _allowedupload)
         _reportError(token.index, "method already allowed");
     else
         _reportError(token.index, "expected only get post delete or upload");
@@ -277,14 +283,14 @@ void locationBlock::parseRedirect(t_token &status, t_token &redirect)
             _redirect.second = redirect.value;
             std::string servername = _server.getServerName();
             if (servername[servername.size() - 1] != '/' && redirect.value[0] == '/')
-                _uri = servername + redirect.value;
+                _uri = redirect.value;
             else if (servername[servername.size() - 1] != '/' && redirect.value[0] != '/')
-                _uri = servername + "/" + redirect.value;
+                _uri = redirect.value;
             else if (servername[servername.size() - 1] == '/' && redirect.value[0] != '/')
-                _uri = servername + redirect.value; 
+                _uri = redirect.value; 
             else if (servername[servername.size() - 1] == '/' && redirect.value[0] == '/'){
                 servername.erase(servername.size() - 1);
-                _uri = servername + redirect.value; 
+                _uri = redirect.value; 
             }
             else
                 _reportError(redirect.index, "failed to retrieve redirect location name");
@@ -319,7 +325,10 @@ std::ostream &operator<<(std::ostream &out, const locationBlock &obj)
     out << "Root dir:  " << obj.getRootDirLoc() << std::endl;
     
     out << MAGENTA << "Index" << RESET << std::endl; 
-    out << "Index path:  '" << obj.getIndexLoc() << "'" << std::endl;
+    out << "Index name:  '" << obj.getIndexLoc() << "'" << std::endl;
+    
+    out << MAGENTA << "Index concatenate" << RESET << std::endl; 
+    out << "Index path:  '" << obj.getRootIndexConcatenate() << "'" << std::endl;
     
     out << MAGENTA << "Auto index" << RESET << std::endl; 
     out << "bool:  " << obj.getAutoIndexLoc() << std::endl;

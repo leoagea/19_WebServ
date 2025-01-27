@@ -69,8 +69,9 @@ public:
     void setKeepAlive(bool keepAlive);
     std::string generateResponse();
 	std::string extractHeaders(const std::string &fullResponse);
-    void get(const std::string &filePath);
+    void get(const std::string &filePath, bool getBool);
 	static std::string readFile(const std::string &filePath);
+    void sendRedirect(int clientFd, const std::string &newUrl, std::string prefix);
 
 	bool extractFileData(const std::string& requestData, const std::string& boundary, std::string& filename, std::string& fileContent);
 	std::string extractBoundary(const std::string& requestData);

@@ -6,7 +6,7 @@
 #    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2025/01/03 16:13:59 by lagea            ###   ########.fr        #
+#    Updated: 2025/01/16 15:30:46 by lagea            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Werror #-fsanitize=address -g  #-std=c++98
+CPPFLAGS 	= -Wall -Wextra -Wshadow -Wuninitialized -Werror #-fsanitize=address -g  #-std=c++98
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)
