@@ -187,15 +187,15 @@ std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
         return "";
     }
     std::string path = requestBuffer.substr(pathStart, pathEnd - pathStart);
-    std::string host = "";
-    size_t hostHeaderStart = requestBuffer.find("\nHost: ");
-    if (hostHeaderStart != std::string::npos) {
-        hostHeaderStart += 7;
-        size_t hostHeaderEnd = requestBuffer.find('\r', hostHeaderStart);
-        if (hostHeaderEnd != std::string::npos) {
-            host = requestBuffer.substr(hostHeaderStart, hostHeaderEnd - hostHeaderStart);
-        }
-    }
+    // std::string host = "";
+    // size_t hostHeaderStart = requestBuffer.find("\nHost: ");
+    // if (hostHeaderStart != std::string::npos) {
+    //     hostHeaderStart += 7;
+    //     size_t hostHeaderEnd = requestBuffer.find('\r', hostHeaderStart);
+    //     if (hostHeaderEnd != std::string::npos) {
+    //         host = requestBuffer.substr(hostHeaderStart, hostHeaderEnd - hostHeaderStart);
+    //     }
+    // }
     std::string fullUrl = path;
     return fullUrl;
 }
@@ -230,7 +230,7 @@ void TcpServer::handleClient(int clientFd)
     std::string bufferStr = buffer;
     std::string requestBuffer = buffer;
     std::string fullUrl = getFullUrl(requestBuffer);
-    std::cout << fullUrl << std::endl;
+    std::cout << "full url " << fullUrl << std::endl;
 
     Response response;
 
@@ -253,12 +253,10 @@ void TcpServer::handleClient(int clientFd)
     int getBool = 0;
    	int postBool = 0;
     int deleteBool= 0;
-    std::cout << (UrlPath != "/") << UrlPath << "a " << std::endl;
     std::vector<s_info> listing;
     try
     {
         if (_clientMap[clientFd].getLocationBlockByString(UrlPath).getAutoIndexLoc()) {
-            std::cerr << rootPath << '\n';
             listing = DirectoryListing::listDirectory(rootPath);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
         }
