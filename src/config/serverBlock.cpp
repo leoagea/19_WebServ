@@ -6,22 +6,22 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/16 15:32:00 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 16:41:13 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock() : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), \
+ServerBlock::ServerBlock() : _listeningports(-1), _servername(""), _rootdir(""), _index(""), \
         _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError()
 {
 }
 
-ServerBlock::ServerBlock(std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername("webserv"), _rootdir(""), _index(""), \
+ServerBlock::ServerBlock(int start, std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername(""), _rootdir(""), _index(""), \
         _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError(reporter)
 {
     initializeMapErrorPages();
-    parseAllServerVariables(tokenVec, j);
+    parseAllServerVariables(start, tokenVec, j);
 }
 
 ServerBlock::~ServerBlock()
@@ -171,7 +171,7 @@ void ServerBlock::initializeMapErrorPages()
     _errorpages[500] = ""; //Internal server error
 }
 
-void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j)
+void ServerBlock::parseAllServerVariables(int startIndex, std::vector<t_token> &tokenVec, int *j)
 {
     int i = 0;
     for (i = *j; i < (int)tokenVec.size() && tokenVec[i].type != closebracket; i++){
@@ -244,143 +244,134 @@ void ServerBlock::parseAllServerVariables(std::vector<t_token> &tokenVec, int *j
     if(i == 0)
         *j += 1;
     *j = i;
+
+    std::vector<std::string> check = checkAllDefined();
+    if (!check.empty()){
+        std::string notdefined = "";
+        for (std::vector<std::string>::iterator it = check.begin(); it != check.end(); it++){
+            notdefined += *it + " ";
+        }
+        notdefined += "not defined";
+        _reportError(startIndex, notdefined);
+    }
 }
 
 void ServerBlock::parseListeningPort(t_token &token)
 {
-    if (token.type == number)
-    {
-        int port = atoi(token.value.c_str());
-        if (port <= 1023 || port > UINT16_MAX){
-            _reportError(token.index, "port range exceeded expected 1024 - 65535");
+    if (_listeningports == -1){
+        if (token.type == number)
+        {
+            int port = atoi(token.value.c_str());
+            if (port <= 1023 || port > UINT16_MAX){
+                _reportError(token.index, "port range exceeded expected 1024 - 65535");
+            }
+            else
+                _listeningports = port;
         }
         else
-            _listeningports = port;
+            _reportError(token.index, "expected number");
     }
     else
-        _reportError(token.index, "expected number");
+        _reportError(token.index, "listen already defined");
 }
 
 void ServerBlock::parseServerName(t_token &token)
-{
-    if (token.type == string)
-    {
-        _servername = token.value;
+{   
+    if (_servername == ""){
+        if (token.type == string)
+        {
+            _servername = token.value;
+        }
+        else
+            _reportError(token.index, "expected a string");
     }
     else
-        _reportError(token.index, "expected a string");
+        _reportError(token.index, "server_name already defined");
 }
 
 void ServerBlock::parseRootDir(t_token &token)
 {
-    if (token.type == string){
-        if (PathChecking::exist(token.value))
-            if (PathChecking::isDirectory(token.value))
-                _rootdir = token.value;
+    if (_rootdir == ""){
+        if (token.type == string){
+            if (PathChecking::exist(token.value))
+                if (PathChecking::isDirectory(token.value))
+                    _rootdir = token.value;
+                else
+                    _reportError(token.index, "expected a directory path");
             else
-                _reportError(token.index, "expected a directory path");
+                _reportError(token.index, "path does not exist");
+        }
         else
-            _reportError(token.index, "path does not exist");
+            _reportError(token.index, "expected a path");
     }
     else
-        _reportError(token.index, "expected a path");
+        _reportError(token.index, "root already defined");
 }
 
 void ServerBlock::parseIndex(t_token &token)
 {
-    if (token.type == string){
-        std::string path;
-        
-        if (_rootdir[_rootdir.size() - 1] == '/')
-            path = _rootdir + token.value;
-        else
-            path = _rootdir + "/" + token.value;
-
-        if (PathChecking::exist(path))
-            if (PathChecking::isFile(path))
-                if (PathChecking::getReadPermission(path))
-                    _index = path;
-                else
-                    _reportError(token.index, "file has no read permission");
+    if (_index == ""){
+        if (token.type == string){
+            std::string path;
+            
+            if (_rootdir[_rootdir.size() - 1] == '/')
+                path = _rootdir + token.value;
             else
-                _reportError(token.index, "expected a file");
+                path = _rootdir + "/" + token.value;
+
+            if (PathChecking::exist(path))
+                if (PathChecking::isFile(path))
+                    if (PathChecking::getReadPermission(path))
+                        _index = path;
+                    else
+                        _reportError(token.index, "file has no read permission");
+                else
+                    _reportError(token.index, "expected a file");
+            else
+                _reportError(token.index, "does not exist");
+        }
         else
-            _reportError(token.index, "does not exist");
+            _reportError(token.index, "expected a file");
     }
     else
-        _reportError(token.index, "expected a file");
+        _reportError(token.index, "index already defined");
 }
 
 void ServerBlock::parseAccesLogPath(t_token &token)
 {
-    if (token.type == string && isLogExtensionValid(token.value)){
-        std::string path = token.value;
-        
-        if(!PathChecking::isAbsolutePath(token.value)){
-            if (_rootdir[_rootdir.size() - 1] == '/')
-                path = _rootdir + token.value;
-            else
-                path = _rootdir + "/" + token.value;
-        }
+    if (_acceslogdpath == ""){
+        if (token.type == string && isLogExtensionValid(token.value)){
+            std::string path = token.value;
             
-        if (!PathChecking::exist(path)){
-            int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            if (fd  == -1)
-                _reportError(token.index, "failed to create access log file");
-            else
-                close(fd);
+            if(!PathChecking::isAbsolutePath(token.value)){
+                if (_rootdir[_rootdir.size() - 1] == '/')
+                    path = _rootdir + token.value;
+                else
+                    path = _rootdir + "/" + token.value;
+            }
+                
+            if (!PathChecking::exist(path)){
+                int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                if (fd  == -1)
+                    _reportError(token.index, "failed to create access log file");
+                else
+                    close(fd);
+            }
+            _acceslogdpath = path;
         }
-        _acceslogdpath = path;
+        else
+            _reportError(token.index, "expected a .log path");
     }
     else
-        _reportError(token.index, "expected a .log path");
+        _reportError(token.index, "access_log already defined");
 }
 
 void ServerBlock::parseErrorsLogPath(t_token &token)
 {
-    if (token.type == string && isLogExtensionValid(token.value)){
-        std::string path = token.value;
-        
-        if(!PathChecking::isAbsolutePath(token.value)){
-            if (_rootdir[_rootdir.size() - 1] == '/')
-                path = _rootdir + token.value;
-            else
-                path = _rootdir + "/" + token.value;
-        }
-        
-        if (!PathChecking::exist(path)){
-            int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            if (fd  == -1)
-                _reportError(token.index, "failed to create error log file");
-            else
-                close(fd);
-        }
-        _errorlogpath = path;
-    }
-    else
-        _reportError(token.index, "expected a .log path");
-}
-
-void ServerBlock::parseLimitBodySize(t_token &token)
-{
-    if (token.type == number){
-        int maxbodysize = atoi(token.value.c_str());
-        if (maxbodysize <= 0 || maxbodysize >= 1025)
-            _reportError(token.index, "max body size range exceeded 1 - 1024");
-        else
-            _bodysizelimit = maxbodysize;
-    }
-    else
-        _reportError(token.index, "expected a number");
-}
-
-void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
-{
-    if (num.type == number && token.type == string){
-        int numpage = atoi(num.value.c_str());
-        if (_errorpages.find(numpage) != _errorpages.end()){
+    if (_errorlogpath == ""){
+        if (token.type == string && isLogExtensionValid(token.value)){
             std::string path = token.value;
-        
+            
             if(!PathChecking::isAbsolutePath(token.value)){
                 if (_rootdir[_rootdir.size() - 1] == '/')
                     path = _rootdir + token.value;
@@ -388,16 +379,67 @@ void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
                     path = _rootdir + "/" + token.value;
             }
             
-            if (PathChecking::exist(path))
-                if (PathChecking::isFile(path))
-                    if (PathChecking::getReadPermission(path))
-                        _errorpages[numpage] = path;
-                    else
-                        _reportError(token.index, "file has no read permission");
+            if (!PathChecking::exist(path)){
+                int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                if (fd  == -1)
+                    _reportError(token.index, "failed to create error log file");
                 else
-                    _reportError(token.index, "is not a file");
+                    close(fd);
+            }
+            _errorlogpath = path;
+        }
+        else
+            _reportError(token.index, "expected a .log path");
+    }
+    else
+        _reportError(token.index, "errors log already defined");
+}
+
+void ServerBlock::parseLimitBodySize(t_token &token)
+{
+    if (_bodysizelimit == -1){
+        if (token.type == number){
+            int maxbodysize = atoi(token.value.c_str());
+            if (maxbodysize <= 0 || maxbodysize >= 1025)
+                _reportError(token.index, "max body size range exceeded 1 - 1024");
             else
-                _reportError(token.index, "file does not exist");
+                _bodysizelimit = maxbodysize;
+        }
+        else
+            _reportError(token.index, "expected a number");
+    }
+    else
+        _reportError(token.index, "limit_body_size already defined");
+}
+
+void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
+{
+    if (num.type == number && token.type == string){
+        int numpage = atoi(num.value.c_str());
+        if (_errorpages.find(numpage) != _errorpages.end()){
+            if (_errorpages[numpage] == ""){
+                std::string path = token.value;
+            
+                if(!PathChecking::isAbsolutePath(token.value)){
+                    if (_rootdir[_rootdir.size() - 1] == '/')
+                        path = _rootdir + token.value;
+                    else
+                        path = _rootdir + "/" + token.value;
+                }
+                
+                if (PathChecking::exist(path))
+                    if (PathChecking::isFile(path))
+                        if (PathChecking::getReadPermission(path))
+                            _errorpages[numpage] = path;
+                        else
+                            _reportError(token.index, "file has no read permission");
+                    else
+                        _reportError(token.index, "is not a file");
+                else
+                    _reportError(token.index, "not defined""file does not exist");
+            }
+            else
+                _reportError(token.index, "error page already defined");
         }
         else
             _reportError(token.index, "error page not handle");
@@ -408,25 +450,29 @@ void ServerBlock::parseErrorsPages(t_token &num, t_token &token)
 
 void ServerBlock::parseHost(t_token &token)
 {
-    if (token.type == number){
-        if (!isHostValid(token.value))
-            _reportError(token.index, "expected IPv4 address");
-        else{
-            std::string n;
-            std::stringstream ss(token.value);
-            getline(ss, n, '.');
-            _hostbytes.push_back(atoi(n.c_str()));
-            getline(ss, n, '.');
-            _hostbytes.push_back(atoi(n.c_str()));
-            getline(ss, n, '.');
-            _hostbytes.push_back(atoi(n.c_str()));
-            getline(ss, n, '.');
-            _hostbytes.push_back(atoi(n.c_str()));
-            _host = token.value;
+    if (_host == "" && _hostbytes.empty()){
+        if (token.type == number){
+            if (!isHostValid(token.value))
+                _reportError(token.index, "expected IPv4 address");
+            else{
+                std::string n;
+                std::stringstream ss(token.value);
+                getline(ss, n, '.');
+                _hostbytes.push_back(atoi(n.c_str()));
+                getline(ss, n, '.');
+                _hostbytes.push_back(atoi(n.c_str()));
+                getline(ss, n, '.');
+                _hostbytes.push_back(atoi(n.c_str()));
+                getline(ss, n, '.');
+                _hostbytes.push_back(atoi(n.c_str()));
+                _host = token.value;
+            }
         }
+        else
+            _reportError(token.index, "expected a ip address");
     }
     else
-        _reportError(token.index, "expected a ip address");
+        _reportError(token.index, "host already defined");
 }
 
 bool ServerBlock::isHostValid(std::string &host)
@@ -456,6 +502,30 @@ bool ServerBlock::isLogExtensionValid(std::string &path)
     if (it == path.end())
         return false;
     return true;
+}
+
+std::vector<std::string> ServerBlock::checkAllDefined()
+{
+    std::vector<std::string> notdefined;
+       
+    if (_listeningports == -1)
+        notdefined.push_back("listen port");
+    if (_servername == "")
+        notdefined.push_back("servername");
+    if (_rootdir == "")
+        notdefined.push_back("root directory");
+    if (_index == "")
+        notdefined.push_back("index page");
+    if (_acceslogdpath == "")
+        notdefined.push_back("acces log file");
+    if (_errorlogpath == "")
+        notdefined.push_back("error log file");
+    if (_bodysizelimit == -1)
+        notdefined.push_back("body size limit");
+    if (_host == "" && _hostbytes.empty())
+        notdefined.push_back("host");
+
+    return notdefined;
 }
 
 //Print every private attributes for debugging purpose

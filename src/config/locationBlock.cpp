@@ -6,15 +6,15 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/17 15:47:38 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/28 17:37:49 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "locationBlock.hpp"
 
-locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(server.getRootDir()), \
-         _index(""), _rootIndex(""), _autoindex(false), _isredirect(false), _redirect(0, ""), _iscgi(false),_cgi(false, ""), _cgipath(""), _allowedget(false), _allowedpost(false), \
-         _alloweddelete(false), _allowedupload(false), _reportError(reporter)
+locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, const ErrorReporter &reporter) : _server(server), _tokenVec(vec), _uri(""), _root(""), \
+         _index(""), _autoindex(-1), _isredirect(false), _redirect(-1, ""), _iscgi(false),_cgi(-1, ""), _cgipath(""), \
+         _allowedget(-1), _allowedpost(-1), _alloweddelete(-1), _allowedupload(-1), _reportError(reporter)
 {
     parseAllLocationVariables();
 }
@@ -55,27 +55,31 @@ std::string locationBlock::getRootIndexConcatenate() const
 
 bool locationBlock::getAutoIndexLoc() const
 {
-    return _autoindex;
+    return _autoindex == 1;
 }
 
 bool locationBlock::getAllowedMethodGET() const
 {
     return _allowedget;
+    return _allowedget == 1;
 }
 
 bool locationBlock::getAllowedMethodPOST() const
 {
     return _allowedpost;
+    return _allowedpost == 1;
 }
 
 bool locationBlock::getAllowedMethodDELETE() const
 {
     return _alloweddelete;
+    return _alloweddelete == 1;
 }
 
 bool locationBlock::getAllowedMethodUPLOAD() const
 {
     return _allowedupload;
+    return _allowedupload == 1;
 }
 
 std::string locationBlock::getCgiScriptName() const
@@ -181,57 +185,70 @@ void locationBlock::parseRootDir(t_token &token)
 {
     std::string path = token.value;
     
-    if (PathChecking::exist(path))
-        if (PathChecking::isDirectory(path))
-            if (path[path.size() - 1] == '/')
-                _root = path;
+    if (_root == ""){
+        if (PathChecking::exist(path))
+            if (PathChecking::isDirectory(path))
+                if (path[path.size() - 1] == '/')
+                    _root = path;
+                else
+                    _root = path + "/";
             else
-                _root = path + "/";
+                _reportError(token.index, "is not directory");
         else
-            _reportError(token.index, "is not directory");
+            _reportError(token.index, "path does not exist");
+    }
     else
-        _reportError(token.index, "path does not exist");
+        _reportError(token.index, "root already defined");
 }
 
 void locationBlock::parseIndex(t_token &token)
 {
+    if (_root == "")
+        _root = _server.getRootDir();
+
     std::string path = _root + token.value;
     
-    if (PathChecking::exist(path))
-        if (PathChecking::isFile(path))
-            if (PathChecking::getReadPermission(path)){
-                _rootIndex = path;
-                _index = token.value;
-            }
+    if (_index == ""){
+        if (PathChecking::exist(path))
+            if (PathChecking::isFile(path))
+                if (PathChecking::getReadPermission(path))
+                    _index = path;
+                else
+                    _reportError(token.index, "file has no read permission");
             else
-                _reportError(token.index, "file has no read permission");
+                _reportError(token.index, "is not a file");
         else
-            _reportError(token.index, "is not a file");
+            _reportError(token.index, "file does not exist");
+    }
     else
-        _reportError(token.index, "file does not exist");
+        _reportError(token.index, "index already defined");
 }
 
 void locationBlock::parseAutoIndex(t_token &token)
 {
-    if (token.value == "on")
-        _autoindex = true;
-    else if (token.value == "off")
-        _autoindex = false;
+    if (_autoindex == -1){
+        if (token.value == "on")
+            _autoindex = true;
+        else if (token.value == "off")
+            _autoindex = false;
+        else
+            _reportError(token.index, "expected only on or off");
+    }
     else
-        _reportError(token.index, "expected only on or off");
+        _reportError(token.index, "autoindex already defined");
 }
 
 void locationBlock::parseAllowedMethod(t_token &token)
 {
-    if (token.value == "GET" && !(_allowedget))
-        _allowedget = true;
-    else if (token.value == "POST" && !(_allowedpost))
-        _allowedpost = true;
-    else if (token.value == "DELETE" && !(_alloweddelete))
-        _alloweddelete = true;
-    else if (token.value == "UPLOAD" && !(_allowedupload))
-        _allowedupload = true;
-    else if (_allowedget || _allowedpost || _alloweddelete || _allowedupload)
+    if (token.value == "GET" && _allowedget == -1)
+        _allowedget = 1;
+    else if (token.value == "POST" && _allowedpost == -1)
+        _allowedpost = 1;
+    else if (token.value == "DELETE" && _alloweddelete == -1)
+        _alloweddelete = 1;
+    else if (token.value == "UPLOAD" && _allowedupload == -1)
+        _allowedupload = 1;
+    else if (_allowedget == 1 || _allowedpost == 1 || _alloweddelete == 1 || _allowedupload == 1)
         _reportError(token.index, "method already allowed");
     else
         _reportError(token.index, "expected only get post delete or upload");
@@ -239,65 +256,77 @@ void locationBlock::parseAllowedMethod(t_token &token)
 
 void locationBlock::parseInclude(t_token &token)
 {
-    if (token.type == keyword)
-        if (token.value == "cgi_param")
-            if (_iscgi)
-                _cgi.first = true;
+    if (_cgi.first == -1){
+        if (token.type == keyword)
+            if (token.value == "cgi_param")
+                if (_iscgi)
+                    _cgi.first = true;
+                else
+                    _reportError(token.index, "cannot include param outside cgi location");
             else
-                _reportError(token.index, "cannot include param outside cgi location");
+                _reportError(token.index, "expected cgi_param");
         else
-            _reportError(token.index, "expected cgi_param");
+            _reportError(token.index, "expected token cgi_param");
+    }
     else
-        _reportError(token.index, "expected token cgi_param");
+        _reportError(token.index, "include already defined");
 }
 
 void locationBlock::parseCgiScriptName(t_token &token)
 {
     std::string path = _root + token.value;
     
-    if (PathChecking::exist(path))
-        if (PathChecking::isFile(path))
-            if (PathChecking::getExecPermission(path)){
-                _cgipath = path;
-                _cgi.second = token.value;
-            }
+    if (_cgi.second == ""){
+        if (PathChecking::exist(path))
+            if (PathChecking::isFile(path))
+                if (PathChecking::getExecPermission(path)){
+                    _cgipath = path;
+                    _cgi.second = token.value;
+                }
+                else
+                    _reportError(token.index, "cgi script has no exec permission");
             else
-                _reportError(token.index, "cgi script has no exec permission");
+                _reportError(token.index, "cgi script is not a file");
         else
-            _reportError(token.index, "cgi script is not a file");
+            _reportError(token.index, "cgi script does not exist");
+    }
     else
-        _reportError(token.index, "cgi script does not exist");
+        _reportError(token.index, "cgi_param already defined");
 }
 
 void locationBlock::parseRedirect(t_token &status, t_token &redirect)
 {
-    if (status.type == number && redirect.type == string){
-        if (_isredirect){
-            int statuscode = atoi(status.value.c_str());
-            
-            if (statuscode != 301)
-                _reportError(status.index, "expected only 301 return code (HTTP Redirect)");
-            else
-                _redirect.first = statuscode;
-            
-            _redirect.second = redirect.value;
-            std::string servername = _server.getServerName();
-            if (servername[servername.size() - 1] != '/' && redirect.value[0] == '/')
-                _uri = redirect.value;
-            else if (servername[servername.size() - 1] != '/' && redirect.value[0] != '/')
-                _uri = redirect.value;
-            else if (servername[servername.size() - 1] == '/' && redirect.value[0] != '/')
-                _uri = redirect.value; 
-            else if (servername[servername.size() - 1] == '/' && redirect.value[0] == '/'){
-                servername.erase(servername.size() - 1);
-                _uri = redirect.value; 
+    if (_redirect.first == -1 && _redirect.second == ""){
+        if (status.type == number && redirect.type == string){
+            if (_isredirect){
+                int statuscode = atoi(status.value.c_str());
+                
+                if (statuscode != 301)
+                    _reportError(status.index, "expected only 301 return code (HTTP Redirect)");
+                else
+                    _redirect.first = statuscode;
+                
+                _redirect.second = redirect.value;
+                std::string servername = _server.getServerName();
+                if (servername[servername.size() - 1] != '/' && redirect.value[0] == '/')
+                    _uri = servername + redirect.value;
+                else if (servername[servername.size() - 1] != '/' && redirect.value[0] != '/')
+                    _uri = servername + "/" + redirect.value;
+                else if (servername[servername.size() - 1] == '/' && redirect.value[0] != '/')
+                    _uri = servername + redirect.value; 
+                else if (servername[servername.size() - 1] == '/' && redirect.value[0] == '/'){
+                    servername.erase(servername.size() - 1);
+                    _uri = servername + redirect.value; 
+                }
+                else
+                    _reportError(redirect.index, "failed to retrieve redirect location name");
             }
             else
-                _reportError(redirect.index, "failed to retrieve redirect location name");
+                _reportError(status.index, "expected return token only in redirect location");
         }
-        else
-            _reportError(status.index, "expected return token only in redirect location");
     }
+    else
+        _reportError(status.index, "redirect already defined");
 }
 
 bool locationBlock::isCGI(std::string &path, int index)
