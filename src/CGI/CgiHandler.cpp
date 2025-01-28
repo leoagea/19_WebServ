@@ -85,19 +85,29 @@ void CgiHandler::executego(std::string cgi_path)
         // dup2(pipeFd[1], STDOUT_FILENO);
         // close(pipeFd[1]);
 
+        char *envp[] = {
+            const_cast<char *>("GOPATH=/home/vdarras/go"),
+            const_cast<char *>("GOMODCACHE=/home/vdarras/golang/pkg/mod"),
+            const_cast<char *>("HOME=/tmp"),
+            const_cast<char *>("XDG_CACHE_HOME=/tmp"),
+            const_cast<char *>("GOCACHE=/tmp/go-build"),
+            NULL
+        };
+
         std::vector<char *> argv;
 
-        argv.push_back(const_cast<char *>("rungo"));
+        argv.push_back(const_cast<char *>("/usr/bin/go"));
+        argv.push_back(const_cast<char *>("run"));
         argv.push_back(const_cast<char *>(cgi_path.c_str()));
+        argv.push_back(const_cast<char *>("2>/dev/null"));
         argv.push_back(NULL);
 
-        execve("/usr/bin/go", argv.data(), NULL);
+        execve("/usr/bin/go", argv.data(), envp);
 
         std::cerr << "Execve failed" << std::endl;
-
         return;
     }
-
+    waitpid(pid, nullptr, 0);
     // if (pid > 0)
     // {
     //     close(pipeFd[1]);

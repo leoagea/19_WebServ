@@ -265,6 +265,7 @@ void TcpServer::handleClient(int clientFd)
             try
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
+                cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
@@ -410,10 +411,6 @@ void	TcpServer::generateLog(std::string color, const std::string& message, const
 
     std::cout << " => "<< message << RES << std::endl;	
 }
-
-bool    TcpServer::isPyCgi() { return 1; }
-
-bool    TcpServer::isGoCgi() { return 1; }
 
 std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
 

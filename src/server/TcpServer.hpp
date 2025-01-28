@@ -49,8 +49,7 @@ class TcpServer
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
-        bool                    isPyCgi();
-        bool                    isGoCgi();
+    
     private :
         static const size_t     _maxPollFds = 4096;
         std::vector<int>        _serverSockets;
