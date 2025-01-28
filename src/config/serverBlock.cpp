@@ -154,7 +154,7 @@ locationBlock ServerBlock::getLocationBlockByString(std::string &locationName) c
     if (it != _locationblock.end()) {
         return (it->second);
     } else {
-        throw std::runtime_error("Location not found in ServerBlock");
+        throw std::runtime_error("");
     }
 }
 
