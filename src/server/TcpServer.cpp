@@ -266,7 +266,8 @@ void TcpServer::handleClient(int clientFd)
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
                 response.get(fullPath, getBool);
-                TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
+                if (bufferStr.find("POST ") != 0)
+                    TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
 				if (bufferStr.find("POST ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
