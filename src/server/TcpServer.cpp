@@ -200,6 +200,14 @@ std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
     return fullUrl;
 }
 
+std::string TcpServer::getDirectoryFromFirstLine(const std::string & url)
+{
+    size_t pos_slash = url.find('/');
+    size_t pos_space = url.find(' ', pos_slash);
+    std::string path = url.substr(pos_slash, pos_space - pos_slash);
+    return path;
+}
+
 //implémenter le rep racine
 std::string TcpServer::resolvePath(const std::string &requestedPath, int clientFd)
 {
@@ -230,8 +238,6 @@ void TcpServer::handleClient(int clientFd)
     std::string bufferStr = buffer;
     std::string requestBuffer = buffer;
     std::string fullUrl = getFullUrl(requestBuffer);
-    std::cout << fullUrl << std::endl;
-
     Response response;
 
     std::string UrlPath = extractRequestedPath(bufferStr);
@@ -244,21 +250,17 @@ void TcpServer::handleClient(int clientFd)
             rootPath = _clientMap[clientFd].getRootDir();
         }
     }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    catch(const std::exception& e) {}
+
     std::string fullPath = resolvePath(requestedPath, clientFd);
     
     int getBool = 0;
    	int postBool = 0;
     int deleteBool= 0;
-    std::cout << (UrlPath != "/") << UrlPath << "a " << std::endl;
     std::vector<s_info> listing;
     try
     {
         if (_clientMap[clientFd].getLocationBlockByString(UrlPath).getAutoIndexLoc()) {
-            std::cerr << rootPath << '\n';
             listing = DirectoryListing::listDirectory(rootPath);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
         }
@@ -267,6 +269,7 @@ void TcpServer::handleClient(int clientFd)
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
                 response.get(fullPath, getBool);
+                TcpServer::generateLog(BLUE, getDirectoryFromFirstLine(fullUrl), "INFO");
 				if (bufferStr.find("POST ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
@@ -285,7 +288,7 @@ void TcpServer::handleClient(int clientFd)
             			}
 					}
 				}
-				if (bufferStr.find("DELETE ") == 0) {
+				else if (bufferStr.find("DELETE ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
 						response.setStatusCode(400);
