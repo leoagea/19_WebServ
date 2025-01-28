@@ -61,7 +61,7 @@ void CgiHandler::executepy(std::string cgi_path)
 }
 
 
-void CgiHandler::executego(std::string cgi_path)
+void CgiHandler::executego()
 {
     // int     pipeFd[2];
 
@@ -88,7 +88,6 @@ void CgiHandler::executego(std::string cgi_path)
         std::vector<char *> argv;
 
         argv.push_back(const_cast<char *>("rungo"));
-        argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
 
         execve("/usr/bin/go", argv.data(), NULL);

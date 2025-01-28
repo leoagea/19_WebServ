@@ -19,7 +19,7 @@ class CgiHandler
         ~CgiHandler();
 
         void     executepy(std::string cgi_path);
-        void     executego(std::string cgi_path);
+        void     executego();
 
     private :
         std::map<std::string, std::string>  _envpMap;
