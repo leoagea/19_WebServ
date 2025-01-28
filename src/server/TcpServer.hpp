@@ -34,7 +34,7 @@ typedef        ServerBlock ServBlo;
 class TcpServer 
 {
     public :
-        TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap);
+        TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap, char **env);
         ~TcpServer();
 
         void                    startServer();
@@ -70,6 +70,7 @@ class TcpServer
         void                    exitCloseFds(std::vector<int> &serverSockets);
 
         ServerBlock             getServerBlockBySocket(int);
+        char                    **env;
 };
 
 #endif

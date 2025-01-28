@@ -1,6 +1,6 @@
 #include "CgiHandler.hpp"
 
-CgiHandler::CgiHandler(std::map<std::string, std::string> envMap) { (void)envMap; }
+CgiHandler::CgiHandler(std::map<std::string, std::string> envMap, char **env) : env(env) { (void)envMap; }
 
 CgiHandler::~CgiHandler() {}
 
@@ -34,7 +34,7 @@ void CgiHandler::executepy(std::string cgi_path)
         argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
 
-        execve("/usr/bin/python3", argv.data(), NULL);
+        execve("/usr/bin/python3", argv.data(), this->env);
         
         std::cerr << "Execve failed" << std::endl;
         return;
@@ -61,7 +61,7 @@ void CgiHandler::executepy(std::string cgi_path)
 }
 
 
-void CgiHandler::executego()
+void CgiHandler::executego(std::string cgi_path)
 {
     // int     pipeFd[2];
 
@@ -70,6 +70,12 @@ void CgiHandler::executego()
     //     std::cerr << "Pipe creation failed" << std::endl;
     //     return;
     // }
+
+    // char *envp[] = {
+    //     const_cast<char *>("GOPATH=/home/vdarras/go"),
+    //     const_cast<char *>("GOMODCACHE=/home/vdarras/golang/pkg/mod"),
+    //     NULL
+    // };
 
     pid_t pid = fork();
 
@@ -87,12 +93,14 @@ void CgiHandler::executego()
 
         std::vector<char *> argv;
 
-        argv.push_back(const_cast<char *>("rungo"));
+        argv.push_back(const_cast<char *>("go"));
+        argv.push_back(const_cast<char *>("run"));
+        argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
 
-        execve("/usr/bin/go", argv.data(), NULL);
+        execve("/usr/bin/go", argv.data(), this->env);
 
-        std::cerr << "Execve failed" << std::endl;
+        std::cerr << "Execve failed" <<  errno << std::endl;
 
         return;
     }

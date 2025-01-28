@@ -88,7 +88,7 @@ int main(int ac, char **av, char **env)
     for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
         ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
 
-    TcpServer   server(ports, data.getConfigFileObject(), data.getEnvMap());
+    TcpServer   server(ports, data.getConfigFileObject(), data.getEnvMap(), env);
     server.startServer();
 
     return 0;

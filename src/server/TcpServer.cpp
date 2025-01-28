@@ -24,7 +24,18 @@ const std::string   readpage(std::ifstream &file)
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap)
+int    CountBytes(std::ifstream &file)
+{
+    std::string line;
+    int i = 0;
+
+    while (getline(file, line))
+        i += line.size();
+
+    return i;
+}
+
+TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap, char **env) : _ports(ports), _clientMap(), _config(config), _envMap(envMap), env(env)
 {
     setupSocket();
     std::cout << IT << "Server initialized on port(s): ";
@@ -257,7 +268,7 @@ bool fileExists(const std::string& path) { return access(path.c_str(), F_OK) != 
 
 void TcpServer::handleClient(int clientFd) 
 {
-    CgiHandler cgi(_envMap);
+    CgiHandler cgi(_envMap, env);
     
     char buffer[REQUEST_HTTP_SIZE];
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
@@ -293,7 +304,7 @@ void TcpServer::handleClient(int clientFd)
     catch(const std::exception& e) {}
 
     std::string fullPath = resolvePath(requestedPath, clientFd);
-    
+
     int getBool = 0;
    	int postBool = 0;
     int deleteBool= 0;
@@ -308,10 +319,14 @@ void TcpServer::handleClient(int clientFd)
             try
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodGET();
+                // if (_clientMap[clientFd].getLocationBlockByString(urlPath).getCgi())
+                // {
+                //     cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
+                    
+                // }
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
-
 				if (bufferStr.find("POST ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
