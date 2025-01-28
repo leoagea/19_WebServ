@@ -87,8 +87,7 @@ void CgiHandler::executego(std::string cgi_path)
 
         std::vector<char *> argv;
 
-        argv.push_back(const_cast<char *>("/usr/bin/go"));
-        argv.push_back(const_cast<char *>("run"));
+        argv.push_back(const_cast<char *>("rungo"));
         argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
 
