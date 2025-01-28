@@ -200,12 +200,9 @@ std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
     return fullUrl;
 }
 
-std::string TcpServer::getDirectoryFromFirstLine(const std::string & url)
+std::string TcpServer::getDirectoryFromFirstLine(const std::string & method, const std::string & fullUrl)
 {
-    size_t pos_slash = url.find('/');
-    size_t pos_space = url.find(' ', pos_slash);
-    std::string path = url.substr(pos_slash, pos_space - pos_slash);
-    return path;
+    return method + " " + fullUrl;
 }
 
 //implémenter le rep racine
@@ -269,10 +266,12 @@ void TcpServer::handleClient(int clientFd)
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
                 response.get(fullPath, getBool);
-                TcpServer::generateLog(BLUE, getDirectoryFromFirstLine(fullUrl), "INFO");
+                TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
+
 				if (bufferStr.find("POST ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
+                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 						response.setStatusCode(400);
 						response.setBody("<h1>400 Bad Request</h1>");
 					}
@@ -280,10 +279,12 @@ void TcpServer::handleClient(int clientFd)
 						std::string body = bufferStr.substr(headerEnd + 4);
 						postBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodPOST();
 						if (!postBool) {
+                            TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 							response.setStatusCode(405);
 							response.setBody("<h1>405 Method Not Allowed</h1>");
 						}
 						else {
+                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
 							response.post(body);
             			}
 					}
@@ -291,6 +292,7 @@ void TcpServer::handleClient(int clientFd)
 				else if (bufferStr.find("DELETE ") == 0) {
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
+                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
 						response.setStatusCode(400);
 						response.setBody("<h1>400 Bad Request</h1>");
 					}
@@ -302,6 +304,7 @@ void TcpServer::handleClient(int clientFd)
 							response.setBody("<h1>405 Method Not Allowed</h1>");
 						}
 						else {
+                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
 							response.m_delete();
             			}
 					}
@@ -309,6 +312,7 @@ void TcpServer::handleClient(int clientFd)
             }
             catch(const std::exception& e)
             { 
+                TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
                 response.setStatusCode(400);
                 response.setBody("<h1>400 Bad Request</h1>");
             }
@@ -316,6 +320,7 @@ void TcpServer::handleClient(int clientFd)
     }
     catch(const std::exception& e)
     {
+        TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
         response.setStatusCode(400);
         response.setBody("<h1>400 Bad Request 1</h1>");
     }

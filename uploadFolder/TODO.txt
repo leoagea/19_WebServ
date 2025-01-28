@@ -1,20 +1,5 @@
 Faire un docker nginx avec le meme fichier de config que nous
     Tester les permissions requises par le directory root
-<<<<<<< HEAD
-
-Verif le parsing des location
-
-Gerer les erreurs and print la config avec les messages d erreurs afficher
-
------------------------------20629913551128158799561473960--
-=======
 Check si les index dans le config sont bien en .html pareil pour les errors pages et les log en .log
 
------------------------------204385297217331755281927373920--
-
------------------------------12935564449955858793738583685--
-
------------------------------2830858672651928917369465342--
-
------------------------------262079098518368722212328777299--
->>>>>>> 77d71a2028fd32447ca25399c55a95f40712b28c
+-----------------------------5454052211643929683425541018--
