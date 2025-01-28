@@ -1,3 +1,6 @@
-Faire un docker nginx avec le meme fichier de config que nous
-    Tester les permissions requises par le directory root
-Check si les index dans le config sont bien en .html pareil pour les errors pages et les log en .log
+creer un tup pour les donnees de cgi, min max
+image corriger bug
+changer delete pour que ca fonctionne que dans uploadfolder
+
+
+index??

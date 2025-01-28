@@ -85,7 +85,7 @@
         <h1>Recherche de Voiture</h1>
     </header>
     <div class="container">
-        <form action="/search_cgi" method="GET">
+        <form id="price-form" method="POST" action="post_text">
             <div class="boite">
                 <div>
                     <label for="min-price">Prix Minimum :</label>
@@ -100,5 +100,18 @@
             <button type="submit" class="button">Rechercher</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('price-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const minPrice = document.getElementById('min-price').value;
+            const maxPrice = document.getElementById('max-price').value;
+            const form = document.getElementById('price-form');
+            const actionUrl = `car_proposal?min-price=${minPrice}&max-price=${maxPrice}`;
+            form.action = actionUrl;
+            form.submit();
+        });
+    </script>
 </body>
 </html>
