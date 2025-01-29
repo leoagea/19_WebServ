@@ -40,7 +40,7 @@ std::string readRequest(int clientSocket)
     if (contentLengthPos != std::string::npos)
     {
         size_t start = request.find("\r\n\r\n") + 4;
-        size_t contentLength = std::stoi(request.substr(contentLengthPos + 15));
+        size_t contentLength = std::atoi(request.substr(contentLengthPos + 15).c_str());
         while (request.size() - start < contentLength)
         {
             bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -57,8 +57,8 @@ void parseHttpRequest(const std::string &rawRequest, std::string &method, std::s
     bool isBody = false;
 
     while (std::getline(requestStream, line)) {
-        if (!line.empty() && line.back() == '\r') {
-            line.pop_back();
+        if (!line.empty() && line.at(line.size() - 1) == '\r') {
+            line.erase(line.size() - 1);
         }
 
         if (isBody) {
@@ -73,8 +73,9 @@ void parseHttpRequest(const std::string &rawRequest, std::string &method, std::s
             firstLine >> method >> url;
         }
     }
-    if (!body.empty() && body.back() == '\n') {
-        body.pop_back();
+    if (!body.empty() && body.at(body.size() - 1) == '\n') {
+        body.erase(body.size() - 1);
+
     }
 }
 

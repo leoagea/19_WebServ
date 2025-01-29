@@ -59,7 +59,9 @@ void Response::setStatusCode(int code)
 void Response::setBody(const std::string &body)
 {
     _body = body;
-    _contentLength = std::to_string(body.size());
+    std::stringstream ss;
+    ss << body.size();
+    _contentLength = ss.str();
 }
 
 void Response::setContentType(const std::string &type)
@@ -133,7 +135,7 @@ std::string Response::extractHeaders(const std::string &fullResponse)
 
 std::string Response::readFile(const std::string &filePath)
 {
-    std::ifstream file(filePath);
+    std::ifstream file(filePath.c_str());
     if (!file.is_open())
     {
         return "";
@@ -245,7 +247,7 @@ void Response::post(const std::string &requestData)
     }
 
     std::string filePath = uploadFolder + "/" + filename;
-    std::ofstream outputFile(filePath, std::ios::binary);
+    std::ofstream outputFile(filePath.c_str(), std::ios::binary);
     if (!outputFile.is_open())
     {
         setStatusCode(500);
@@ -259,22 +261,5 @@ void Response::post(const std::string &requestData)
     _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
 }
 
-
-
-
-//pour print comme serv python si on veut, faut juste rajouter le clienp et status dans tcp
-void Response::logRequest(const std::string& clientIP, const std::string& requestLine, const std::string& statusCode) {
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::tm tm = *std::localtime(&now_time);
-
-
-
-    std::ostringstream oss;
-    oss << std::put_time(&tm, "%d/%b/%Y %H:%M:%S");
-
-    std::string dateTime = oss.str();
-    std::cout << clientIP << " - - [" << dateTime << "] \"" << requestLine << "\" " << statusCode << " -" << std::endl;
-}
 
 Response::~Response() {}

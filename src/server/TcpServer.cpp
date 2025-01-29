@@ -433,7 +433,7 @@ uint16_t    TcpServer::getSocketPort(int socket)
 }
 void	TcpServer::generateLog(std::string color, const std::string& message, const char *logType)
 {
-    std::time_t now = std::time(nullptr);
+    std::time_t now = std::time(NULL);
     std::tm* local_time = std::localtime(&now);
 
     std::cout << color << "[" << logType << "] ";

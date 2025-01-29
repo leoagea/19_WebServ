@@ -57,7 +57,7 @@ void CgiHandler::executepy(std::string cgi_path)
         return;
     }
 
-    waitpid(pid, nullptr, 0);
+    waitpid(pid, NULL, 0);
 }
 
 
@@ -97,5 +97,5 @@ void CgiHandler::executego(std::string cgi_path)
         return;
     }
     
-    waitpid(pid, nullptr, 0);
+    waitpid(pid, NULL, 0);
 }
