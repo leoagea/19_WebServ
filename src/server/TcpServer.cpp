@@ -307,12 +307,8 @@ void TcpServer::handleClient(int clientFd)
         else {
             try
             {
-<<<<<<< HEAD
-                getBool = _clientMap[clientFd].getLocationBlockByString(UrlPath).getAllowedMethodGET();
-                cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
-=======
                 getBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodGET();
->>>>>>> html_v2
+                cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
