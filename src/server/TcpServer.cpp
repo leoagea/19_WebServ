@@ -308,7 +308,7 @@ void TcpServer::handleClient(int clientFd)
             try
             {
                 getBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodGET();
-                cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
+                // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
@@ -331,10 +331,11 @@ void TcpServer::handleClient(int clientFd)
 						else {
                             TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
                             if (params.find("min-price") != params.end() && params.find("max-price") != params.end()){
-                                int minPrice = std::atoi(params["min-price"].c_str());
-                                int maxPrice = std::atoi(params["max-price"].c_str());
-                                std::cout << "Min Price: " << minPrice << std::endl;
-                                std::cout << "Max Price: " << maxPrice << std::endl;
+                                uint minPrice = std::atoi(params["min-price"].c_str());
+                                uint maxPrice = std::atoi(params["max-price"].c_str());
+                                cgi.setMinPrice(minPrice);
+                                cgi.setMaxPrice(maxPrice);
+                                cgi.executepy("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/CarPrice.py");
                             }
                             else
 							    response.post(body);
@@ -353,7 +354,7 @@ void TcpServer::handleClient(int clientFd)
 						deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
 						if (!deleteBool) {
 							response.setStatusCode(405);
-							response.setBody("<h1>405 Method Not Allowed</h1>");
+							response.setBody("<h1>405 Method Not Allowed 2</h1>");
 						}
 						else {
                             TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");

@@ -26,7 +26,7 @@ OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Wshadow -Wuninitialized -Werror #-fsanitize=address -g  #-std=c++98
+CPPFLAGS 	= -Wall -Wextra -Wshadow -Wuninitialized -Werror -fsanitize=address -g  #-std=c++98
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)
@@ -41,6 +41,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)/log
 	@mkdir -p $(OBJ_DIR)/errors
 	@mkdir -p $(OBJ_DIR)/CGI
+	@go build -C var/www/cgi-bin/scripts/wikipedia/ 2>/dev/null
 	$(CC) $(CPPFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
 -include $(DEPS)
