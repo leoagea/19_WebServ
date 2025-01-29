@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
+#    By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2025/01/17 15:39:37 by lagea            ###   ########.fr        #
+#    Updated: 2025/01/29 16:51:18 by kmailleu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.d)
 CC 			= c++
 RM 			= rm -f
-CPPFLAGS 	= -Wall -Wextra -Wshadow -Wuninitialized -Werror #-fsanitize=address -g  #-std=c++98
+CPPFLAGS 	= -Wall -Wextra -Wuninitialized -Werror #-fsanitize=address -g  #-std=c++98
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)

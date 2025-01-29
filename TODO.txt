@@ -1,4 +1,3 @@
-creer un tup pour les donnees de cgi, min max
 image corriger bug
 changer delete pour que ca fonctionne que dans uploadfolder
 

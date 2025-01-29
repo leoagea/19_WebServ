@@ -5,19 +5,46 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-void	 Response::m_delete()
+void Response::m_delete(const std::string &fileName)
 {
-    std::cout << _path << std::endl;
-    if (remove(_path) < 0)
-    {
-        std::cerr << "Failed to remove file with delete method" << std::endl;
-	    _response =  "HTTP/1.1 500 Internal Server Error\r\n"
-                     "Content-Type: text/plain\r\n"
-                     "Content-Length: 21\r\n"
-                     "\r\n"
-                     "Failed to delete file";
-	    return;
+
+    std::string uploadDir = "./uploadFolder/";
+    std::string fullPath = uploadDir + fileName; // Concaténation du chemin complet
+
+    // Vérifier si le fichier existe avant de tenter de le supprimer
+    struct stat buffer;
+    if (stat(fullPath.c_str(), &buffer) != 0) {
+        std::cerr << "File not found: " << fullPath << std::endl;
+        _response = "HTTP/1.1 404 Not Found\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Content-Length: 14\r\n"
+                    "\r\n"
+                    "File not found";
+        return;
     }
+
+    // Vérifier que c'est bien un fichier (et non un dossier)
+    if (!S_ISREG(buffer.st_mode)) {
+        std::cerr << "Unauthorized delete attempt: " << fullPath << std::endl;
+        _response = "HTTP/1.1 403 Forbidden\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Content-Length: 23\r\n"
+                    "\r\n"
+                    "Unauthorized delete attempt";
+        return;
+    }
+
+    // Supprimer le fichier
+    if (remove(fullPath.c_str()) < 0) {
+        std::cerr << "Failed to remove file: " << fullPath << std::endl;
+        _response = "HTTP/1.1 500 Internal Server Error\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Content-Length: 21\r\n"
+                    "\r\n"
+                    "Failed to delete file";
+        return;
+    }
+
     _response = "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/plain\r\n"
                 "Content-Length: 19\r\n"
@@ -26,6 +53,7 @@ void	 Response::m_delete()
                 "\r\n"
                 "File deleted successfully";
 }
+
 
 int	Response::getMethod() { return _method_int; }
 

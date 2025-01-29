@@ -1,3 +1,13 @@
+DELETE
+-----------------------------41348221922449597706725407635
+Content-Disposition: form-data; name="file-to-delete"; filename="TODO.txt"
+Content-Type: text/plain
+
+DELETE
+-----------------------------47432858817902257691214125132
+Content-Disposition: form-data; name="file-to-delete"; filename="TODO.txt"
+Content-Type: text/plain
+
 creer un tup pour les donnees de cgi, min max
 image corriger bug
 changer delete pour que ca fonctionne que dans uploadfolder
@@ -5,3 +15,9 @@ changer delete pour que ca fonctionne que dans uploadfolder
 
 index??
 -----------------------------41376997456873203801532235612--
+
+-----------------------------47432858817902257691214125132--
+
+-----------------------------41348221922449597706725407635--
+
+-----------------------------349693435712289031451666412891--

@@ -72,12 +72,11 @@ public:
     void get(const std::string &filePath, bool getBool);
 	static std::string readFile(const std::string &filePath);
     void sendRedirect(int clientFd, const std::string &newUrl, std::string prefix);
-
+    void m_delete(const std::string &filePath);
 	bool extractFileData(const std::string& requestData, const std::string& boundary, std::string& filename, std::string& fileContent);
 	std::string extractBoundary(const std::string& requestData);
 	bool isDirectoryWritable(const std::string& directory);
 	void post(const std::string& requestData);
-    void            m_delete();
 	int             getMethod();
 
 
