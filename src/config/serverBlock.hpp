@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:06:21 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/17 16:26:09 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class ServerBlock
 {
     public:
         ServerBlock();
-        ServerBlock(std::vector<t_token> &, int *, const ErrorReporter &);
+        ServerBlock(int ,std::vector<t_token> &, int *, const ErrorReporter &);
         ~ServerBlock();
 
         int getListeningPort() const;
@@ -74,7 +74,7 @@ class ServerBlock
         ErrorReporter _reportError;
 
         void initializeMapErrorPages();
-        void parseAllServerVariables(std::vector<t_token> &, int *);
+        void parseAllServerVariables(int, std::vector<t_token> &, int *);
         void parseListeningPort(t_token &);
         void parseServerName(t_token &);
         void parseRootDir(t_token &);
@@ -87,6 +87,8 @@ class ServerBlock
 
         bool isHostValid(std::string &);
         bool isLogExtensionValid(std::string &);
+
+        std::vector<std::string> checkAllDefined();
 };
 
 std::ostream &operator<<(std::ostream &, const ServerBlock &);
