@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/17 15:47:38 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/28 17:26:21 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,6 @@ void locationBlock::parseAllLocationVariables()
             if (isCGI(_tokenVec[1].value, _tokenVec[1].index))
                 _iscgi = true;
             else{
-                
                 if (_tokenVec[1].value[_tokenVec[1].value.size() - 1] != '/' && _tokenVec[3].type == keyword && _tokenVec[3].value == "return")
                     _isredirect = true;
             }
@@ -240,11 +239,13 @@ void locationBlock::parseAllowedMethod(t_token &token)
 void locationBlock::parseInclude(t_token &token)
 {
     if (token.type == keyword)
-        if (token.value == "cgi_param")
+        if (token.value == "cgi_param"){
+            _iscgi = true;
             if (_iscgi)
                 _cgi.first = true;
             else
                 _reportError(token.index, "cannot include param outside cgi location");
+        }
         else
             _reportError(token.index, "expected cgi_param");
     else
@@ -255,18 +256,21 @@ void locationBlock::parseCgiScriptName(t_token &token)
 {
     std::string path = _root + token.value;
     
-    if (PathChecking::exist(path))
-        if (PathChecking::isFile(path))
-            if (PathChecking::getExecPermission(path)){
-                _cgipath = path;
-                _cgi.second = token.value;
-            }
+    if (_cgi.first)
+        if (PathChecking::exist(path))
+            if (PathChecking::isFile(path))
+                if (PathChecking::getReadPermission(path)){
+                    _cgipath = path;
+                    _cgi.second = token.value;
+                }
+                else
+                    _reportError(token.index, "cgi script has no exec permission");
             else
-                _reportError(token.index, "cgi script has no exec permission");
+                _reportError(token.index, "cgi script is not a file");
         else
-            _reportError(token.index, "cgi script is not a file");
+            _reportError(token.index, "cgi script does not exist");
     else
-        _reportError(token.index, "cgi script does not exist");
+        _reportError(token.index, "not in cgi location");
 }
 
 void locationBlock::parseRedirect(t_token &status, t_token &redirect)
