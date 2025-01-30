@@ -350,6 +350,19 @@ void TcpServer::handleClient(int clientFd)
             {
                 getBool = location.getAllowedMethodGET();
                 // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
+                // if (location.getUri() == fullUrl && location.getCgiScriptName()){
+
+                // }
+                // std::cout << location << std::endl;
+
+                if (location.getCgi() && location.getCgiScriptName() != ""){
+                    std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
+                    if (ext == ".go"){
+                        std::string dir = std::getenv("PWD") + std::string("/") + location.getRootDirLoc() + std::string("wiki");
+                        cgi.executego(dir);
+                    }
+                }
+ 
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
@@ -393,12 +406,14 @@ void TcpServer::handleClient(int clientFd)
                         }
 						else {
                             TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
-                            if (params.find("min-price") != params.end() && params.find("max-price") != params.end()){
+                            if (location.getCgi() && params.find("min-price") != params.end() && params.find("max-price") != params.end()){
                                 uint minPrice = std::atoi(params["min-price"].c_str());
                                 uint maxPrice = std::atoi(params["max-price"].c_str());
                                 cgi.setMinPrice(minPrice);
                                 cgi.setMaxPrice(maxPrice);
-                                cgi.executepy("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/CarPrice.py");
+                                std::string dir(std::getenv("PWD"));
+                                cgi.setCurrentDir(dir += "/");
+                                cgi.executepy(dir += location.getCgiPath());
                             }
                             else
                             {

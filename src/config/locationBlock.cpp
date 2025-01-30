@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/29 15:01:54 by lagea            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:55:29 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,9 @@ void locationBlock::parseAllLocationVariables()
             }
         }
     }
+
+    if (_root == "")
+        _root = _server.getRootDir();
 }
 
 void locationBlock::parseRootDir(t_token &token)
@@ -198,11 +201,12 @@ void locationBlock::parseRootDir(t_token &token)
 
 void locationBlock::parseIndex(t_token &token)
 {
+    std::string path;
     if (_root == "")
-        _root = _server.getRootDir();
-
-    std::string path = _root + token.value;
-    
+        path = _server.getRootDir() + token.value;
+    else
+        path = _root + token.value;
+        
     if (_index == ""){
         if (PathChecking::exist(path))
             if (PathChecking::isFile(path))

@@ -8,6 +8,8 @@ void     CgiHandler::setMinPrice(uint & minPrice) { _minPrice = minPrice; }
 
 void     CgiHandler::setMaxPrice(uint & maxPrice) { _maxPrice = maxPrice; }
 
+void     CgiHandler::setCurrentDir(std::string &dir) { _currentDir = dir; }
+
 void CgiHandler::executepy(std::string cgi_path)
 {
     // int     pipeFd[2];
@@ -26,6 +28,10 @@ void CgiHandler::executepy(std::string cgi_path)
 
     ss << "MAXPRICE=" << _maxPrice;
     std::string max = ss.str();
+    ss.str("");
+
+    ss <<"PWD=" << _currentDir;
+    std::string dir = ss.str();
 
     pid_t pid = fork();
 
@@ -33,6 +39,7 @@ void CgiHandler::executepy(std::string cgi_path)
     {
             const_cast<char *>(min.c_str()),
             const_cast<char *>(max.c_str()),
+            const_cast<char *>(dir.c_str()),
             NULL
     };
 
@@ -77,14 +84,25 @@ void CgiHandler::executego(std::string cgi_path)
         // dup2(pipeFd[1], STDOUT_FILENO);
         // close(pipeFd[1]);
 
+        std::string gopath = std::string("GOPATH=") + std::getenv("GOPATH");
+        std::string gomodcache = std::string("GOMODCACHE=") + std::getenv("GOMODCACHE");
+        std::string qrpath = std::string("QRPATH=") + std::getenv("QRPATH");
+        std::string qrhtml = std::string("QRHTML=") + std::getenv("QRHTML");
+        
         char *envp[] = {
-            const_cast<char *>("GOPATH=/home/vdarras/go"),
-            const_cast<char *>("GOMODCACHE=/home/vdarras/golang/pkg/mod"),
+            const_cast<char *>(gopath.c_str()),
+            const_cast<char *>(gomodcache.c_str()),
             const_cast<char *>("HOME=/tmp"),
             const_cast<char *>("XDG_CACHE_HOME=/tmp"),
             const_cast<char *>("GOCACHE=/tmp/go-build"),
+            const_cast<char *>(qrpath.c_str()),
+            const_cast<char *>(qrhtml.c_str()),
             NULL
         };
+
+        // std::cout << const_cast<char *>(std::getenv("QRPATH")) << std::endl;
+        // std::cout << const_cast<char *>(std::getenv("QRHTML")) << std::endl;
+        // std::cout << cgi_path << std::endl;
 
         std::vector<char *> argv;
 

@@ -25,11 +25,13 @@ class CgiHandler
 
         void     setMinPrice(uint & minPrice);
         void     setMaxPrice(uint & maxPrice);
+        void     setCurrentDir(std::string &dir);
     private :
         std::map<std::string, std::string>  _envpMap;
         std::vector<char *>                 _envpVect;
         uint                                _minPrice;
         uint                                _maxPrice;
+        std::string                         _currentDir;
 };
 
 

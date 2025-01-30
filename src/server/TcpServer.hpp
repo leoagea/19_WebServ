@@ -14,6 +14,7 @@
 # include <cctype>
 # include <ctime>
 # include <fcntl.h>
+# include <cstring>
 # include <stdexcept>
 # include "../../inc/Color.h"
 # include "Response.hpp"
