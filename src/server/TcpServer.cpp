@@ -233,8 +233,9 @@ std::map<std::string, std::string> parseUrlParameters(const std::string& url) {
 std::string removeExtraSlashes(const std::string &path) {
     std::string cleanedPath;
     bool lastWasSlash = false;
-
-    for (char ch : path) {
+    char ch;
+    for (int i=0; i < (int)path.size(); i++) {
+        ch = path[i];
         if (ch == '/') {
             if (!lastWasSlash) {
                 cleanedPath += ch;
@@ -338,15 +339,17 @@ void TcpServer::handleClient(int clientFd)
     std::vector<s_info> listing;
     try
     {
-        if (_clientMap[clientFd].getLocationBlockByString(urlPath).getAutoIndexLoc()) {
+        locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
+        
+        if (location.getAutoIndexLoc()) {
             listing = DirectoryListing::listDirectory(rootPath);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
         }
         else {
             try
             {
-                getBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodGET();
-                //cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/main.go");
+                getBool = location.getAllowedMethodGET();
+                // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
@@ -361,7 +364,7 @@ void TcpServer::handleClient(int clientFd)
 					}
 					else {
 						std::string body = bufferStr.substr(headerEnd + 4);
-						postBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodPOST();
+						postBool = location.getAllowedMethodPOST();
 						if (!postBool) {
                             TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 							response.setStatusCode(405);
@@ -369,14 +372,14 @@ void TcpServer::handleClient(int clientFd)
 						}
                         else if (bufferStr.find("DELETE ") == 0) {
                             std::cout << "oui" << std::endl;
-                            size_t headerEnd = bufferStr.find("\r\n\r\n");
+                            headerEnd = bufferStr.find("\r\n\r\n");
                             if (headerEnd == std::string::npos) {
                                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                 response.setStatusCode(400);
                                 response.setBody("<h1>400 Bad Request</h1>");
                             }
                             else {
-                                std::string body = bufferStr.substr(headerEnd + 4);
+                                body = bufferStr.substr(headerEnd + 4);
                                 deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
                                 if (!deleteBool) {
                                     response.setStatusCode(405);
@@ -391,10 +394,11 @@ void TcpServer::handleClient(int clientFd)
 						else {
                             TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
                             if (params.find("min-price") != params.end() && params.find("max-price") != params.end()){
-                                int minPrice = std::atoi(params["min-price"].c_str());
-                                int maxPrice = std::atoi(params["max-price"].c_str());
-                                std::cout << "Min Price: " << minPrice << std::endl;
-                                std::cout << "Max Price: " << maxPrice << std::endl;
+                                uint minPrice = std::atoi(params["min-price"].c_str());
+                                uint maxPrice = std::atoi(params["max-price"].c_str());
+                                cgi.setMinPrice(minPrice);
+                                cgi.setMaxPrice(maxPrice);
+                                cgi.executepy("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/CarPrice.py");
                             }
                             else
                             {
@@ -403,7 +407,26 @@ void TcpServer::handleClient(int clientFd)
             			}
 					}
 				}
-			
+				else if (bufferStr.find("DELETE ") == 0) {
+					size_t headerEnd = bufferStr.find("\r\n\r\n");
+					if (headerEnd == std::string::npos) {
+                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
+						response.setStatusCode(400);
+						response.setBody("<h1>400 Bad Request</h1>");
+					}
+					else {
+						std::string body = bufferStr.substr(headerEnd + 4);
+						deleteBool = location.getAllowedMethodDELETE();
+						if (!deleteBool) {
+							response.setStatusCode(405);
+							response.setBody("<h1>405 Method Not Allowed 2</h1>");
+						}
+						else {
+                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
+							// response.m_delete();
+            			}
+					}
+				}
             }
             catch(const std::exception& e)
             { 
@@ -475,7 +498,7 @@ uint16_t    TcpServer::getSocketPort(int socket)
 }
 void	TcpServer::generateLog(std::string color, const std::string& message, const char *logType)
 {
-    std::time_t now = std::time(nullptr);
+    std::time_t now = std::time(NULL);
     std::tm* local_time = std::localtime(&now);
 
     std::cout << color << "[" << logType << "] ";
