@@ -119,7 +119,7 @@ func generateHTMLPage(qrImage string, wikiURL string) error {
 </html>`
 
 	// Création du fichier HTML
-	file, err := os.Create("/home/vdarras/Cursus/webserv/var/www/html/wikipedia_qr.html")
+	file, err := os.Create(os.Getenv("QRHTML"))
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func main() {
 	fmt.Println("🌐 Page trouvée :", wikiURL)
 
 	// Nom du fichier QR Code
-	qrFilename := "/home/vdarras/Cursus/webserv/var/www/html/wikipedia_qr.png"
+	qrFilename := os.Getenv("QRPATH")
 
 	fmt.Println("📸 Génération du QR Code...")
 	err = generateQRCode(wikiURL, qrFilename)
@@ -174,4 +174,3 @@ func main() {
 
 	fmt.Println("✅ Page HTML générée : wikipedia_qr.html")
 }
-

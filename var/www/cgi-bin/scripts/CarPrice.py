@@ -4,12 +4,13 @@ import sys
 
 min_price_str = os.environ['MINPRICE']
 max_price_str = os.environ['MAXPRICE']
+current_dir = os.environ['PWD']
 
 min_price = int(min_price_str)
 max_price = int(max_price_str)
 
-path = "/home/vdarras/Cursus/webserv/var/www/cgi-bin/database/CarPrice.csv"
-output_file = "/home/vdarras/Cursus/webserv/var/www/html/car_proposal.html"
+path = current_dir + "var/www/cgi-bin/database/CarPrice.csv"
+output_file = "var/www/html/car_proposal.html"
 
 if not os.path.exists(path) or not os.access(path, os.R_OK):
     print("Error: file not found or not readable", file=sys.stderr)
