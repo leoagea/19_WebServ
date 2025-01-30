@@ -1,21 +1,18 @@
+Pour Kenzo
 image corriger bug
 changer delete pour que ca fonctionne que dans uploadfolder
-
-
-index??
-
-
 Delete method
+Images
+
+
+Leo ou Kenzo
+Directory listing
 
 Cgi go condition
 
 cookies
 
 signals + leaks
-
-Directory listing
-
-Images
 
 Path hardcoded
 
