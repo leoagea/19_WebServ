@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
+#    By: kenzo <kenzo@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2025/01/30 15:09:06 by lagea            ###   ########.fr        #
+#    Updated: 2025/01/30 16:46:24 by kenzo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)/log
 	@mkdir -p $(OBJ_DIR)/errors
 	@mkdir -p $(OBJ_DIR)/CGI
-	@go build -C var/www/cgi-bin/scripts/wikipedia/ 2>/dev/null
+#@go build -C var/www/cgi-bin/scripts/wikipedia/ 2>/dev/null
 	$(CC) $(CPPFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
 -include $(DEPS)

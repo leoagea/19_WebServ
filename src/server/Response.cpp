@@ -10,7 +10,7 @@ void Response::m_delete(const std::string &fileName)
 
     std::string uploadDir = "./uploadFolder/";
     std::string fullPath = uploadDir + fileName; // Concaténation du chemin complet
-
+	std::cout << "oui" << std::endl;
     // Vérifier si le fichier existe avant de tenter de le supprimer
     struct stat buffer;
     if (stat(fullPath.c_str(), &buffer) != 0) {

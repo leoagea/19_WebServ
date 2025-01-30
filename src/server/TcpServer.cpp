@@ -309,15 +309,16 @@ void TcpServer::handleClient(int clientFd)
     std::map<std::string, std::string> params;
     std::string deleteFile;
     
-    //std::cout << bufferStr << std::endl;
     fullUrl = removeQueryString(fullUrl);
 
     std::string urlPath = extractRequestedPath(bufferStr);
     if (bufferStr.find("POST ") == 0)
-        params = parseUrlParameters(urlPath);
-    if (bufferStr.find("DELETE ") == 0)
-        deleteFile = extractFileToDelete(urlPath);
+	{
+		params = parseUrlParameters(urlPath);
+		deleteFile = extractFileToDelete(urlPath);
+	}
     urlPath = removeQueryString(urlPath);
+    std::cout << deleteFile << std::endl;
     removeExtraSlashes(fullUrl);
     removeExtraSlashes(urlPath);
     std::string requestedPath = urlPath;
@@ -351,7 +352,7 @@ void TcpServer::handleClient(int clientFd)
                 getBool = location.getAllowedMethodGET();
                 // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
                 response.get(fullPath, getBool);
-                if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
+                if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
 				if (bufferStr.find("POST ") == 0) {
@@ -404,26 +405,6 @@ void TcpServer::handleClient(int clientFd)
                             {
 							    response.post(body);
                             }
-            			}
-					}
-				}
-				else if (bufferStr.find("DELETE ") == 0) {
-					size_t headerEnd = bufferStr.find("\r\n\r\n");
-					if (headerEnd == std::string::npos) {
-                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
-						response.setStatusCode(400);
-						response.setBody("<h1>400 Bad Request</h1>");
-					}
-					else {
-						std::string body = bufferStr.substr(headerEnd + 4);
-						deleteBool = location.getAllowedMethodDELETE();
-						if (!deleteBool) {
-							response.setStatusCode(405);
-							response.setBody("<h1>405 Method Not Allowed 2</h1>");
-						}
-						else {
-                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
-							// response.m_delete();
             			}
 					}
 				}

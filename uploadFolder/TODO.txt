@@ -1,23 +1,26 @@
 DELETE
------------------------------41348221922449597706725407635
+-----------------------------274250417540570507763498863921
 Content-Disposition: form-data; name="file-to-delete"; filename="TODO.txt"
 Content-Type: text/plain
 
-DELETE
------------------------------47432858817902257691214125132
-Content-Disposition: form-data; name="file-to-delete"; filename="TODO.txt"
-Content-Type: text/plain
-
-creer un tup pour les donnees de cgi, min max
+Pour Kenzo
 image corriger bug
 changer delete pour que ca fonctionne que dans uploadfolder
+Delete method
+Images
 
 
-index??
------------------------------41376997456873203801532235612--
+Leo ou Kenzo
+Directory listing
 
------------------------------47432858817902257691214125132--
+Cgi go condition
 
------------------------------41348221922449597706725407635--
+cookies
 
------------------------------349693435712289031451666412891--
+signals + leaks
+
+Path hardcoded
+
+More error code/pages
+
+-----------------------------274250417540570507763498863921--
