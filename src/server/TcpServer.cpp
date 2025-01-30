@@ -300,14 +300,16 @@ void TcpServer::handleClient(int clientFd)
     std::vector<s_info> listing;
     try
     {
-        if (_clientMap[clientFd].getLocationBlockByString(urlPath).getAutoIndexLoc()) {
+        locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
+        
+        if (location.getAutoIndexLoc()) {
             listing = DirectoryListing::listDirectory(rootPath);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
         }
         else {
             try
             {
-                getBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodGET();
+                getBool = location.getAllowedMethodGET();
                 // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
                 response.get(fullPath, getBool);
                 if (bufferStr.find("POST ") != 0)
@@ -322,7 +324,7 @@ void TcpServer::handleClient(int clientFd)
 					}
 					else {
 						std::string body = bufferStr.substr(headerEnd + 4);
-						postBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodPOST();
+						postBool = location.getAllowedMethodPOST();
 						if (!postBool) {
                             TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 							response.setStatusCode(405);
@@ -351,7 +353,7 @@ void TcpServer::handleClient(int clientFd)
 					}
 					else {
 						std::string body = bufferStr.substr(headerEnd + 4);
-						deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
+						deleteBool = location.getAllowedMethodDELETE();
 						if (!deleteBool) {
 							response.setStatusCode(405);
 							response.setBody("<h1>405 Method Not Allowed 2</h1>");
