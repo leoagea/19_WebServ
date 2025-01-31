@@ -10,35 +10,13 @@
 # include <sstream>
 # include <sys/stat.h>
 # include <unistd.h>
-
 # include <cstdio>
+
 # include "Request.hpp"
 # include "../../inc/Enum.h"
+# include "Cookies.hpp"
 
-// enum
-// {
-//     GET    = 1,
-//     POST   = 2,
-//     DELETE = 3
-// };
-
-// class Response
-// {
-//     public :
-//         Response();
-//         ~Response();
-
-//         void            m_delete();
-// 	    void		    m_post();
-// 	    void		    m_get();
-
-//         int             getMethod();
-
-//     private :
-//         const int       _method_int;
-//         const char*     _path;
-// 	    std::string	_response;
-// };
+class Cookies;
 
 class Response
 {
@@ -66,7 +44,7 @@ public:
     void setBody(const std::string &body);
     void setContentType(const std::string &type);
     void setKeepAlive(bool keepAlive);
-    std::string generateResponse();
+    std::string generateResponse(Cookies cookie);
 	std::string extractHeaders(const std::string &fullResponse);
     void get(const std::string &filePath, bool getBool);
 	static std::string readFile(const std::string &filePath);

@@ -152,6 +152,8 @@ void    TcpServer::acceptNewClient(int serverSocket)
         return;
     }
     _clientMap[clientFd] = getServerBlockBySocket(serverSocket);
+    if (_cookiesMap.find(clientFd) == _cookiesMap.end())
+        _cookiesMap[clientFd] = Cookies();
 
     TcpServer::generateLog(BLUE, "New client connected", "INFO");
     makeNonBlocking(clientFd);
@@ -202,6 +204,30 @@ std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
     // }
     std::string fullUrl = path;
     return fullUrl;
+}
+
+std::string extractCookiesFromRequest(const std::string &request)
+{
+    std::string cookie = "Cookie: ";
+    size_t start = request.find(cookie, 0) + cookie.size();
+    size_t end = request.find('\r', start);
+    std::string line = request.substr(start, end - start);
+
+    return line;
+}
+
+std::string trim(const std::string &str)
+{
+    const char* WHITESPACE = " \t\n\r\f\v";
+
+    std::string::size_type start = str.find_first_not_of(WHITESPACE);
+    if (start == std::string::npos) {
+        return "";
+    }
+
+    std::string::size_type end = str.find_last_not_of(WHITESPACE);
+
+    return str.substr(start, end - start + 1);
 }
 
 std::map<std::string, std::string> parseUrlParameters(const std::string& url) {
@@ -309,7 +335,7 @@ void TcpServer::handleClient(int clientFd)
     std::map<std::string, std::string> params;
     std::string deleteFile;
     
-    //std::cout << bufferStr << std::endl;
+    // std::cout << bufferStr << std::endl;
     fullUrl = removeQueryString(fullUrl);
 
     std::string urlPath = extractRequestedPath(bufferStr);
@@ -341,6 +367,9 @@ void TcpServer::handleClient(int clientFd)
     {
         locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
         
+        std::string cookies = extractCookiesFromRequest(bufferStr);
+        TcpServer::parseCookies(clientFd, cookies);
+
         if (location.getAutoIndexLoc()) {
             listing = DirectoryListing::listDirectory(rootPath);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
@@ -457,7 +486,7 @@ void TcpServer::handleClient(int clientFd)
         response.setStatusCode(400);
         response.setBody("<h1>400 Bad Request 1</h1>");
     }
-    std::string fullResponse = response.generateResponse();
+    std::string fullResponse = response.generateResponse(_cookiesMap[clientFd]);
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
 
@@ -481,6 +510,28 @@ void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
         close(*it);
 
     exit(1);
+}
+
+void    TcpServer::parseCookies(int clientFd, const std::string &line)
+{
+    // std::cout << line << std::endl;
+    std::stringstream ss(line);
+    std::string pairStr;
+    std::pair<std::string, std::string> pair;
+
+    while (getline(ss, pairStr, ';')){
+        pairStr = trim(pairStr);
+        size_t pos = pairStr.find('=');
+        if (pos != std::string::npos){
+            std::string name = pairStr.substr(0, pos);
+            std::string val = pairStr.substr(pos + 1, pairStr.size() - pos);
+            if (name == "sessionID")
+                pair.first = val;
+            else if (name == "counter")
+                pair.second = val;
+        }
+    }
+    _cookiesMap[clientFd].writeCookiesInDB(pair);
 }
 
 //Return the serverblock associate with the socket

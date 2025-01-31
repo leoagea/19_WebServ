@@ -119,7 +119,7 @@ void Response::sendRedirect(int clientFd, const std::string &requestedPath, std:
     send(clientFd, response.c_str(), response.size(), 0);
 }
 
-std::string Response::generateResponse()
+std::string Response::generateResponse(Cookies cookie)
 {
     std::string response;
     if (_body.find("myapp") != std::string::npos) {
@@ -136,6 +136,8 @@ std::string Response::generateResponse()
     response += "Content-Length: " + _contentLength + "\r\n";
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
+    response += "Set-Cookie: sessionID=" + cookie.getSessionId() + "; Path=/\r\n";
+    response += "Set-Cookie: counter=" + cookie.getCounterValue() + "; Path=/\r\n";
     response += "\r\n";
     response += _body;
 
