@@ -17,7 +17,7 @@ leaks
 
 Directory listing
 
-Images
+Images   =>     Rentre dans le catch et envoie une reponse ERROR 400
 
 Path hardcoded                  OK
 

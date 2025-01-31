@@ -123,6 +123,14 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    tr:hover {\n"
          << "      background: #f1f1f1;\n"
          << "    }\n"
+         << "    a {\n"
+         << "      text-decoration: none;\n"
+         << "      color: #3498db;\n"
+         << "      font-weight: bold;\n"
+         << "    }\n"
+         << "    a:hover {\n"
+         << "      text-decoration: underline;\n"
+         << "    }\n"
          << "  </style>\n"
          << "</head>\n"
          << "<body>\n"
@@ -138,8 +146,18 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    <tbody>\n";
 
     for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it) {
+        struct stat st;
+        stat(it->fullpath.c_str(), &st);
+
+        // Déterminer si c'est un dossier ou un fichier
+        bool isDirectory = S_ISDIR(st.st_mode);
+        std::string icon = isDirectory ? "📁" : "📄";
+
+        // Si c'est un dossier, on le rend cliquable
+        std::string link = isDirectory ? ("<a href=\"" + directoryName + "/" + it->name + "\">" + it->name + "</a>") : it->name;
+
         html << "    <tr>\n"
-             << "      <td>" << it->name << "</td>\n"
+             << "      <td>" << icon << " " << link << "</td>\n"
              << "      <td>" << it->format_size << "</td>\n"
              << "      <td>" << it->format_time << "</td>\n"
              << "    </tr>\n";
@@ -152,3 +170,4 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
 
     return html.str();
 }
+

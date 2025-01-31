@@ -313,7 +313,7 @@ void TcpServer::handleClient(int clientFd)
     
     //std::cout << bufferStr << std::endl;
     fullUrl = removeQueryString(fullUrl);
-
+    
     std::string urlPath = extractRequestedPath(bufferStr);
     if (bufferStr.find("POST ") == 0)
         params = parseUrlParameters(urlPath);
