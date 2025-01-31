@@ -12,14 +12,6 @@ void     CgiHandler::setCurrentDir(std::string &dir) { _currentDir = dir; }
 
 void CgiHandler::executepy(std::string cgi_path)
 {
-    // int     pipeFd[2];
-
-    // if (pipe(pipeFd) < 0) 
-    // {
-    //     std::cerr << "Pipe creation failed" << std::endl;
-    //     return;
-    // }
-
     std::stringstream ss;
 
     ss << "MINPRICE=" << _minPrice;
@@ -95,14 +87,11 @@ void CgiHandler::executego(std::string cgi_path)
             NULL
         };
 
-        // std::cout << const_cast<char *>(std::getenv("QRPATH")) << std::endl;
-        // std::cout << const_cast<char *>(std::getenv("QRHTML")) << std::endl;
-        // std::cout << cgi_path << std::endl;
-
         std::vector<char *> argv;
 
         argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
+
         execve(cgi_path.c_str(), argv.data(), envp);
 
         std::cerr << "Execve failed" << std::endl;

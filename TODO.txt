@@ -5,18 +5,20 @@ changer delete pour que ca fonctionne que dans uploadfolder
 index??
 
 
-Delete method
+Delete method    
 
-Cgi go condition
+Cgi go condition   OK
 
 cookies
 
-signals + leaks
+signals            OK
+
+leaks
 
 Directory listing
 
 Images
 
-Path hardcoded
+Path hardcoded     OK
 
 More error code/pages

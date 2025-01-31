@@ -8,6 +8,7 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <cstdlib>
+# include <signal.h>
 # include <vector>
 # include <poll.h>
 # include <algorithm>
@@ -50,12 +51,13 @@ class TcpServer
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
-    
+        static void                    closeFds(int sig);
+        void                    handle_signal(void);
     private :
         static const size_t     _maxPollFds = 4096;
         std::vector<int>        _serverSockets;
         std::vector<int>        _ports;
-        std::vector<pollfd>     _pollFds;
+        static std::vector<pollfd>     _pollFds;
         std::map<int, ServBlo>  _clientMap;
         sockaddr_in             _serverAddress;
         ConfigFile              _config;

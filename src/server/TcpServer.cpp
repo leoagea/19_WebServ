@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 
+std::vector<pollfd> TcpServer::_pollFds;
 
 const std::string   readpage(std::ifstream &file)
 {
@@ -50,6 +51,7 @@ TcpServer::~TcpServer()
 
 void    TcpServer::setupSocket()
 {
+    handle_signal();
     for (size_t i = 0; i < _ports.size(); ++i) 
     {
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0); /* AF_INET : IPv4, SOCK_STREAM : Socket de connexion, 0 : Protocole TCP */
@@ -115,8 +117,8 @@ void    TcpServer::startServer()
         int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
 
         if (pollCount < 0) 
-        {
-            std::cerr << R << IT << "Poll failed" << RES << std::endl;
+        {   
+            std::cerr << R << IT << "Poll failed " << RES << std::endl;
             exitCloseFds(_serverSockets);
         }
 
@@ -349,12 +351,6 @@ void TcpServer::handleClient(int clientFd)
             try
             {
                 getBool = location.getAllowedMethodGET();
-                // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
-                // if (location.getUri() == fullUrl && location.getCgiScriptName()){
-
-                // }
-                // std::cout << location << std::endl;
-
                 if (location.getCgi() && location.getCgiScriptName() != ""){
                     std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
                     if (ext == ".go"){
@@ -481,6 +477,22 @@ void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
         close(*it);
 
     exit(1);
+}
+
+void    TcpServer::closeFds(int sig)
+{
+    (void)sig;
+    for (size_t i = 0; i < _pollFds.size(); ++i) 
+    {
+        close(_pollFds[i].fd);
+    }
+    std::cout << BGREEN << "\nServer has been shut down successfully" << std::endl; 
+    exit(0);
+}
+
+void    TcpServer::handle_signal(void)
+{
+    signal(SIGINT, TcpServer::closeFds);
 }
 
 //Return the serverblock associate with the socket
