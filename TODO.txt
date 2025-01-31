@@ -7,11 +7,11 @@ index??
 
 Delete method    
 
-Cgi go condition   OK
+Cgi go condition                OK
 
 cookies
 
-signals            OK
+signals                         OK
 
 leaks
 
@@ -19,8 +19,8 @@ Directory listing
 
 Images
 
-Path hardcoded     OK
+Path hardcoded                  OK
 
 More error code/pages
 
-Body size limit exceeded
+Body size limit exceeded  => 413 ERROR
