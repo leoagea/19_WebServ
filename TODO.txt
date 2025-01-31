@@ -22,3 +22,5 @@ Images
 Path hardcoded     OK
 
 More error code/pages
+
+Body size limit exceeded

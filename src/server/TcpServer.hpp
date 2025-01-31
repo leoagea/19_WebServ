@@ -51,7 +51,7 @@ class TcpServer
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
         void			        generateLog(std::string color, const std::string& message, const char *logType);
-        static void                    closeFds(int sig);
+        static void             closeFds(int sig);
         void                    handle_signal(void);
     private :
         static const size_t     _maxPollFds = 4096;

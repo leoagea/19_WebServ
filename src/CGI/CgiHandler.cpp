@@ -24,7 +24,7 @@ void CgiHandler::executepy(std::string cgi_path)
 
     ss <<"PWD=" << _currentDir;
     std::string dir = ss.str();
-
+    
     pid_t pid = fork();
 
     char *envp[] = 

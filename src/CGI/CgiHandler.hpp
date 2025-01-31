@@ -29,8 +29,8 @@ class CgiHandler
     private :
         std::map<std::string, std::string>  _envpMap;
         std::vector<char *>                 _envpVect;
-        uint                                _minPrice;
-        uint                                _maxPrice;
+        int                                 _minPrice;
+        int                                 _maxPrice;
         std::string                         _currentDir;
 };
 
