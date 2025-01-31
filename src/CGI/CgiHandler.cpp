@@ -77,18 +77,13 @@ void CgiHandler::executego(std::string cgi_path)
         std::cerr << "Fork failed" << std::endl;
         return;
     }
-
     if (pid == 0)
     {
-        // close(pipeFd[0]);
-        // dup2(pipeFd[1], STDOUT_FILENO);
-        // close(pipeFd[1]);
-
         std::string gopath = std::string("GOPATH=") + std::getenv("GOPATH");
         std::string gomodcache = std::string("GOMODCACHE=") + std::getenv("GOMODCACHE");
         std::string qrpath = std::string("QRPATH=") + std::getenv("QRPATH");
         std::string qrhtml = std::string("QRHTML=") + std::getenv("QRHTML");
-        
+
         char *envp[] = {
             const_cast<char *>(gopath.c_str()),
             const_cast<char *>(gomodcache.c_str()),
@@ -108,7 +103,6 @@ void CgiHandler::executego(std::string cgi_path)
 
         argv.push_back(const_cast<char *>(cgi_path.c_str()));
         argv.push_back(NULL);
-
         execve(cgi_path.c_str(), argv.data(), envp);
 
         std::cerr << "Execve failed" << std::endl;
