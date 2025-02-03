@@ -328,6 +328,10 @@ void TcpServer::handleClient(int clientFd)
         return;
     }
     buffer[bytesRead] = '\0';
+    int getBool = 0;
+   	int postBool = 0;
+    int deleteBool= 0;
+	int deleteUrl = 0;
     Response response;
     std::string bufferStr = buffer;
     std::string requestBuffer = buffer;
@@ -335,15 +339,19 @@ void TcpServer::handleClient(int clientFd)
     std::map<std::string, std::string> params;
     std::string deleteFile;
     
-    // std::cout << bufferStr << std::endl;
     fullUrl = removeQueryString(fullUrl);
 
     std::string urlPath = extractRequestedPath(bufferStr);
     if (bufferStr.find("POST ") == 0)
-        params = parseUrlParameters(urlPath);
-    if (bufferStr.find("DELETE ") == 0)
-        deleteFile = extractFileToDelete(urlPath);
+	{
+		params = parseUrlParameters(urlPath);
+   		std::cout << urlPath << std::endl;
+		if (urlPath.find("file-to-delete=") != std::string::npos)
+   			deleteUrl = 1;
+		deleteFile = extractFileToDelete(urlPath);
+	}
     urlPath = removeQueryString(urlPath);
+    std::cout << deleteFile << std::endl;
     removeExtraSlashes(fullUrl);
     removeExtraSlashes(urlPath);
     std::string requestedPath = urlPath;
@@ -359,9 +367,6 @@ void TcpServer::handleClient(int clientFd)
 
     std::string fullPath = resolvePath(requestedPath, clientFd);
     
-    int getBool = 0;
-   	int postBool = 0;
-    int deleteBool= 0;
     std::vector<s_info> listing;
     try
     {
@@ -371,8 +376,19 @@ void TcpServer::handleClient(int clientFd)
         TcpServer::parseCookies(clientFd, cookies);
 
         if (location.getAutoIndexLoc()) {
-            listing = DirectoryListing::listDirectory(rootPath);
-            response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
+           try {
+				listing = DirectoryListing::listDirectory(rootPath);
+				if (listing.empty()) {
+					response.setStatusCode(404);
+					response.setBody("<h1>404 Not Found</h1>");
+				} else {
+					response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
+				}
+			}
+			catch (const std::exception& e) {
+				response.setStatusCode(500);
+				response.setBody("<h1>500 Internal Server Error</h1>");
+			}
         }
         else {
             try
@@ -393,11 +409,10 @@ void TcpServer::handleClient(int clientFd)
                 }
  
                 response.get(fullPath, getBool);
-                if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
+                if (bufferStr.find("POST ") != 0)
                     TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
 				if (bufferStr.find("POST ") == 0) {
-                    response.m_delete(deleteFile);
 					size_t headerEnd = bufferStr.find("\r\n\r\n");
 					if (headerEnd == std::string::npos) {
                         TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
@@ -408,12 +423,11 @@ void TcpServer::handleClient(int clientFd)
 						std::string body = bufferStr.substr(headerEnd + 4);
 						postBool = location.getAllowedMethodPOST();
 						if (!postBool) {
-                            TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
+							TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 							response.setStatusCode(405);
 							response.setBody("<h1>405 Method Not Allowed</h1>");
 						}
-                        else if (bufferStr.find("DELETE ") == 0) {
-                            std::cout << "oui" << std::endl;
+                        else if (deleteUrl) {
                             headerEnd = bufferStr.find("\r\n\r\n");
                             if (headerEnd == std::string::npos) {
                                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
@@ -451,26 +465,6 @@ void TcpServer::handleClient(int clientFd)
             			}
 					}
 				}
-				else if (bufferStr.find("DELETE ") == 0) {
-					size_t headerEnd = bufferStr.find("\r\n\r\n");
-					if (headerEnd == std::string::npos) {
-                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
-						response.setStatusCode(400);
-						response.setBody("<h1>400 Bad Request</h1>");
-					}
-					else {
-						std::string body = bufferStr.substr(headerEnd + 4);
-						deleteBool = location.getAllowedMethodDELETE();
-						if (!deleteBool) {
-							response.setStatusCode(405);
-							response.setBody("<h1>405 Method Not Allowed 2</h1>");
-						}
-						else {
-                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
-							// response.m_delete();
-            			}
-					}
-				}
             }
             catch(const std::exception& e)
             { 
@@ -482,6 +476,7 @@ void TcpServer::handleClient(int clientFd)
     }
     catch(const std::exception& e)
     {
+		std::cout << "fazda" << urlPath << std::endl;
         TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
         response.setStatusCode(400);
         response.setBody("<h1>400 Bad Request 1</h1>");

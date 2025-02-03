@@ -1,11 +1,6 @@
+Pour Kenzo
 image corriger bug
-changer delete pour que ca fonctionne que dans uploadfolder
-
-
-index??
-
-
-Delete method
+Directory listing
 
 Directory listing
 
