@@ -55,26 +55,26 @@
         <h1>Supprimer un Fichier</h1>
     </header>
     <div class="container">
-        <form id="deleteForm" action="/delete" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="_method" value="DELETE">
-            
+        <form id="delete-form" action="/delete" method="POST">
             <label for="file-to-delete">Fichier à supprimer :</label>
             <input type="file" id="file-to-delete" name="file-to-delete" required>
-            
+
             <button type="submit" class="button">Supprimer</button>
         </form>
     </div>
 
     <script>
-        document.getElementById('deleteForm').addEventListener('submit', function(event) {
-            // Récupérer le nom du fichier sélectionné
-            var fileInput = document.getElementById('file-to-delete');
-            var fileName = fileInput.files[0] ? fileInput.files[0].name : '';
-            
-            // Si un fichier est sélectionné, mettre à jour l'URL avec le nom du fichier
+        document.getElementById('delete-form').addEventListener('submit', function(event) {
+            const fileInput = document.getElementById('file-to-delete');
+            const fileName = fileInput.files[0] ? fileInput.files[0].name : '';
+
+            // Construire l'URL avec le nom du fichier
             if (fileName) {
-                var actionUrl = '/delete?file-to-delete=' + encodeURIComponent(fileName);
-                this.action = actionUrl;  // Modifier l'URL d'action du formulaire
+                // Modifier l'action pour inclure le fichier dans l'URL
+                this.action = '/delete?file-to-delete=' + encodeURIComponent(fileName);
+            } else {
+                event.preventDefault(); // Si aucun fichier n'est sélectionné, annuler la soumission
+                alert("Veuillez sélectionner un fichier à supprimer.");
             }
         });
     </script>

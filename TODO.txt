@@ -1,11 +1,5 @@
 Pour Kenzo
 image corriger bug
-changer delete pour que ca fonctionne que dans uploadfolder
-Delete method
-Images
-
-
-Leo ou Kenzo
 Directory listing
 
 Cgi go condition
