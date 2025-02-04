@@ -2,8 +2,5 @@ Pour Kenzo
 image corriger bug
 Directory listing
 
-Directory listing
-
-Images
 
 More error code/pages

@@ -167,28 +167,19 @@ std::string Response::readFile(const std::string &filePath)
 void Response::get(const std::string &filePath, bool getBool)
 {
     std::string fileContent = readFile(filePath);
-	std::cout  << filePath << std::endl;
     if (!fileContent.empty())
     {
         setBody(fileContent);
-        
-        // Détection du type de fichier (exemple pour une image JPEG)
         if (filePath.find(".jpg") != std::string::npos || filePath.find(".jpeg") != std::string::npos)
         {
             setContentType("image/jpeg");
         }
-        // Ajoute d'autres types de contenu pour d'autres formats d'image
         else if (filePath.find(".png") != std::string::npos)
         {
             setContentType("image/png");
         }
-        else if (filePath.find(".gif") != std::string::npos)
-        {
-            setContentType("image/gif");
-        }
         else
         {
-            // Par défaut, si le fichier est un fichier HTML, par exemple
             setContentType("text/html; charset=UTF-8");
         }
         

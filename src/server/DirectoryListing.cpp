@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DirectoryListing.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kenzo <kenzo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/30 19:45:22 by kenzo            ###   ########.fr       */
+/*   Updated: 2025/02/04 17:05:38 by kmailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,8 @@ std::string DirectoryListing::formatFileSize(off_t bytes)
 }
 
 // Return HTML page into a string
+// Ajoutez cette partie dans la méthode generateDirectoryListingHTML
+
 std::string DirectoryListing::generateDirectoryListingHTML(const std::string &directoryName, const std::vector<s_info> &files)
 {
     std::ostringstream html;
@@ -137,9 +139,26 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    </thead>\n"
          << "    <tbody>\n";
 
+    // Boucle à travers tous les fichiers répertoriés
     for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it) {
+        // Vérifier si c'est un répertoire
+        bool isDirectory = false;
+        struct stat st;
+        if (stat(it->fullpath.c_str(), &st) == 0) {
+            isDirectory = S_ISDIR(st.st_mode); // Vérifier si c'est un répertoire
+        }
+
         html << "    <tr>\n"
-             << "      <td>" << it->name << "</td>\n"
+             << "      <td>";
+
+        // Si c'est un répertoire, créer un lien vers ce répertoire
+        if (isDirectory) {
+            html << "<a href=\"" << it->fullpath << "?dir\">" << it->name << "/</a>";
+        } else {
+            html << it->name; // Sinon, juste le nom du fichier
+        }
+
+        html << "</td>\n"
              << "      <td>" << it->format_size << "</td>\n"
              << "      <td>" << it->format_time << "</td>\n"
              << "    </tr>\n";
