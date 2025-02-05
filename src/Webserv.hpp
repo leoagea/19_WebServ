@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:53:34 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/15 14:45:32 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 17:27:23 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 # define __WEBSERV_HPP__
 
 #include "config/configFileParser.hpp"
-#include "log/Log.hpp"
-#include "log/LogReporter.hpp"
 #include "errors/ErrorPageGenerator.hpp"
 
 class Webserv
@@ -25,7 +23,6 @@ class Webserv
         ~Webserv();
         
         ConfigFile getConfigFileObject() const;
-        LogReporter getLogReporterObject() const;
         ErrorPageGnerator getErrorPageGenObject() const;
         std::map<std::string, std::string> getEnvMap() const;
         
@@ -36,8 +33,6 @@ class Webserv
 
     private:
         ConfigFile _config;
-        Log _log;
-        LogReporter _reportLog;
         ErrorPageGnerator _generator;
         std::map<std::string, std::string> _env;
 };

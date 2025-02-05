@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/16 15:36:17 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 17:27:37 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,16 +28,6 @@ ConfigFile Webserv::getConfigFileObject() const
     return _config;
 }
 
-LogReporter Webserv::getLogReporterObject() const
-{
-    return _reportLog;
-}
-
-ErrorPageGnerator Webserv::getErrorPageGenObject() const
-{
-    return _generator;
-}
-
 std::map<std::string, std::string> Webserv::getEnvMap() const
 {
     return _env;
@@ -53,14 +43,6 @@ void Webserv::initialiseConfig()
     {
         throw std::runtime_error(e.what());
     }
-}
-
-void Webserv::initialiseLogSystem()
-{
-    Log log(&_config, 0);
-    LogReporter report(&log);
-
-    _reportLog = report;
 }
 
 void Webserv::initialiseErrorPageGenerator()
