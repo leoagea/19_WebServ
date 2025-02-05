@@ -605,6 +605,10 @@ uint16_t    TcpServer::getSocketPort(int socket)
 }
 void	TcpServer::generateLog(std::string color, const std::string& message, const char *logType)
 {
+    std::size_t pos = message.find("/favicon.ico");
+    if (pos != std::string::npos)
+        return;
+        
     std::time_t now = std::time(NULL);
     std::tm* local_time = std::localtime(&now);
 
