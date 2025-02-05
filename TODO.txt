@@ -1,3 +1,4 @@
+Pour Kenzo
 image corriger bug
 changer delete pour que ca fonctionne que dans uploadfolder
 
@@ -20,6 +21,8 @@ Directory listing
 Images   =>     Rentre dans le catch et envoie une reponse ERROR 400, Pourquoi ?
 
 Path hardcoded                  OK
+Directory listing
+
 
 More error code/pages
 

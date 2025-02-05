@@ -9,6 +9,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background: url('car-image.jpg') no-repeat center center fixed;
+            background-size: cover;
             background-color: #f4f4f4;
             color: #333;
         }
@@ -55,14 +57,26 @@
         <h1>Supprimer un Fichier</h1>
     </header>
     <div class="container">
-        <form action="/delete" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="_method" value="DELETE">
-            
+        <form id="delete-form" action="/delete" method="POST">
             <label for="file-to-delete">Fichier à supprimer :</label>
             <input type="file" id="file-to-delete" name="file-to-delete" required>
 
             <button type="submit" class="button">Supprimer</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('delete-form').addEventListener('submit', function(event) {
+            const fileInput = document.getElementById('file-to-delete');
+            const fileName = fileInput.files[0] ? fileInput.files[0].name : '';
+
+            if (fileName) {
+                this.action = '/delete?file-to-delete=' + encodeURIComponent(fileName);
+            } else {
+                event.preventDefault();
+                alert("Veuillez sélectionner un fichier à supprimer.");
+            }
+        });
+    </script>
 </body>
 </html>

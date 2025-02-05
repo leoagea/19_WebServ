@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cookie Counter with SessionID (Client-side increment only)</title>
+</head>
+<body>
+  <h1>Cookie Counter with SessionID (Client-side increment)</h1>
+
+  <p><strong>Session ID:</strong> <span id="session-id">N/A</span></p>
+  <p><strong>Counter Value:</strong> <span id="counter-value">0</span></p>
+
+  <button id="increment-btn">Increment Counter</button>
+
+  <script>
+    // Récupère la valeur d'un cookie par son nom
+    function getCookie(name) {
+      // document.cookie est une seule chaîne du type "sessionID=xyz; counter=3"
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+      }
+      return null;
+    }
+
+    // Définit un cookie
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      // path=/ pour rendre le cookie accessible à toute l'application
+      document.cookie = `${name}=${value || ""}${expires}; path=/`;
+    }
+
+    (function() {
+      // 1) On lit le sessionID SANS le modifier
+      let sessionID = getCookie("sessionID");
+      if (!sessionID) {
+        // Si pas trouvé, on affiche juste "N/A" sans rien créer ni modifier
+        sessionID = "N/A";
+      }
+
+      // 2) On lit ou initialise (client-side) le counter
+      let counterVal = getCookie("counter");
+      if (!counterVal) {
+        counterVal = 0;
+        // On crée/initialise le cookie du compteur à 0
+        setCookie("counter", counterVal, 1);
+      }
+
+      // 3) Affiche les valeurs lues
+      document.getElementById("session-id").textContent = sessionID;
+      document.getElementById("counter-value").textContent = counterVal;
+
+      // 4) Incrémente le cookie "counter" lors du clic
+      document.getElementById("increment-btn").addEventListener("click", function() {
+        let currentVal = parseInt(getCookie("counter") || "0", 10);
+        currentVal++;
+        setCookie("counter", currentVal, 1);
+        document.getElementById("counter-value").textContent = currentVal;
+      });
+    })();
+  </script>
+</body>
+</html>

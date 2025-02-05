@@ -7,51 +7,35 @@
 
 void Response::m_delete(const std::string &fileName)
 {
-
-    std::string uploadDir = "./uploadFolder/";
-    std::string fullPath = uploadDir + fileName; // Concaténation du chemin complet
-
-    // Vérifier si le fichier existe avant de tenter de le supprimer
-    struct stat buffer;
-    if (stat(fullPath.c_str(), &buffer) != 0) {
-        std::cerr << "File not found: " << fullPath << std::endl;
-        _response = "HTTP/1.1 404 Not Found\r\n"
-                    "Content-Type: text/plain\r\n"
-                    "Content-Length: 14\r\n"
-                    "\r\n"
-                    "File not found";
-        return;
-    }
-
-    // Vérifier que c'est bien un fichier (et non un dossier)
-    if (!S_ISREG(buffer.st_mode)) {
-        std::cerr << "Unauthorized delete attempt: " << fullPath << std::endl;
-        _response = "HTTP/1.1 403 Forbidden\r\n"
-                    "Content-Type: text/plain\r\n"
-                    "Content-Length: 23\r\n"
-                    "\r\n"
-                    "Unauthorized delete attempt";
-        return;
-    }
-
-    // Supprimer le fichier
-    if (remove(fullPath.c_str()) < 0) {
-        std::cerr << "Failed to remove file: " << fullPath << std::endl;
-        _response = "HTTP/1.1 500 Internal Server Error\r\n"
-                    "Content-Type: text/plain\r\n"
-                    "Content-Length: 21\r\n"
-                    "\r\n"
-                    "Failed to delete file";
-        return;
-    }
-
-    _response = "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/plain\r\n"
-                "Content-Length: 19\r\n"
-                "Connection: keep-alive\r\n"
-                "Keep-Alive: timeout=60\r\n"
-                "\r\n"
-                "File deleted successfully";
+	std::string uploadDir = "uploadFolder/";
+	std::string fullPath = uploadDir + fileName;
+	struct stat buffer;
+	if (stat(fullPath.c_str(), &buffer) != 0) {
+		std::cerr << "File not found: " << fullPath << std::endl;
+		_response = "HTTP/1.1 404 Not Found\r\n"
+					"Content-Type: text/plain\r\n"
+					"Content-Length: 14\r\n"
+					"\r\n"
+					"File not found";
+		return;
+	}
+	if (remove(fullPath.c_str()) < 0) {
+		std::cerr << "Failed to remove file: " << fullPath << std::endl;
+		_response = "HTTP/1.1 500 Internal Server Error\r\n"
+					"Content-Type: text/plain\r\n"
+					"Content-Length: 21\r\n"
+					"\r\n"
+					"Failed to delete file";
+		return;
+	}
+	std::cout << "File removed " << fullPath << std::endl;
+	_response = "HTTP/1.1 200 OK\r\n"
+				"Content-Type: text/plain\r\n"
+				"Content-Length: 19\r\n"
+				"Connection: keep-alive\r\n"
+				"Keep-Alive: timeout=60\r\n"
+				"\r\n"
+				"File deleted successfully";
 }
 
 
@@ -63,63 +47,63 @@ Response::Response()
 //gestion des status
 void Response::setStatusCode(int code)
 {
-    std::stringstream status;
-    status << code;
-    _statusCode = status.str();
+	std::stringstream status;
+	status << code;
+	_statusCode = status.str();
 
-    switch (code)
-    {
-    case 200:
-        _statusMessage = "OK";
-        break;
-    case 404:
-        _statusMessage = "Not Found";
-        break;
-    case 405:
-        _statusMessage = "Method Not Allowed";
-        break;
-    default:
-        _statusMessage = "Internal Server Error";
-        break;
-    }
+	switch (code)
+	{
+	case 200:
+		_statusMessage = "OK";
+		break;
+	case 404:
+		_statusMessage = "Not Found";
+		break;
+	case 405:
+		_statusMessage = "Method Not Allowed";
+		break;
+	default:
+		_statusMessage = "Internal Server Error";
+		break;
+	}
 }
 
 void Response::setBody(const std::string &body)
 {
-    _body = body;
-    std::stringstream ss;
-    ss << body.size();
-    _contentLength = ss.str();
+	_body = body;
+	std::stringstream ss;
+	ss << body.size();
+	_contentLength = ss.str();
 }
 
 void Response::setContentType(const std::string &type)
 {
-    _contentType = type;
+	_contentType = type;
 }
 
 void Response::setKeepAlive(bool keepAlive)
 {
-    _keepAlive = keepAlive;
+	_keepAlive = keepAlive;
 }
 
 void Response::sendRedirect(int clientFd, const std::string &requestedPath, std::string prefix) {
-    std::string newUrl = requestedPath;
+	std::string newUrl = requestedPath;
 
-    if (newUrl.find(prefix) == 0) {
-        newUrl = "/" + newUrl.substr(prefix.length());
-    }
-    newUrl = newUrl;
-    std::cout << "path 2 " << requestedPath << std::endl;
-    std::string response = 
-        "HTTP/1.1 302 Found\r\n"
-        "Location: " + newUrl + "\r\n"
-        "Content-Length: 0\r\n"
-        "\r\n";
-    
-    send(clientFd, response.c_str(), response.size(), 0);
+	if (newUrl.find(prefix) == 0) {
+		newUrl = "/" + newUrl.substr(prefix.length());
+	}
+	newUrl = newUrl;
+	std::cout << "path 2 " << requestedPath << std::endl;
+	std::string response = 
+		"HTTP/1.1 302 Found\r\n"
+		"Location: " + newUrl + "\r\n"
+		"Content-Length: 0\r\n"
+		"\r\n";
+
+send(clientFd, response.c_str(), response.size(), 0);
 }
 
-std::string Response::generateResponse()
+std::string Response::generateResponse(Cookies cookie)
 {
     std::string response;
     if (_body.find("myapp") != std::string::npos) {
@@ -136,6 +120,8 @@ std::string Response::generateResponse()
     response += "Content-Length: " + _contentLength + "\r\n";
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
+    response += "Set-Cookie: sessionID=" + cookie.getSessionId() + "; Path=/\r\n";
+    response += "Set-Cookie: counter=" + cookie.getCounterValue() + "; Path=/\r\n";
     response += "\r\n";
     response += _body;
 
@@ -181,18 +167,30 @@ std::string Response::readFile(const std::string &filePath)
 void Response::get(const std::string &filePath, bool getBool)
 {
     std::string fileContent = readFile(filePath);
-
     if (!fileContent.empty())
     {
         setBody(fileContent);
+        if (filePath.find(".jpg") != std::string::npos || filePath.find(".jpeg") != std::string::npos)
+        {
+            setContentType("image/jpeg");
+        }
+        else if (filePath.find(".png") != std::string::npos)
+        {
+            setContentType("image/png");
+        }
+        else
+        {
+            setContentType("text/html; charset=UTF-8");
+        }
+        
         setStatusCode(200);
-        setContentType("text/html; charset=UTF-8");
     }
     else if (!getBool)
     {
         throw std::runtime_error("get error");
     }
 }
+
 
 bool Response::isDirectoryWritable(const std::string& directory) {
     struct stat dirInfo;

@@ -33,3 +33,7 @@ Webserv
 
 # Settings
 .vscode
+
+var/www/cgi-bin/scripts/wikipedia/wiki
+
+var/www/html/wikipedia_qr.png

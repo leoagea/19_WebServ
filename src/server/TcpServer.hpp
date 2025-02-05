@@ -22,6 +22,7 @@
 # include "../config/serverBlock.hpp"
 # include "../config/configFileParser.hpp"
 # include "../CGI/CgiHandler.hpp"
+# include "Cookies.hpp"
 
 # define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"
@@ -32,6 +33,8 @@
  
 typedef struct sockaddr_in sockaddr_in;
 typedef        ServerBlock ServBlo;
+
+class Cookies;
 
 class TcpServer 
 {
@@ -50,7 +53,7 @@ class TcpServer
         std::string             getDirectoryFromFirstLine(const std::string & method, const std::string & fullUrl);
 		std::string             extractRequestedPath(const std::string &request);
 		bool                    fileExists(const std::string& path);
-        void			        generateLog(std::string color, const std::string& message, const char *logType);
+        static void			    generateLog(std::string color, const std::string& message, const char *logType);
         static void             closeFds(int sig);
         void                    handle_signal(void);
     private :
@@ -62,6 +65,7 @@ class TcpServer
         sockaddr_in             _serverAddress;
         ConfigFile              _config;
         std::map<std::string, std::string> _envMap;
+        std::map<int, Cookies>  _cookiesMap;
 
 		std::string             resolvePath(const std::string &requestedPath, int clientFd);
         void                    setupSocket();
@@ -70,6 +74,7 @@ class TcpServer
         void                    handleClient(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
+        void                    parseCookies(int clientFd, const std::string &);
 
         ServerBlock             getServerBlockBySocket(int);
 };
