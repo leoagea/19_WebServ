@@ -23,6 +23,7 @@
 # include "../config/configFileParser.hpp"
 # include "../CGI/CgiHandler.hpp"
 # include "Cookies.hpp"
+# include "ErrorPageGenerator.hpp"
 
 # define REQUEST_HTTP_SIZE 8192
 # define R                 "\033[91m"

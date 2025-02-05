@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/05 17:27:37 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 18:34:19 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,6 @@ void Webserv::initialiseConfig()
     {
         throw std::runtime_error(e.what());
     }
-}
-
-void Webserv::initialiseErrorPageGenerator()
-{
-    ServerBlock server = _config.getServerBlockByIndex(0);
-    ErrorPageGnerator generator(server);
-
-    _generator = generator;
 }
 
 void Webserv::initialiseEnv(char **env)

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 14:34:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 15:07:48 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 18:32:56 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,9 @@
 
 #include "../config/serverBlock.hpp"
 
-class ErrorPageGnerator
+namespace ErrorPageGenerator
 {
-    public:
-        ErrorPageGnerator();
-        ErrorPageGnerator(ServerBlock &);
-        ~ErrorPageGnerator();
-
-        std::string generateErrorPageCode(int);
-        
-    private:
-        std::string _htmlcode;        
-        std::map<int, std::string> _errors;
-
-        void generateHtmlCode(int, std::string);
-        std::string readHtmlCode(std::string &);
-};
+    std::string generateErrorPageCode(std::map<int, std::string> &, int);
+}
 
 #endif
