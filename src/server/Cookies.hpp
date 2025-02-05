@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 16:00:15 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/31 19:42:24 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/04 19:14:26 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,31 +19,24 @@
 #include <fstream>
 #include <map>
 #include "TcpServer.hpp"
+#include "../../inc/Struct.h"
 
 #define COOKIE_DB_PATH "var/www/db/cookies.csv"
 
-typedef std::pair<std::string, std::string> t_pair;
-typedef std::map<std::string, std::string> t_mapDB;
+typedef std::map<std::string, t_user> t_mapDB;
 
 class Cookies
 {
     public:
-        Cookies();
-        ~Cookies();
     
-        void setCookieValue(const std::string &);
-        void writeCookiesInDB(t_pair);
-        
-        std::string getSessionId() const;
-        std::string getCounterValue() const;
+        static std::string  generateSessionID();
+        static void         writeCookiesInDB(t_mapDB &);
+        t_mapDB             readDB();
         
     private:
-        std::string _sessionID;
-        std::string _value;
-        
-        void    generateSessionID();
-        t_mapDB readDB(std::fstream &);
-        void    writeDB(t_mapDB &);
+    
+        Cookies();
+        ~Cookies();
 };
 
 #endif
