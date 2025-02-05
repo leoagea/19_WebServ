@@ -37,3 +37,5 @@ Webserv
 var/www/cgi-bin/scripts/wikipedia/wiki
 
 var/www/html/wikipedia_qr.png
+var/www/html/wikipedia_qr.html
+var/www/html/car_proposal.html

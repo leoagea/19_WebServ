@@ -25,7 +25,7 @@ const std::string   readpage(std::ifstream &file)
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap)
+TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap), _previousUser("")
 {
     setupSocket();
     std::cout << IT << "Server initialized on port(s): ";
@@ -109,9 +109,37 @@ void    TcpServer::makeNonBlocking(int socket)
     }
 }
 
+t_mapDB readDB(const std::string &path)
+{
+    std::string line;
+    t_mapDB map;
+    std::ifstream file(path.c_str());
+
+    if (!file.is_open()){
+        TcpServer::generateLog(RED, "Failed to open cookies DB", "ERROR");
+        return map;
+    }
+
+    while(getline(file, line)){
+        size_t first = line.find('|');
+        size_t second = line.find('|', first + 1);
+        t_user user;
+        if (first != std::string::npos && second != std::string::npos){
+            user.login = line.substr(0, first);
+            user.sessionID = line.substr(first + 1, second - first - 1);
+            user.counter = line.substr(second + 1, line.size());
+            map[user.login] = user;
+        }
+    }
+
+    return map;
+}
+
 void    TcpServer::startServer()
 {
     TcpServer::generateLog(BLUE, "Server is running...", "INFO");
+    _cookiesMap = readDB(COOKIE_DB_PATH);
+
     while (true)
     {
         int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
@@ -154,8 +182,6 @@ void    TcpServer::acceptNewClient(int serverSocket)
         return;
     }
     _clientMap[clientFd] = getServerBlockBySocket(serverSocket);
-    if (_cookiesMap.find(clientFd) == _cookiesMap.end())
-        _cookiesMap[clientFd] = Cookies();
 
     TcpServer::generateLog(BLUE, "New client connected", "INFO");
     makeNonBlocking(clientFd);
@@ -355,7 +381,7 @@ void TcpServer::handleClient(int clientFd)
     fullUrl = removeQueryString(fullUrl);
     
     std::string urlPath = extractRequestedPath(bufferStr);
-    if (bufferStr.find("POST ") == 0)
+    if (bufferStr.find("POST ") == 0 || bufferStr.find("GET") == 0)
 	{
 		params = parseUrlParameters(urlPath);
 		if (urlPath.find("file-to-delete=") != std::string::npos)
@@ -380,6 +406,8 @@ void TcpServer::handleClient(int clientFd)
     std::string fullPath = resolvePath(requestedPath, clientFd);
     removeExtraSlashes(fullPath);
     std::vector<s_info> listing;
+    t_user user;
+    
     if (dirQuery)
     {
         removeLeadingSlash(fullUrl);
@@ -391,11 +419,9 @@ void TcpServer::handleClient(int clientFd)
         try
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
-            std::string cookies = extractCookiesFromRequest(bufferStr);
-            TcpServer::parseCookies(clientFd, cookies);
 
             if (location.getAutoIndexLoc()) {
-            try {
+                try {
                     listing = DirectoryListing::listDirectory(rootPath);
                     if (listing.empty()) {
                         response.setStatusCode(404);
@@ -416,11 +442,6 @@ void TcpServer::handleClient(int clientFd)
                 try
                 {
                     getBool = location.getAllowedMethodGET();
-                    // cgi.executego("/home/vdarras/Cursus/webserv/var/www/cgi-bin/scripts/wikipedia/wiki");
-                    // if (location.getUri() == fullUrl && location.getCgiScriptName()){
-
-                    // }
-                    // std::cout << location << std::endl;
 
                     if (location.getCgi() && location.getCgiScriptName() != ""){
                         std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
@@ -429,24 +450,42 @@ void TcpServer::handleClient(int clientFd)
                             cgi.executego(dir);
                         }
                     }
+    
+                    if (params.find("login") != params.end()){
+                        std::string cookies = extractCookiesFromRequest(bufferStr);
+                        user = TcpServer::parseCookies(clientFd, cookies, params["login"]);
+                        if (_cookiesMap.find(user.login) == _cookiesMap.end()){
+                            user.sessionID = Cookies::generateSessionID();
+                            user.counter = "0";
+                            _cookiesMap[user.login] = user;
+                        }
+                        else{
+                            user.sessionID = _cookiesMap[user.login].sessionID;
+                            if (_previousUser != user.login){
+                                user.counter = _cookiesMap[user.login].counter;
+                                _previousUser = user.login;
+                            }
+                        }
+                    }
 
                     response.get(fullPath, getBool);
-                    if (bufferStr.find("POST ") != 0)
+
+                    if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
                     if (bufferStr.find("POST ") == 0) {
                         size_t headerEnd = bufferStr.find("\r\n\r\n");
                         if (headerEnd == std::string::npos) {
                             TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
-                            response.setStatusCode(400);
-                            response.setBody("<h1>400 Bad Request</h1>");
-                        }
+				    		response.setStatusCode(405);
+				    		response.setBody("<h1>405 Method Not Allowed</h1>");
+				    	}
                         else {
                             std::string body = bufferStr.substr(headerEnd + 4);
                             postBool = location.getAllowedMethodPOST();
                             if (!postBool) {
-                                TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
-                                response.setStatusCode(405);
+                                TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
+                                response.setStatusCode(400);
                                 response.setBody("<h1>405 Method Not Allowed</h1>");
                             }
                             else if (deleteUrl) {
@@ -486,6 +525,7 @@ void TcpServer::handleClient(int clientFd)
                                 }
                             }
                         }
+                    response.get(fullPath, getBool);
                     }
                 }
                 catch(const std::exception& e)
@@ -511,7 +551,10 @@ void TcpServer::handleClient(int clientFd)
             }
         }
     }
-    std::string fullResponse = response.generateResponse(_cookiesMap[clientFd]);
+
+    _cookiesMap[user.login] = user;
+    Cookies::writeCookiesInDB(_cookiesMap);
+    std::string fullResponse = response.generateResponse(user);
     send(clientFd, fullResponse.c_str(), fullResponse.size(), 0);
 }
 
@@ -553,12 +596,12 @@ void    TcpServer::handle_signal(void)
     signal(SIGINT, TcpServer::closeFds);
 }
 
-void    TcpServer::parseCookies(int clientFd, const std::string &line)
+t_user    TcpServer::parseCookies(int clientFd, const std::string &line, const std::string &login)
 {
-    // std::cout << line << std::endl;
     std::stringstream ss(line);
     std::string pairStr;
-    std::pair<std::string, std::string> pair;
+    t_user user;
+    (void) clientFd;
 
     while (getline(ss, pairStr, ';')){
         pairStr = trim(pairStr);
@@ -567,12 +610,14 @@ void    TcpServer::parseCookies(int clientFd, const std::string &line)
             std::string name = pairStr.substr(0, pos);
             std::string val = pairStr.substr(pos + 1, pairStr.size() - pos);
             if (name == "sessionID")
-                pair.first = val;
+                user.sessionID = val;
             else if (name == "counter")
-                pair.second = val;
+                user.counter = val;
         }
     }
-    _cookiesMap[clientFd].writeCookiesInDB(pair);
+
+    user.login = login;
+    return user;
 }
 
 //Return the serverblock associate with the socket

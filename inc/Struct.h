@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:22:52 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/03 16:26:15 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/03 17:38:45 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,12 @@ typedef struct s_token
     unsigned int index;
     unsigned int line;
 }t_token;
+
+typedef struct s_user
+{
+    std::string login;
+    std::string sessionID;
+    std::string counter;
+}   t_user;
 
 #endif

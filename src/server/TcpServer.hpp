@@ -65,8 +65,9 @@ class TcpServer
         sockaddr_in             _serverAddress;
         ConfigFile              _config;
         std::map<std::string, std::string> _envMap;
-        std::map<int, Cookies>  _cookiesMap;
-
+        std::map<std::string, t_user>  _cookiesMap;
+        std::string             _previousUser;
+        
 		std::string             resolvePath(const std::string &requestedPath, int clientFd);
         void                    setupSocket();
         void                    makeNonBlocking(int socket);
@@ -74,7 +75,7 @@ class TcpServer
         void                    handleClient(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
-        void                    parseCookies(int clientFd, const std::string &);
+        t_user                  parseCookies(int clientFd, const std::string &, const std::string &);
 
         ServerBlock             getServerBlockBySocket(int);
 };

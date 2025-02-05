@@ -14,6 +14,7 @@
 
 # include "Request.hpp"
 # include "../../inc/Enum.h"
+# include "../../inc/Struct.h"
 # include "Cookies.hpp"
 
 class Cookies;
@@ -44,7 +45,7 @@ public:
     void setBody(const std::string &body);
     void setContentType(const std::string &type);
     void setKeepAlive(bool keepAlive);
-    std::string generateResponse(Cookies cookie);
+    std::string generateResponse(t_user &);
 	std::string extractHeaders(const std::string &fullResponse);
     void get(const std::string &filePath, bool getBool);
 	static std::string readFile(const std::string &filePath);
