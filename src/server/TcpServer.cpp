@@ -372,6 +372,8 @@ void TcpServer::handleClient(int clientFd)
     std::string fullUrl = getFullUrl(requestBuffer);
     std::map<std::string, std::string> params;
     std::string deleteFile;
+    std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
+
     bool dirQuery = 0;
     if (fullUrl.find("?dir") == fullUrl.size() - 4)
     {
@@ -425,7 +427,8 @@ void TcpServer::handleClient(int clientFd)
                     listing = DirectoryListing::listDirectory(rootPath);
                     if (listing.empty()) {
                         response.setStatusCode(404);
-                        response.setBody("<h1>404 Not Found</h1>");
+                        // response.setBody("<h1>404 Not Found</h1>");
+                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 404));
                     }
                     else 
                     {  
@@ -435,7 +438,8 @@ void TcpServer::handleClient(int clientFd)
                 }
                 catch (const std::exception& e) {
                     response.setStatusCode(500);
-                    response.setBody("<h1>500 Internal Server Error</h1>");
+                    // response.setBody("<h1>500 Internal Server Error</h1>");
+                    response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
                 }
             }
             else {
@@ -478,7 +482,8 @@ void TcpServer::handleClient(int clientFd)
                         if (headerEnd == std::string::npos) {
                             TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
 				    		response.setStatusCode(405);
-				    		response.setBody("<h1>405 Method Not Allowed</h1>");
+				    		// response.setBody("<h1>405 Method Not Allowed</h1>");
+                            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
 				    	}
                         else {
                             std::string body = bufferStr.substr(headerEnd + 4);
@@ -486,21 +491,24 @@ void TcpServer::handleClient(int clientFd)
                             if (!postBool) {
                                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                 response.setStatusCode(400);
-                                response.setBody("<h1>405 Method Not Allowed</h1>");
+                                // response.setBody("<h1>405 Method Not Allowed</h1>");
+                                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
                             }
                             else if (deleteUrl) {
                                 headerEnd = bufferStr.find("\r\n\r\n");
                                 if (headerEnd == std::string::npos) {
                                     TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                     response.setStatusCode(400);
-                                    response.setBody("<h1>400 Bad Request</h1>");
+                                    // response.setBody("<h1>400 Bad Request</h1>");
+                                    response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
                                 }
                                 else {
                                     body = bufferStr.substr(headerEnd + 4);
                                     deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
                                     if (!deleteBool) {
                                         response.setStatusCode(405);
-                                        response.setBody("<h1>405 Method Not Allowed</h1>");
+                                        // response.setBody("<h1>405 Method Not Allowed</h1>");
+                                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
                                     }
                                     else {
                                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
@@ -532,7 +540,8 @@ void TcpServer::handleClient(int clientFd)
                 { 
                     TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
                     response.setStatusCode(400);
-                    response.setBody("<h1>400 Bad Request</h1>");
+                    // response.setBody("<h1>400 Bad Request</h1>");
+                    response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
                 }
             }
         }
@@ -547,7 +556,8 @@ void TcpServer::handleClient(int clientFd)
             {
                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
                 response.setStatusCode(400);
-                response.setBody("<h1>400 Bad Request 1</h1>");
+                // response.setBody("<h1>400 Bad Request 1</h1>");
+                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
             }
         }
     }

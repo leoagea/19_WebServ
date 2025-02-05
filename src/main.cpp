@@ -6,14 +6,14 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/05 18:17:48 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 19:01:47 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include "config/configFileParser.hpp"
 #include "server/TcpServer.hpp"
-#include "errors/ErrorPageGenerator.hpp"
+#include "server/ErrorPageGenerator.hpp"
 #include "Webserv.hpp"
 #include "server/DirectoryListing.hpp"
 #include "../inc/Enum.h"
@@ -49,6 +49,11 @@ int main(int ac, char **av, char **env)
         return 1;
     }
     
+    // std::map<int, std::string> mapError = data.getConfigFileObject().getServerBlockByIndex(0).getErrorPagesMap();
+    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 403) << std::endl;
+    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 404) << std::endl;
+    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 405) << std::endl;
+    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 413) << std::endl;
     //Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
     
