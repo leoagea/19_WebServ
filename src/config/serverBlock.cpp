@@ -6,19 +6,19 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/17 16:41:13 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:32 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
 ServerBlock::ServerBlock() : _listeningports(-1), _servername(""), _rootdir(""), _index(""), \
-        _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError()
+        _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError()
 {
 }
 
 ServerBlock::ServerBlock(int start, std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername(""), _rootdir(""), _index(""), \
-        _acceslogdpath(""), _errorlogpath(""), _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError(reporter)
+        _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError(reporter)
 {
     initializeMapErrorPages();
     parseAllServerVariables(start, tokenVec, j);
@@ -47,46 +47,6 @@ std::string ServerBlock::getRootDir() const
 std::string ServerBlock::getIndex() const
 {
     return _index;    
-}
-
-std::string ServerBlock::getAccesLogFilePath() const
-{
-    return _acceslogdpath;
-}
-
-//Throw a runtime_error if file failed to be opened
-std::ofstream *ServerBlock::getAccessLogStream() const
-{
-    std::ofstream *file = new std::ofstream;
-    std::string path = _acceslogdpath;
-    if ((PathChecking::exist(path)) && PathChecking::isFile(path) && PathChecking::getWritePermission(path)){
-        file->open(path.c_str(), std::ios::app);
-        if (!file->is_open()){
-            delete file;
-            throw std::runtime_error("Error: failed to open access log file");
-        }
-    }
-    return file;
-}
-
-std::string ServerBlock::getErrorsLogFilePath() const
-{
-    return _errorlogpath;
-}
-
-//Throw a runtime_error if file failed to be opened
-std::ofstream *ServerBlock::getErrorsLogStream() const
-{
-    std::ofstream *file = new std::ofstream;
-    std::string path = _errorlogpath;
-    if ((PathChecking::exist(path)) && PathChecking::isFile(path) && PathChecking::getWritePermission(path)){
-        file->open(path.c_str(), std::ios::app);
-        if (!file->is_open()){
-            delete file;
-            throw std::runtime_error("Error: failed to open access log file");
-        }
-    }
-    return file;
 }
 
 int ServerBlock::getBodySizeLimit() const
@@ -190,14 +150,6 @@ void ServerBlock::parseAllServerVariables(int startIndex, std::vector<t_token> &
         }
         else if (token.type == keyword && token.value == "index" && tokenVec[i + 2].type == semicolon){
             parseIndex(tokenVec[++i]);
-            i++;
-        }
-        else if (token.type == keyword && token.value == "access_log" && tokenVec[i + 2].type == semicolon){
-            parseAccesLogPath(tokenVec[++i]);
-            i++;
-        }
-        else if (token.type == keyword && token.value == "errors_log" && tokenVec[i + 2].type == semicolon){
-            parseErrorsLogPath(tokenVec[++i]);
             i++;
         }
         else if (token.type == keyword && token.value == "limit_body_size" && tokenVec[i + 2].type == semicolon){
@@ -337,64 +289,6 @@ void ServerBlock::parseIndex(t_token &token)
         _reportError(token.index, "index already defined");
 }
 
-void ServerBlock::parseAccesLogPath(t_token &token)
-{
-    if (_acceslogdpath == ""){
-        if (token.type == string && isLogExtensionValid(token.value)){
-            std::string path = token.value;
-            
-            if(!PathChecking::isAbsolutePath(token.value)){
-                if (_rootdir[_rootdir.size() - 1] == '/')
-                    path = _rootdir + token.value;
-                else
-                    path = _rootdir + "/" + token.value;
-            }
-                
-            if (!PathChecking::exist(path)){
-                int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-                if (fd  == -1)
-                    _reportError(token.index, "failed to create access log file");
-                else
-                    close(fd);
-            }
-            _acceslogdpath = path;
-        }
-        else
-            _reportError(token.index, "expected a .log path");
-    }
-    else
-        _reportError(token.index, "access_log already defined");
-}
-
-void ServerBlock::parseErrorsLogPath(t_token &token)
-{
-    if (_errorlogpath == ""){
-        if (token.type == string && isLogExtensionValid(token.value)){
-            std::string path = token.value;
-            
-            if(!PathChecking::isAbsolutePath(token.value)){
-                if (_rootdir[_rootdir.size() - 1] == '/')
-                    path = _rootdir + token.value;
-                else
-                    path = _rootdir + "/" + token.value;
-            }
-            
-            if (!PathChecking::exist(path)){
-                int fd = open(path.c_str(), O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-                if (fd  == -1)
-                    _reportError(token.index, "failed to create error log file");
-                else
-                    close(fd);
-            }
-            _errorlogpath = path;
-        }
-        else
-            _reportError(token.index, "expected a .log path");
-    }
-    else
-        _reportError(token.index, "errors log already defined");
-}
-
 void ServerBlock::parseLimitBodySize(t_token &token)
 {
     if (_bodysizelimit == -1){
@@ -516,10 +410,6 @@ std::vector<std::string> ServerBlock::checkAllDefined()
         notdefined.push_back("root directory");
     if (_index == "")
         notdefined.push_back("index page");
-    if (_acceslogdpath == "")
-        notdefined.push_back("acces log file");
-    if (_errorlogpath == "")
-        notdefined.push_back("error log file");
     if (_bodysizelimit == -1)
         notdefined.push_back("body size limit");
     if (_host == "" && _hostbytes.empty())
@@ -551,34 +441,6 @@ std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
     out << "Exist: " << PathChecking::exist(pathIndex) << "  IsFile:  " << PathChecking::isFile(pathIndex)
         << "  R:  " << PathChecking::getReadPermission(pathIndex) << "  W:  " << PathChecking::getWritePermission(pathIndex) << "  X:  " << PathChecking::getExecPermission(pathIndex) << std::endl; 
     
-    out << CYAN << "Acces log" << RESET << std::endl;
-    std::string pathAccesLog = obj.getAccesLogFilePath();
-    out << "Dir:  " << pathAccesLog << std::endl;
-    try{
-        std::ofstream *logFile = obj.getAccessLogStream();
-        out << "Is open:  " << logFile->is_open() << "\n"
-            << "Test writing acces log: abc" << std::endl;
-        *logFile << "abc\n";
-        logFile->close();
-    }
-    catch (std::exception &e){
-        std::cerr << e.what() << std::endl;
-    }
-
-    out << CYAN << "Errors log" << RESET << std::endl;
-    std::string pathErrorsLog = obj.getErrorsLogFilePath();
-    out << "Dir:  " << pathErrorsLog << std::endl;
-    try{
-        std::ofstream *logFile = obj.getErrorsLogStream();
-        out << "Is open:  " << logFile->is_open() << "\n"
-            << "Test writing acces log: abc" << std::endl;
-        *logFile << "abc\n";
-        logFile->close();
-    }
-    catch (std::exception &e){
-        std::cerr << e.what() << std::endl;
-    }
-
     out << CYAN << "Body Size Limit" << RESET << std::endl;
     out << "Limit: " << obj.getBodySizeLimit() << std::endl;
     

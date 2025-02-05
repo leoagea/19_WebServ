@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/01/17 16:26:09 by lagea            ###   ########.fr       */
+/*   Updated: 2025/02/05 18:19:39 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,6 @@ class ServerBlock
         std::string getServerName() const;
         std::string getRootDir() const;
         std::string getIndex() const;
-        std::string getAccesLogFilePath() const;
-        std::ofstream *getAccessLogStream() const;
-        std::string getErrorsLogFilePath() const;
-        std::ofstream *getErrorsLogStream() const;
         int getBodySizeLimit() const;
         std::string getErrorPagePath(int) const;
         std::map<int, std::string> getErrorPagesMap() const;
@@ -64,8 +60,6 @@ class ServerBlock
         std::string _servername;
         std::string _rootdir;
         std::string _index;
-        std::string _acceslogdpath;
-        std::string _errorlogpath;
         int _bodysizelimit;
         std::string _host;
         std::vector<int> _hostbytes;
@@ -79,8 +73,6 @@ class ServerBlock
         void parseServerName(t_token &);
         void parseRootDir(t_token &);
         void parseIndex(t_token &);
-        void parseAccesLogPath(t_token &);
-        void parseErrorsLogPath(t_token &);
         void parseLimitBodySize(t_token &);
         void parseErrorsPages(t_token &, t_token &);
         void parseHost(t_token &);
