@@ -287,22 +287,22 @@ std::map<std::string, std::string> parseUrlParameters(const std::string& url) {
 std::string removeExtraSlashes(const std::string &path) {
     std::string cleanedPath;
     bool lastWasSlash = false;
-    char ch;
-    for (int i=0; i < (int)path.size(); i++) {
-        ch = path[i];
+
+    for (size_t i = 0; i < path.size(); i++) {
+        char ch = path[i];
         if (ch == '/') {
-            if (!lastWasSlash) {
-                cleanedPath += ch;
+            if (lastWasSlash) {
+                continue;
             }
             lastWasSlash = true;
         } else {
-            cleanedPath += ch;
             lastWasSlash = false;
         }
+        cleanedPath += ch;
     }
-
     return cleanedPath;
 }
+
 
 std::string extractFileToDelete(const std::string &url)
 {
@@ -374,12 +374,6 @@ void TcpServer::handleClient(int clientFd)
     std::string deleteFile;
     std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
 
-    bool dirQuery = 0;
-    if (fullUrl.find("?dir") == fullUrl.size() - 4)
-    {
-        dirQuery = 1;
-
-    }
     fullUrl = removeQueryString(fullUrl);
     
     std::string urlPath = extractRequestedPath(bufferStr);
@@ -391,8 +385,8 @@ void TcpServer::handleClient(int clientFd)
 		deleteFile = extractFileToDelete(urlPath);
 	}
     urlPath = removeQueryString(urlPath);
-    removeExtraSlashes(fullUrl);
-    removeExtraSlashes(urlPath);
+    fullUrl = removeExtraSlashes(fullUrl);
+    urlPath = removeExtraSlashes(urlPath);
     std::string requestedPath = urlPath;
     std::string rootPath;
     try
@@ -410,11 +404,19 @@ void TcpServer::handleClient(int clientFd)
     std::vector<s_info> listing;
     t_user user;
     
-    if (dirQuery)
+    if (_isIndex != "")
     {
-        removeLeadingSlash(fullUrl);
+        try
+        {
+        _showPath = fullUrl;
+        fullUrl = _isIndex + fullUrl;
+        fullUrl = removeExtraSlashes(fullUrl);
+        _isIndex = removeExtraSlashes(_isIndex);
+        _showPath = removeExtraSlashes(_showPath);
 		listing = DirectoryListing::listDirectory(fullUrl);
-        response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, listing));
+        response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+        }
+        catch(const std::exception& e){}
     }
     else{
         
@@ -431,9 +433,10 @@ void TcpServer::handleClient(int clientFd)
                         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 404));
                     }
                     else 
-                    {  
-                        std::cout << "DIR :" << rootPath << std::endl;
-                        response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, listing));
+                    {
+                        response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, "/", listing));
+                        _isIndex = rootPath;
+                        _showPath = urlPath;
                     }
                 }
                 catch (const std::exception& e) {
@@ -547,7 +550,7 @@ void TcpServer::handleClient(int clientFd)
         }
         catch(const std::exception& e)
         {    
-            if (fullUrl.find(".jpg") != std::string::npos || fullUrl.find(".jpeg") != std::string::npos)
+            if (fullUrl.find(".jpg") != std::string::npos || fullUrl.find(".png") != std::string::npos)
             {
                 response.get(fullPath, getBool);
                 TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");

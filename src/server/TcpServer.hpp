@@ -64,6 +64,8 @@ class TcpServer
         static std::vector<pollfd>     _pollFds;
         std::map<int, ServBlo>  _clientMap;
         sockaddr_in             _serverAddress;
+        std::string             _isIndex;
+        std::string             _showPath;
         ConfigFile              _config;
         std::map<std::string, std::string> _envMap;
         std::map<std::string, t_user>  _cookiesMap;

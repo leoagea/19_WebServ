@@ -106,16 +106,9 @@ send(clientFd, response.c_str(), response.size(), 0);
 std::string Response::generateResponse(t_user &user)
 {
     std::string response;
-    if (_body.find("myapp") != std::string::npos) {
-        size_t pos = _body.find("myapp");
-        while (pos != std::string::npos) {
-            _body.replace(pos, 5, "delete.html");
-            pos = _body.find("myapp", pos + 1);
-        }
-    }
 
     response += "HTTP/1.1 " + _statusCode + " " + _statusMessage + "\r\n";
-    response += "Location: oui \r\n";
+    response += "Location: \r\n";
     response += "Content-Type: " + _contentType + "\r\n";
     response += "Content-Length: " + _contentLength + "\r\n";
     response += "Connection: keep-alive\r\n";
@@ -246,9 +239,19 @@ bool Response::extractFileData(const std::string& requestData, const std::string
     return true;
 }
 
+void createUploadFolder(const std::string& folderName = "uploadFolder") {
+    struct stat info;
+
+    if (stat(folderName.c_str(), &info) != 0)
+        mkdir(folderName.c_str(), 0777);
+}
+
+
 void Response::post(const std::string &requestData)
 {
     std::string uploadFolder = "./uploadFolder";
+    createUploadFolder();
+
     if (!isDirectoryWritable(uploadFolder))
     {
         setStatusCode(500);

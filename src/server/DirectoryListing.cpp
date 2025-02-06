@@ -6,13 +6,12 @@
 /*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/04 17:05:38 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/02/06 18:00:36 by kmailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "DirectoryListing.hpp"
 
-//Throw and runtime error if something failed
 std::vector<s_info> DirectoryListing::listDirectory(std::string &path) 
 { 
     std::vector<s_info> results;
@@ -75,18 +74,15 @@ std::string DirectoryListing::formatFileSize(off_t bytes)
     return oss.str();
 }
 
-// Return HTML page into a string
-// Ajoutez cette partie dans la méthode generateDirectoryListingHTML
-
-std::string DirectoryListing::generateDirectoryListingHTML(const std::string &directoryName, const std::vector<s_info> &files)
+std::string DirectoryListing::generateDirectoryListingHTML(const std::string &directoryName, const std::string &showPath, const std::vector<s_info> &files)
 {
     std::ostringstream html;
-
+    (void)directoryName;
     html << "<!DOCTYPE html>\n"
          << "<html lang=\"fr\">\n"
          << "<head>\n"
          << "  <meta charset=\"utf-8\">\n"
-         << "  <title>Index of " << directoryName << "</title>\n"
+         << "  <title>Index of " << showPath << "</title>\n"
          << "  <style>\n"
          << "    body {\n"
          << "      font-family: Arial, sans-serif;\n"
@@ -127,16 +123,24 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    }\n"
          << "    a {\n"
          << "      text-decoration: none;\n"
-         << "      color: #3498db;\n"
          << "      font-weight: bold;\n"
          << "    }\n"
-         << "    a:hover {\n"
+         << "    .file-link {\n"
+         << "      color: #3498db;\n"
+         << "    }\n"
+         << "    .file-link:hover {\n"
+         << "      text-decoration: underline;\n"
+         << "    }\n"
+         << "    .dir-link {\n"
+         << "      color: #1b4f72;\n"
+         << "    }\n"
+         << "    .dir-link:hover {\n"
          << "      text-decoration: underline;\n"
          << "    }\n"
          << "  </style>\n"
          << "</head>\n"
          << "<body>\n"
-         << "  <h1>Index of " << directoryName << "</h1>\n"
+         << "  <h1>Index of " << showPath << "</h1>\n"
          << "  <table>\n"
          << "    <thead>\n"
          << "      <tr>\n"
@@ -147,23 +151,20 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    </thead>\n"
          << "    <tbody>\n";
 
-    // Boucle à travers tous les fichiers répertoriés
     for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it) {
-        // Vérifier si c'est un répertoire
         bool isDirectory = false;
         struct stat st;
         if (stat(it->fullpath.c_str(), &st) == 0) {
-            isDirectory = S_ISDIR(st.st_mode); // Vérifier si c'est un répertoire
+            isDirectory = S_ISDIR(st.st_mode);
         }
 
         html << "    <tr>\n"
              << "      <td>";
 
-        // Si c'est un répertoire, créer un lien vers ce répertoire
         if (isDirectory) {
-            html << "<a href=\"" << it->fullpath << "?dir\">" << it->name << "/</a>";
+            html << "<a class=\"dir-link\" href=\"" << it->name << "/\">" << it->name << "/</a>";
         } else {
-            html << it->name; // Sinon, juste le nom du fichier
+            html << "<a class=\"file-link\" href=\"" << it->name << "\" onclick=\"forceDownload(event, '" << it->name << "')\">" << it->name << "</a>";
         }
 
         html << "</td>\n"
@@ -174,9 +175,19 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
 
     html << "    </tbody>\n"
          << "  </table>\n"
+         << "  <script>\n"
+         << "    function forceDownload(event, filename) {\n"
+         << "      event.preventDefault();\n"
+         << "      const link = document.createElement('a');\n"
+         << "      link.href = filename;\n"
+         << "      link.setAttribute('download', filename);\n"
+         << "      document.body.appendChild(link);\n"
+         << "      link.click();\n"
+         << "      document.body.removeChild(link);\n"
+         << "    }\n"
+         << "  </script>\n"
          << "</body>\n"
          << "</html>\n";
 
     return html.str();
 }
-
