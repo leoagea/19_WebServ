@@ -7,6 +7,7 @@
 
 void Response::m_delete(const std::string &fileName)
 {
+    std::cout << "Removing file..." << std::endl;
 	std::string uploadDir = "uploadFolder/";
 	std::string fullPath = uploadDir + fileName;
 	struct stat buffer;
@@ -14,6 +15,7 @@ void Response::m_delete(const std::string &fileName)
 		std::cerr << "File not found: " << fullPath << std::endl;
 		_response = "HTTP/1.1 404 Not Found\r\n"
 					"Content-Type: text/plain\r\n"
+                    "Keep-Alive: timeout=75\r\n"
 					"Content-Length: 14\r\n"
 					"\r\n"
 					"File not found";
@@ -22,7 +24,8 @@ void Response::m_delete(const std::string &fileName)
 	if (remove(fullPath.c_str()) < 0) {
 		std::cerr << "Failed to remove file: " << fullPath << std::endl;
 		_response = "HTTP/1.1 500 Internal Server Error\r\n"
-					"Content-Type: text/plain\r\n"
+                    "Keep-Alive: timeout=75\r\n"
+                    "Connection: keep-alive\r\n"
 					"Content-Length: 21\r\n"
 					"\r\n"
 					"Failed to delete file";
@@ -30,12 +33,13 @@ void Response::m_delete(const std::string &fileName)
 	}
 	std::cout << "File removed " << fullPath << std::endl;
 	_response = "HTTP/1.1 200 OK\r\n"
-				"Content-Type: text/plain\r\n"
-				"Content-Length: 19\r\n"
-				"Connection: keep-alive\r\n"
-				"Keep-Alive: timeout=60\r\n"
-				"\r\n"
-				"File deleted successfully";
+            "Content-Type: text/plain\r\n"
+            "Keep-Alive: timeout=75\r\n"
+            "Content-Length: 25\r\n"
+            "Connection: keep-alive\r\n"
+            "\r\n"
+            "File deleted successfully";
+
 }
 
 
@@ -92,7 +96,6 @@ void Response::sendRedirect(int clientFd, const std::string &requestedPath, std:
 	if (newUrl.find(prefix) == 0) {
 		newUrl = "/" + newUrl.substr(prefix.length());
 	}
-	newUrl = newUrl;
 	std::cout << "path 2 " << requestedPath << std::endl;
 	std::string response = 
 		"HTTP/1.1 302 Found\r\n"
