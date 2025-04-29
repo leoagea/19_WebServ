@@ -29,3 +29,12 @@ More error code/pages
 Body size limit exceeded  => 413 ERROR
 
 Creer uploadFolder si il n existe pas avant upload
+
+
+///////////////////////
+
+Upload fichier ligne en trop
+Une fois charger la page index on impossible d'aller su /myapp
+Telechargement fichier index on foireux
+Bouton retour /myapp/delete
+Bad request 404

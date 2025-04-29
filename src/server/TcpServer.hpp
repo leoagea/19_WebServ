@@ -25,7 +25,7 @@
 # include "Cookies.hpp"
 # include "ErrorPageGenerator.hpp"
 
-# define REQUEST_HTTP_SIZE 8192
+# define REQUEST_HTTP_SIZE 4096
 # define R                 "\033[91m"
 # define G                 "\033[92m"
 # define B                 "\033[94m"
@@ -71,11 +71,33 @@ class TcpServer
         std::map<std::string, t_user>  _cookiesMap;
         std::string             _previousUser;
         
+        struct ClientData 
+        {
+            std::string responseToSend;
+            size_t      bytesSent;
+            bool        responseReady;
+            
+            ClientData() : bytesSent(0), responseReady(false) {}
+        };
+        struct ClientRequest 
+        {
+            std::string buffer;
+            bool        headerComplete;
+            size_t      contentLength;
+            size_t      contentReceived;
+            
+            ClientRequest() : headerComplete(false), contentLength(0), contentReceived(0) {}
+        };
+        
+        std::map<int, ClientData> _clientResponseMap;
+        std::map<int, ClientRequest> _clientRequestMap;
+
 		std::string             resolvePath(const std::string &requestedPath, int clientFd);
         void                    setupSocket();
         void                    makeNonBlocking(int socket);
         void                    acceptNewClient(int serverSocket);
         void                    handleClient(int clientFd);
+        void                    handleClientWrite(int clientFd);
         void                    cleanupClient(int fd);
         void                    exitCloseFds(std::vector<int> &serverSockets);
         t_user                  parseCookies(int clientFd, const std::string &, const std::string &);

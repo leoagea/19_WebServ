@@ -125,8 +125,6 @@ std::string Response::generateResponse(t_user &user)
     return response;
 }
 
-
-//extract pour print que le headers (check)
 std::string Response::extractHeaders(const std::string &fullResponse)
 {
     std::istringstream stream(fullResponse);
