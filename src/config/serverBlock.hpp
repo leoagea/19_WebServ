@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:43:05 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:03:27 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ public:
     ServerBlock(int, std::vector<t_token> &, int *, const ErrorReporter &);
     ~ServerBlock();
 
-    int getListeningPort() const;
+    std::vector<int> getListeningPorts() const;
+    int getListeningPortByIndex(int) const;
     std::string getServerName() const;
     std::string getRootDir() const;
     std::string getIndex() const;
@@ -56,7 +57,7 @@ public:
     locationBlock getLocationBlockByString(std::string &) const;
 
 private:
-    int _listeningports;
+    std::vector<int> _listeningports;
     std::string _servername;
     std::string _rootdir;
     std::string _index;

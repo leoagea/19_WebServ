@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:28:53 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:19:16 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ void ConfigFile::parseConfFile()
     //  std::cout << token << std::endl;
 
     splitServerBlock();
+    checkPortDuplicate();
 }
 
 bool ConfigFile::isConfPathValid(std::string &path)
@@ -168,4 +169,32 @@ void ConfigFile::splitServerBlock()
             }
         }
     }
+}
+
+void ConfigFile::checkPortDuplicate()
+{
+    bool check = false;
+    std::vector<ServerBlock> serverlist = getServerBlockVector();
+    
+    std::string errorMsg = "ports: ";
+    for (size_t i = 0; i < serverlist.size(); i++){
+        for (size_t j = i + 1; j < serverlist.size(); j++){
+            std::vector<int> ports1 = serverlist[i].getListeningPorts();
+            std::vector<int> ports2 = serverlist[j].getListeningPorts();
+            for (size_t k = 0; k < ports1.size(); k++){
+                for (size_t l = 0; l < ports2.size(); l++){
+                    if (ports1[k] == ports2[l]){
+                        std::stringstream ss;
+                        ss << ports1[k];
+                        errorMsg = ss.str() + " ";
+                        check = true;
+                    }
+                }
+            }
+        }
+    }
+    errorMsg += "defined in multiple server blocks";
+
+    if (check)
+        reportError(0, errorMsg);
 }

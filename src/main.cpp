@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:43:36 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:08:22 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,10 @@ int main(int ac, char **av, char **env)
     // Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
 
-    for (size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
-        ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
+    std::vector<ServerBlock> serverBlocks = data.getConfigFileObject().getServerBlockVector();
+    for (size_t i = 0; i < serverBlocks.size(); ++i)
+        for (size_t j = 0; j < serverBlocks[i].getListeningPorts().size(); ++j)
+            ports.push_back(serverBlocks[i].getListeningPortByIndex(j));
 
     TcpServer server(ports, data.getConfigFileObject(), data.getEnvMap());
     server.startServer();

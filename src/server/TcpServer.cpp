@@ -838,10 +838,9 @@ ServerBlock TcpServer::getServerBlockBySocket(int socket)
 
     std::vector<ServerBlock>::iterator it;
     for (it = servVect.begin(); it != servVect.end(); it++)
-        if (port == it->getListeningPort())
-        {
-            break;
-        }
+        for (size_t i = 0; i < it->getListeningPorts().size(); i++)
+            if (port == it->getListeningPorts()[i])
+                return *it;
     return *it;
 }
 
