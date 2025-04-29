@@ -11,7 +11,7 @@
 
 std::vector<pollfd> TcpServer::_pollFds;
 
-const std::string   readpage(std::ifstream &file)
+const std::string readpage(std::ifstream &file)
 {
     std::string line;
     std::string ret = "";
@@ -19,29 +19,30 @@ const std::string   readpage(std::ifstream &file)
     while (getline(file, line))
     {
         line += "\n";
-        ret  += line;
+        ret += line;
     }
 
     return ret;
 }
 
-TcpServer::TcpServer(const std::vector<int> & ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap), _previousUser("")
+TcpServer::TcpServer(const std::vector<int> &ports, const ConfigFile &config, std::map<std::string, std::string> envMap) : _ports(ports), _clientMap(), _config(config), _envMap(envMap), _previousUser("")
 {
     setupSocket();
     std::cout << IT << "Server initialized on port(s): ";
 
-    for (size_t i = 0; i < _ports.size(); ++i) 
+    for (size_t i = 0; i < _ports.size(); ++i)
     {
         std::cout << _ports[i];
         if (i < _ports.size() - 1)
             std::cout << ", ";
     }
-    std::cout << RES << "\n" << std::endl;
+    std::cout << RES << "\n"
+              << std::endl;
 }
 
 TcpServer::~TcpServer()
 {
-    for (size_t i = 0; i < _serverSockets.size(); ++i) 
+    for (size_t i = 0; i < _serverSockets.size(); ++i)
     {
         if (_serverSockets[i] != -1)
             close(_serverSockets[i]);
@@ -49,10 +50,10 @@ TcpServer::~TcpServer()
     std::cout << G << IT << "Server closed successfully" << RES << std::endl;
 }
 
-void    TcpServer::setupSocket()
+void TcpServer::setupSocket()
 {
     handle_signal();
-    for (size_t i = 0; i < _ports.size(); ++i) 
+    for (size_t i = 0; i < _ports.size(); ++i)
     {
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0); /* AF_INET : IPv4, SOCK_STREAM : Socket de connexion, 0 : Protocole TCP */
 
@@ -70,14 +71,14 @@ void    TcpServer::setupSocket()
             exitCloseFds(_serverSockets);
         }
 
-        sockaddr_in  serverAddr;
-        serverAddr.sin_family      = AF_INET;
-        serverAddr.sin_port        = htons(_ports[i]);  /* Conversion en big-endian */
+        sockaddr_in serverAddr;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_port = htons(_ports[i]);         /* Conversion en big-endian */
         serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Ecoute sur toutes les interfaces reseau */
-        
+
         if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
         {
-            std::cerr << R << IT << "Binding of the socket to an ip address and a port failed : "<< errno << RES << std::endl;
+            std::cerr << R << IT << "Binding of the socket to an ip address and a port failed : " << errno << RES << std::endl;
             exitCloseFds(_serverSockets);
         }
 
@@ -88,11 +89,11 @@ void    TcpServer::setupSocket()
         }
 
         makeNonBlocking(serverSocket);
-        
+
         /* Ajouter le socket serveur au tableau de poll */
         struct pollfd serverPollFd;
 
-        serverPollFd.fd     = serverSocket;
+        serverPollFd.fd = serverSocket;
         serverPollFd.events = POLLIN;
 
         _pollFds.push_back(serverPollFd);
@@ -100,9 +101,9 @@ void    TcpServer::setupSocket()
     }
 }
 
-void    TcpServer::makeNonBlocking(int socket)
+void TcpServer::makeNonBlocking(int socket)
 {
-    if (fcntl(socket, F_SETFL, O_NONBLOCK) < 0) 
+    if (fcntl(socket, F_SETFL, O_NONBLOCK) < 0)
     {
         std::cerr << R << IT << "Activation of non-blocking mode failed" << RES << std::endl;
         exit(1);
@@ -115,16 +116,19 @@ t_mapDB readDB(const std::string &path)
     t_mapDB map;
     std::ifstream file(path.c_str());
 
-    if (!file.is_open()){
+    if (!file.is_open())
+    {
         TcpServer::generateLog(RED, "Failed to open cookies DB", "ERROR");
         return map;
     }
 
-    while(getline(file, line)){
+    while (getline(file, line))
+    {
         size_t first = line.find('|');
         size_t second = line.find('|', first + 1);
         t_user user;
-        if (first != std::string::npos && second != std::string::npos){
+        if (first != std::string::npos && second != std::string::npos)
+        {
             user.login = line.substr(0, first);
             user.sessionID = line.substr(first + 1, second - first - 1);
             user.counter = line.substr(second + 1, line.size());
@@ -135,7 +139,7 @@ t_mapDB readDB(const std::string &path)
     return map;
 }
 
-void    TcpServer::startServer()
+void TcpServer::startServer()
 {
     TcpServer::generateLog(BLUE, "Server is running...", "INFO");
     _cookiesMap = readDB(COOKIE_DB_PATH);
@@ -144,8 +148,8 @@ void    TcpServer::startServer()
     {
         int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
 
-        if (pollCount < 0) 
-        {   
+        if (pollCount < 0)
+        {
             std::cerr << R << IT << "Poll failed " << RES << std::endl;
             exitCloseFds(_serverSockets);
         }
@@ -165,18 +169,18 @@ void    TcpServer::startServer()
                         break;
                     }
                 }
-                if (isServerSocket == false) 
+                if (isServerSocket == false)
                     handleClient(_pollFds[i].fd);
             }
         }
     }
 }
 
-void    TcpServer::acceptNewClient(int serverSocket)
+void TcpServer::acceptNewClient(int serverSocket)
 {
     int clientFd = accept(serverSocket, NULL, NULL);
 
-    if (clientFd < 0) 
+    if (clientFd < 0)
     {
         std::cerr << R << IT << "Accept failed" << RES << std::endl;
         return;
@@ -188,13 +192,13 @@ void    TcpServer::acceptNewClient(int serverSocket)
 
     struct pollfd clientPollFd;
 
-    clientPollFd.fd     = clientFd;
+    clientPollFd.fd = clientFd;
     clientPollFd.events = POLLIN;
 
     _pollFds.push_back(clientPollFd);
 }
 
-//à fusionner avec le parsing, request et path à modif
+// à fusionner avec le parsing, request et path à modif
 std::string TcpServer::extractRequestedPath(const std::string &request)
 {
     size_t methodEnd = request.find(' ');
@@ -205,19 +209,22 @@ std::string TcpServer::extractRequestedPath(const std::string &request)
     size_t pathEnd = request.find(' ', pathStart);
     if (pathEnd == std::string::npos)
         return "";
-    
+
     return request.substr(pathStart, pathEnd - pathStart);
 }
 
-std::string TcpServer::getFullUrl(const std::string& requestBuffer) {
+std::string TcpServer::getFullUrl(const std::string &requestBuffer)
+{
     size_t methodEnd = requestBuffer.find(' ');
-    if (methodEnd == std::string::npos) {
+    if (methodEnd == std::string::npos)
+    {
         return "";
     }
     std::string method = requestBuffer.substr(0, methodEnd);
     size_t pathStart = methodEnd + 1;
     size_t pathEnd = requestBuffer.find(' ', pathStart);
-    if (pathEnd == std::string::npos) {
+    if (pathEnd == std::string::npos)
+    {
         return "";
     }
     std::string path = requestBuffer.substr(pathStart, pathEnd - pathStart);
@@ -246,10 +253,11 @@ std::string extractCookiesFromRequest(const std::string &request)
 
 std::string trim(const std::string &str)
 {
-    const char* WHITESPACE = " \t\n\r\f\v";
+    const char *WHITESPACE = " \t\n\r\f\v";
 
     std::string::size_type start = str.find_first_not_of(WHITESPACE);
-    if (start == std::string::npos) {
+    if (start == std::string::npos)
+    {
         return "";
     }
 
@@ -258,24 +266,29 @@ std::string trim(const std::string &str)
     return str.substr(start, end - start + 1);
 }
 
-std::map<std::string, std::string> parseUrlParameters(const std::string& url) {
+std::map<std::string, std::string> parseUrlParameters(const std::string &url)
+{
     std::map<std::string, std::string> params;
     size_t questionMarkPos = url.find('?');
-    if (questionMarkPos == std::string::npos) {
+    if (questionMarkPos == std::string::npos)
+    {
         return params;
     }
     std::string queryString = url.substr(questionMarkPos + 1);
     size_t start = 0;
-    while (start < queryString.length()) {
+    while (start < queryString.length())
+    {
         size_t equalPos = queryString.find('=', start);
         size_t ampPos = queryString.find('&', start);
-        if (equalPos == std::string::npos) {
+        if (equalPos == std::string::npos)
+        {
             break;
         }
         std::string key = queryString.substr(start, equalPos - start);
         std::string value = queryString.substr(equalPos + 1, ampPos - equalPos - 1);
         params[key] = value;
-        if (ampPos == std::string::npos) {
+        if (ampPos == std::string::npos)
+        {
             break;
         }
         start = ampPos + 1;
@@ -283,19 +296,24 @@ std::map<std::string, std::string> parseUrlParameters(const std::string& url) {
     return params;
 }
 
-
-std::string removeExtraSlashes(const std::string &path) {
+std::string removeExtraSlashes(const std::string &path)
+{
     std::string cleanedPath;
     bool lastWasSlash = false;
 
-    for (size_t i = 0; i < path.size(); i++) {
+    for (size_t i = 0; i < path.size(); i++)
+    {
         char ch = path[i];
-        if (ch == '/') {
-            if (lastWasSlash) {
+        if (ch == '/')
+        {
+            if (lastWasSlash)
+            {
                 continue;
             }
             lastWasSlash = true;
-        } else {
+        }
+        else
+        {
             lastWasSlash = false;
         }
         cleanedPath += ch;
@@ -303,33 +321,33 @@ std::string removeExtraSlashes(const std::string &path) {
     return cleanedPath;
 }
 
-
 std::string extractFileToDelete(const std::string &url)
 {
     std::string param = "file-to-delete=";
     size_t pos = url.find(param);
-    
+
     if (pos == std::string::npos)
         return "";
 
     return url.substr(pos + param.length());
 }
 
-std::string TcpServer::getDirectoryFromFirstLine(const std::string & method, const std::string & fullUrl)
+std::string TcpServer::getDirectoryFromFirstLine(const std::string &method, const std::string &fullUrl)
 {
     return method + " " + fullUrl;
 }
 
-
-std::string removeQueryString(const std::string & url) {
+std::string removeQueryString(const std::string &url)
+{
     size_t questionMarkPos = url.find('?');
-    if (questionMarkPos != std::string::npos) {
+    if (questionMarkPos != std::string::npos)
+    {
         return url.substr(0, questionMarkPos);
     }
     return url;
 }
 
-//implémenter le rep racine
+// implémenter le rep racine
 std::string TcpServer::resolvePath(const std::string &requestedPath, int clientFd)
 {
     const std::string rootDirectory = _clientMap[clientFd].getRootDir();
@@ -338,22 +356,22 @@ std::string TcpServer::resolvePath(const std::string &requestedPath, int clientF
     return rootDirectory + requestedPath;
 }
 
-std::string removeLeadingSlash(std::string &path) {
+std::string removeLeadingSlash(std::string &path)
+{
     if (!path.empty() && path[0] == '/')
         path = path.substr(1);
     return path;
 }
 
-bool fileExists(const std::string& path) { return access(path.c_str(), F_OK) != -1; }
+bool fileExists(const std::string &path) { return access(path.c_str(), F_OK) != -1; }
 
-
-void TcpServer::handleClient(int clientFd) 
+void TcpServer::handleClient(int clientFd)
 {
     CgiHandler cgi(_envMap);
-    
+
     char buffer[REQUEST_HTTP_SIZE];
     int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-    if (bytesRead <= 0) 
+    if (bytesRead <= 0)
     {
         TcpServer::generateLog(BLUE, "A client has disconnected", "INFO");
         // Erase clientFd from clientMap
@@ -363,9 +381,9 @@ void TcpServer::handleClient(int clientFd)
     }
     buffer[bytesRead] = '\0';
     int getBool = 0;
-   	int postBool = 0;
-    int deleteBool= 0;
-	int deleteUrl = 0;
+    int postBool = 0;
+    int deleteBool = 0;
+    int deleteUrl = 0;
     Response response;
     std::string bufferStr = buffer;
     std::string requestBuffer = buffer;
@@ -375,15 +393,15 @@ void TcpServer::handleClient(int clientFd)
     std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
 
     fullUrl = removeQueryString(fullUrl);
-    
+
     std::string urlPath = extractRequestedPath(bufferStr);
     if (bufferStr.find("POST ") == 0 || bufferStr.find("GET") == 0)
-	{
-		params = parseUrlParameters(urlPath);
-		if (urlPath.find("file-to-delete=") != std::string::npos)
-   			deleteUrl = 1;
-		deleteFile = extractFileToDelete(urlPath);
-	}
+    {
+        params = parseUrlParameters(urlPath);
+        if (urlPath.find("file-to-delete=") != std::string::npos)
+            deleteUrl = 1;
+        deleteFile = extractFileToDelete(urlPath);
+    }
     urlPath = removeQueryString(urlPath);
     fullUrl = removeExtraSlashes(fullUrl);
     urlPath = removeExtraSlashes(urlPath);
@@ -391,84 +409,101 @@ void TcpServer::handleClient(int clientFd)
     std::string rootPath;
     try
     {
-        if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri() ) {
+        if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri())
+        {
             requestedPath = _clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc();
             rootPath = _clientMap[clientFd].getRootDir();
             removeExtraSlashes(rootPath);
         }
     }
-    catch(const std::exception& e) {}
+    catch (const std::exception &e)
+    {
+    }
 
     std::string fullPath = resolvePath(requestedPath, clientFd);
     removeExtraSlashes(fullPath);
     std::vector<s_info> listing;
     t_user user;
-    
+
     if (_isIndex != "")
     {
         try
         {
-        _showPath = fullUrl;
-        fullUrl = _isIndex + fullUrl;
-        fullUrl = removeExtraSlashes(fullUrl);
-        _isIndex = removeExtraSlashes(_isIndex);
-        _showPath = removeExtraSlashes(_showPath);
-		listing = DirectoryListing::listDirectory(fullUrl);
-        response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+            _showPath = fullUrl;
+            fullUrl = _isIndex + fullUrl;
+            fullUrl = removeExtraSlashes(fullUrl);
+            _isIndex = removeExtraSlashes(_isIndex);
+            _showPath = removeExtraSlashes(_showPath);
+            listing = DirectoryListing::listDirectory(fullUrl);
+            response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
         }
-        catch(const std::exception& e){}
+        catch (const std::exception &e)
+        {
+        }
     }
-    else{
-        
+    else
+    {
+
         try
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
 
-            if (location.getAutoIndexLoc()) {
-                try {
+            if (location.getAutoIndexLoc())
+            {
+                try
+                {
                     listing = DirectoryListing::listDirectory(rootPath);
-                    if (listing.empty()) {
+                    if (listing.empty())
+                    {
                         response.setStatusCode(404);
                         // response.setBody("<h1>404 Not Found</h1>");
                         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 404));
                     }
-                    else 
+                    else
                     {
                         response.setBody(DirectoryListing::generateDirectoryListingHTML(rootPath, "/", listing));
                         _isIndex = rootPath;
                         _showPath = urlPath;
                     }
                 }
-                catch (const std::exception& e) {
+                catch (const std::exception &e)
+                {
                     response.setStatusCode(500);
                     // response.setBody("<h1>500 Internal Server Error</h1>");
                     response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
                 }
             }
-            else {
+            else
+            {
                 try
                 {
                     getBool = location.getAllowedMethodGET();
 
-                    if (location.getCgi() && location.getCgiScriptName() != ""){
+                    if (location.getCgi() && location.getCgiScriptName() != "")
+                    {
                         std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
-                        if (ext == ".go"){
+                        if (ext == ".go")
+                        {
                             std::string dir = std::getenv("PWD") + std::string("/") + location.getRootDirLoc() + std::string("wiki");
                             cgi.executego(dir);
                         }
                     }
-    
-                    if (params.find("login") != params.end()){
+
+                    if (params.find("login") != params.end())
+                    {
                         std::string cookies = extractCookiesFromRequest(bufferStr);
                         user = TcpServer::parseCookies(clientFd, cookies, params["login"]);
-                        if (_cookiesMap.find(user.login) == _cookiesMap.end()){
+                        if (_cookiesMap.find(user.login) == _cookiesMap.end())
+                        {
                             user.sessionID = Cookies::generateSessionID();
                             user.counter = "0";
                             _cookiesMap[user.login] = user;
                         }
-                        else{
+                        else
+                        {
                             user.sessionID = _cookiesMap[user.login].sessionID;
-                            if (_previousUser != user.login){
+                            if (_previousUser != user.login)
+                            {
                                 user.counter = _cookiesMap[user.login].counter;
                                 _previousUser = user.login;
                             }
@@ -480,48 +515,59 @@ void TcpServer::handleClient(int clientFd)
                     if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
-                    if (bufferStr.find("POST ") == 0) {
+                    if (bufferStr.find("POST ") == 0)
+                    {
                         size_t headerEnd = bufferStr.find("\r\n\r\n");
-                        if (headerEnd == std::string::npos) {
+                        if (headerEnd == std::string::npos)
+                        {
                             TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
-				    		response.setStatusCode(405);
-				    		// response.setBody("<h1>405 Method Not Allowed</h1>");
+                            response.setStatusCode(405);
+                            // response.setBody("<h1>405 Method Not Allowed</h1>");
                             response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
-				    	}
-                        else {
+                        }
+                        else
+                        {
                             std::string body = bufferStr.substr(headerEnd + 4);
                             postBool = location.getAllowedMethodPOST();
-                            if (!postBool) {
+                            if (!postBool)
+                            {
                                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                 response.setStatusCode(400);
                                 // response.setBody("<h1>405 Method Not Allowed</h1>");
                                 response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
                             }
-                            else if (deleteUrl) {
+                            else if (deleteUrl)
+                            {
                                 headerEnd = bufferStr.find("\r\n\r\n");
-                                if (headerEnd == std::string::npos) {
+                                if (headerEnd == std::string::npos)
+                                {
                                     TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                     response.setStatusCode(400);
                                     // response.setBody("<h1>400 Bad Request</h1>");
                                     response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
                                 }
-                                else {
+                                else
+                                {
                                     body = bufferStr.substr(headerEnd + 4);
                                     deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
-                                    if (!deleteBool) {
+                                    if (!deleteBool)
+                                    {
                                         response.setStatusCode(405);
                                         // response.setBody("<h1>405 Method Not Allowed</h1>");
                                         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
                                     }
-                                    else {
+                                    else
+                                    {
                                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
                                         response.m_delete(deleteFile);
                                     }
                                 }
                             }
-                            else {
+                            else
+                            {
                                 TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
-                                if (location.getCgi() && params.find("min-price") != params.end() && params.find("max-price") != params.end()){
+                                if (location.getCgi() && params.find("min-price") != params.end() && params.find("max-price") != params.end())
+                                {
                                     uint minPrice = std::atoi(params["min-price"].c_str());
                                     uint maxPrice = std::atoi(params["max-price"].c_str());
                                     cgi.setMinPrice(minPrice);
@@ -536,11 +582,11 @@ void TcpServer::handleClient(int clientFd)
                                 }
                             }
                         }
-                    response.get(fullPath, getBool);
+                        response.get(fullPath, getBool);
                     }
                 }
-                catch(const std::exception& e)
-                { 
+                catch (const std::exception &e)
+                {
                     TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
                     response.setStatusCode(400);
                     // response.setBody("<h1>400 Bad Request</h1>");
@@ -548,8 +594,8 @@ void TcpServer::handleClient(int clientFd)
                 }
             }
         }
-        catch(const std::exception& e)
-        {    
+        catch (const std::exception &e)
+        {
             if (fullUrl.find(".jpg") != std::string::npos || fullUrl.find(".png") != std::string::npos)
             {
                 response.get(fullPath, getBool);
@@ -573,9 +619,9 @@ void TcpServer::handleClient(int clientFd)
 
 void TcpServer::cleanupClient(int fd)
 {
-    for (size_t i = 0; i < _pollFds.size(); ++i) 
+    for (size_t i = 0; i < _pollFds.size(); ++i)
     {
-        if (_pollFds[i].fd == fd) 
+        if (_pollFds[i].fd == fd)
         {
             _pollFds.erase(_pollFds.begin() + i);
             break;
@@ -583,43 +629,45 @@ void TcpServer::cleanupClient(int fd)
     }
 }
 
-void    TcpServer::exitCloseFds(std::vector<int> &serverSockets)
+void TcpServer::exitCloseFds(std::vector<int> &serverSockets)
 {
     std::vector<int>::iterator it = serverSockets.begin();
 
-    for (; it != serverSockets.end(); ++it) 
+    for (; it != serverSockets.end(); ++it)
         close(*it);
 
     exit(1);
 }
 
-void    TcpServer::closeFds(int sig)
+void TcpServer::closeFds(int sig)
 {
     (void)sig;
-    for (size_t i = 0; i < _pollFds.size(); ++i) 
+    for (size_t i = 0; i < _pollFds.size(); ++i)
     {
         close(_pollFds[i].fd);
     }
-    std::cout << BGREEN << "\nServer has been shut down successfully" << std::endl; 
+    std::cout << BGREEN << "\nServer has been shut down successfully" << std::endl;
     exit(0);
 }
 
-void    TcpServer::handle_signal(void)
+void TcpServer::handle_signal(void)
 {
     signal(SIGINT, TcpServer::closeFds);
 }
 
-t_user    TcpServer::parseCookies(int clientFd, const std::string &line, const std::string &login)
+t_user TcpServer::parseCookies(int clientFd, const std::string &line, const std::string &login)
 {
     std::stringstream ss(line);
     std::string pairStr;
     t_user user;
-    (void) clientFd;
+    (void)clientFd;
 
-    while (getline(ss, pairStr, ';')){
+    while (getline(ss, pairStr, ';'))
+    {
         pairStr = trim(pairStr);
         size_t pos = pairStr.find('=');
-        if (pos != std::string::npos){
+        if (pos != std::string::npos)
+        {
             std::string name = pairStr.substr(0, pos);
             std::string val = pairStr.substr(pos + 1, pairStr.size() - pos);
             if (name == "sessionID")
@@ -633,8 +681,8 @@ t_user    TcpServer::parseCookies(int clientFd, const std::string &line, const s
     return user;
 }
 
-//Return the serverblock associate with the socket
-//Otherwise throw a runtime error
+// Return the serverblock associate with the socket
+// Otherwise throw a runtime error
 ServerBlock TcpServer::getServerBlockBySocket(int socket)
 {
     int port = static_cast<int>(getSocketPort(socket));
@@ -642,18 +690,19 @@ ServerBlock TcpServer::getServerBlockBySocket(int socket)
 
     std::vector<ServerBlock>::iterator it;
     for (it = servVect.begin(); it != servVect.end(); it++)
-        if (port == it->getListeningPort()) {
+        if (port == it->getListeningPort())
+        {
             break;
         }
     return *it;
 }
 
-uint16_t    TcpServer::getSocketPort(int socket)
+uint16_t TcpServer::getSocketPort(int socket)
 {
     sockaddr_in sin;
-    socklen_t   socklen = sizeof(sin);
+    socklen_t socklen = sizeof(sin);
 
-    if (getsockname(socket, (struct sockaddr *)&sin, &socklen) < 0) 
+    if (getsockname(socket, (struct sockaddr *)&sin, &socklen) < 0)
     {
         std::cout << "Getsockname failed" << std::endl;
         return 0;
@@ -661,19 +710,19 @@ uint16_t    TcpServer::getSocketPort(int socket)
 
     return htons(sin.sin_port);
 }
-void	TcpServer::generateLog(std::string color, const std::string& message, const char *logType)
+void TcpServer::generateLog(std::string color, const std::string &message, const char *logType)
 {
     std::size_t pos = message.find("/favicon.ico");
     if (pos != std::string::npos)
         return;
-        
+
     std::time_t now = std::time(NULL);
-    std::tm* local_time = std::localtime(&now);
+    std::tm *local_time = std::localtime(&now);
 
     std::cout << color << "[" << logType << "] ";
     std::cout << (local_time->tm_year + 1900) << "-";
 
-    if (local_time->tm_mon + 1 < 10)  
+    if (local_time->tm_mon + 1 < 10)
         std::cout << '0' << (local_time->tm_mon + 1) << "-";
     else
         std::cout << (local_time->tm_mon + 1) << "-";
@@ -685,7 +734,7 @@ void	TcpServer::generateLog(std::string color, const std::string& message, const
         std::cout << '0' << local_time->tm_hour << ":";
     else
         std::cout << local_time->tm_hour << ":";
-    if (local_time->tm_min < 10)  
+    if (local_time->tm_min < 10)
         std::cout << '0' << local_time->tm_min << ":";
     else
         std::cout << local_time->tm_min << ":";
@@ -694,13 +743,13 @@ void	TcpServer::generateLog(std::string color, const std::string& message, const
     else
         std::cout << local_time->tm_sec;
 
-    std::cout << " => "<< message << RES << std::endl;	
+    std::cout << " => " << message << RES << std::endl;
 }
 
 std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
 
-std::vector<int> TcpServer::getPorts()         { return _ports; }
+std::vector<int> TcpServer::getPorts() { return _ports; }
 
-std::vector<pollfd> TcpServer::getPollFds()    { return _pollFds; }
+std::vector<pollfd> TcpServer::getPollFds() { return _pollFds; }
 
-sockaddr_in TcpServer::getServerAddress()      { return _serverAddress; }
+sockaddr_in TcpServer::getServerAddress() { return _serverAddress; }
