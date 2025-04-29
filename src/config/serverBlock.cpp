@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:42:58 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 16:02:20 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ void ServerBlock::initializeMapErrorPages()
     _errorpages[408] = ""; // Request timeout
     _errorpages[413] = ""; // Payload too large
     _errorpages[500] = ""; // Internal server error
+    _errorpages[504] = ""; // Gateway timeout
 }
 
 void ServerBlock::parseAllServerVariables(int startIndex, std::vector<t_token> &tokenVec, int *j)
