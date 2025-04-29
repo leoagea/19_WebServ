@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 14:48:53 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:46:00 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 16:04:01 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,12 @@ std::string ErrorPageGenerator::generateErrorPageCode(std::map<int, std::string>
         case 413:
             html = generateHtmlCode(413, "Payload too large");
             break;
-
-        case 500:
+        
+        case 504:
+            html = generateHtmlCode(504, "Gateway Timeout");
+            break;
+        
+        default:
             html = generateHtmlCode(500, "Internal Server Error");
             break;
         }
