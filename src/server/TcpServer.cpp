@@ -169,8 +169,9 @@ void TcpServer::startServer()
                         break;
                     }
                 }
-                if (isServerSocket == false)
+                if (isServerSocket == false){
                     handleClient(_pollFds[i].fd);
+                }
             }
             if (_pollFds[i].revents & POLLOUT)
             {
@@ -367,6 +368,37 @@ std::string removeLeadingSlash(std::string &path)
     return path;
 }
 
+std::string getRequestMethodType(const std::string &request)
+{
+    if (request.empty())
+    return "";
+
+    // Find the first space which marks the end of the method
+    size_t methodEnd = request.find(' ');
+    if (methodEnd == std::string::npos)
+        return "";
+
+    // Extract the method
+    std::string method = request.substr(0, methodEnd);
+
+    // Check if it's one of the supported methods
+    if (method == "GET" || method == "POST" || method == "DELETE")
+        return method;
+
+    return "";
+}
+
+bool checkRequestAndAllowedMethods(const std::string &method, locationBlock &loc)
+{
+    if (method == "GET" && loc.getAllowedMethodGET())
+        return true;
+    else if (method == "POST" && loc.getAllowedMethodPOST())
+        return true;
+    else if (method == "DELETE" && loc.getAllowedMethodDELETE())
+        return true;
+    return false;
+}
+
 bool fileExists(const std::string &path) { return access(path.c_str(), F_OK) != -1; }
 
 void TcpServer::handleClient(int clientFd)
@@ -435,6 +467,7 @@ void TcpServer::handleClient(int clientFd)
     Response response;
     std::string requestBuffer = bufferStr;
     std::string fullUrl = getFullUrl(requestBuffer);
+    std::string requestMethod = getRequestMethodType(requestBuffer);
     std::map<std::string, std::string> params;
     std::string deleteFile;
     std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
@@ -470,6 +503,7 @@ void TcpServer::handleClient(int clientFd)
     removeExtraSlashes(fullPath);
     std::vector<s_info> listing;
     t_user user;
+    bool shouldConntinue = true;
 
     if (_isIndex != "")
     {
@@ -480,6 +514,7 @@ void TcpServer::handleClient(int clientFd)
             fullUrl = removeExtraSlashes(fullUrl);
             _isIndex = removeExtraSlashes(_isIndex);
             _showPath = removeExtraSlashes(_showPath);
+
             std::string filepath = "./" + fullUrl;
             if (!PathChecking::isDirectory(filepath)){
                 response.get(filepath, getBool);
@@ -489,7 +524,11 @@ void TcpServer::handleClient(int clientFd)
                 response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
             }
         }
-        catch (const std::exception &e) {}
+        catch (const std::exception &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            response.setStatusCode(500);
+            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
+        }
     }
     else {
         try
@@ -524,106 +563,116 @@ void TcpServer::handleClient(int clientFd)
                 try
                 {
                     getBool = location.getAllowedMethodGET();
-
-                    if (location.getCgi() && location.getCgiScriptName() != "")
-                    {
-                        std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
-                        if (ext == ".go")
-                        {
-                            std::string dir = std::getenv("PWD") + std::string("/") + location.getRootDirLoc() + std::string("wiki");
-                            cgi.executego(dir);
-                        }
+                    postBool = location.getAllowedMethodPOST();
+                    deleteBool = location.getAllowedMethodDELETE();
+                    if (checkRequestAndAllowedMethods(requestMethod, location) == false){
+                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
+                        response.setStatusCode(405);
+                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
+                        shouldConntinue = false;
                     }
 
-                    if (params.find("login") != params.end())
+                    if (shouldConntinue)
                     {
-                        std::string cookies = extractCookiesFromRequest(bufferStr);
-                        user = TcpServer::parseCookies(clientFd, cookies, params["login"]);
-                        if (_cookiesMap.find(user.login) == _cookiesMap.end())
+                        if (location.getCgi() && location.getCgiScriptName() != "")
                         {
-                            user.sessionID = Cookies::generateSessionID();
-                            user.counter = "0";
-                            _cookiesMap[user.login] = user;
-                        }
-                        else
-                        {
-                            user.sessionID = _cookiesMap[user.login].sessionID;
-                            if (_previousUser != user.login)
+                            std::string ext = std::strrchr(location.getCgiScriptName().c_str(), '.');
+                            if (ext == ".go")
                             {
-                                user.counter = _cookiesMap[user.login].counter;
-                                _previousUser = user.login;
+                                std::string dir = std::getenv("PWD") + std::string("/") + location.getRootDirLoc() + std::string("wiki");
+                                cgi.executego(dir);
                             }
                         }
-                    }
 
-                    response.get(fullPath, getBool);
-
-                    if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
-                        TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
-
-                    // Traitement des requêtes POST
-                    if (bufferStr.find("POST ") == 0) {
-                        size_t headerEnd = bufferStr.find("\r\n\r\n");
-                        if (headerEnd == std::string::npos)
+                        if (params.find("login") != params.end())
                         {
-                            TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
-                            response.setStatusCode(405);
-                            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
-                        }
-                        else {
-                            std::string body = bufferStr.substr(headerEnd + 4);
-                            postBool = location.getAllowedMethodPOST();
-                            if (!postBool)
+                            std::string cookies = extractCookiesFromRequest(bufferStr);
+                            user = TcpServer::parseCookies(clientFd, cookies, params["login"]);
+                            if (_cookiesMap.find(user.login) == _cookiesMap.end())
                             {
-                                TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
-                                response.setStatusCode(400);
-                                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
-                            }
-                            else if (deleteUrl)
-                            {
-                                headerEnd = bufferStr.find("\r\n\r\n");
-                                if (headerEnd == std::string::npos)
-                                {
-                                    TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
-                                    response.setStatusCode(400);
-                                    response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
-                                }
-                                else
-                                {
-                                    body = bufferStr.substr(headerEnd + 4);
-                                    deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
-                                    if (!deleteBool)
-                                    {
-                                        response.setStatusCode(405);
-                                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
-                                    }
-                                    else
-                                    {
-                                        TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
-                                        response.m_delete(deleteFile);
-                                    }
-                                }
+                                user.sessionID = Cookies::generateSessionID();
+                                user.counter = "0";
+                                _cookiesMap[user.login] = user;
                             }
                             else
                             {
-                                TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
-                                if (location.getCgi() && params.find("min-price") != params.end() && params.find("max-price") != params.end())
+                                user.sessionID = _cookiesMap[user.login].sessionID;
+                                if (_previousUser != user.login)
                                 {
-                                    uint minPrice = std::atoi(params["min-price"].c_str());
-                                    uint maxPrice = std::atoi(params["max-price"].c_str());
-                                    cgi.setMinPrice(minPrice);
-                                    cgi.setMaxPrice(maxPrice);
-                                    std::string dir(std::getenv("PWD"));
-                                    cgi.setCurrentDir(dir += "/");
-                                    cgi.executepy(dir += location.getCgiPath());
-                                }
-                                else
-                                {
-                                    response.post(body);
+                                    user.counter = _cookiesMap[user.login].counter;
+                                    _previousUser = user.login;
                                 }
                             }
                         }
                         response.get(fullPath, getBool);
+
+                        if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
+                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
+
+                        // Traitement des requêtes POST
+                        if (requestMethod == "POST") {
+                            size_t headerEnd = bufferStr.find("\r\n\r\n");
+                            if (headerEnd == std::string::npos)
+                            {
+                                TcpServer::generateLog(RED, getDirectoryFromFirstLine("POST", fullUrl), "ERROR");
+                                response.setStatusCode(405);
+                                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
+                            }
+                            else {
+                                std::string body = bufferStr.substr(headerEnd + 4);
+                                postBool = location.getAllowedMethodPOST();
+                                if (!postBool)
+                                {
+                                    TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
+                                    response.setStatusCode(400);
+                                    response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
+                                }
+                                else if (deleteUrl)
+                                {
+                                    headerEnd = bufferStr.find("\r\n\r\n");
+                                    if (headerEnd == std::string::npos)
+                                    {
+                                        TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
+                                        response.setStatusCode(400);
+                                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
+                                    }
+                                    else
+                                    {
+                                        body = bufferStr.substr(headerEnd + 4);
+                                        deleteBool = _clientMap[clientFd].getLocationBlockByString(urlPath).getAllowedMethodDELETE();
+                                        if (!deleteBool)
+                                        {
+                                            response.setStatusCode(405);
+                                            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
+                                        }
+                                        else
+                                        {
+                                            TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("DELETE", fullUrl), "INFO");
+                                            response.m_delete(deleteFile);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("POST", fullUrl), "INFO");
+                                    if (location.getCgi() && params.find("min-price") != params.end() && params.find("max-price") != params.end())
+                                    {
+                                        uint minPrice = std::atoi(params["min-price"].c_str());
+                                        uint maxPrice = std::atoi(params["max-price"].c_str());
+                                        cgi.setMinPrice(minPrice);
+                                        cgi.setMaxPrice(maxPrice);
+                                        std::string dir(std::getenv("PWD"));
+                                        cgi.setCurrentDir(dir += "/");
+                                        cgi.executepy(dir += location.getCgiPath());
+                                    }
+                                    else
+                                    {
+                                        response.post(body);
+                                    }
+                                }
+                            }
+                            response.get(fullPath, getBool);
+                        }
                     }
                 }
                 catch (const std::exception &e)
@@ -650,7 +699,6 @@ void TcpServer::handleClient(int clientFd)
             }
         }
     }
-
     // Préparation et envoi de la réponse
     _cookiesMap[user.login] = user;
     Cookies::writeCookiesInDB(_cookiesMap);

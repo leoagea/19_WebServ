@@ -184,17 +184,20 @@ void Response::get(const std::string &filePath, bool getBool)
         if (filePath.find(".jpg") != std::string::npos || filePath.find(".jpeg") != std::string::npos)
         {
             setContentType("image/jpeg");
-            setContentDisposition(filename);
+            if (!getBool)
+                setContentDisposition(filename);
         }
         else if (filePath.find(".png") != std::string::npos)
         {
             setContentType("image/png");
-            setContentDisposition(filename);
+            if (!getBool)
+                setContentDisposition(filename);
         }
         else
         {
             setContentType("text/html; charset=UTF-8");
-            setContentDisposition(filename);
+            if (!getBool)
+                setContentDisposition(filename);
         }
 
         // Set Content-Length
