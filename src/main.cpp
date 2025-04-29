@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:16:56 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/05 19:01:47 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 13:43:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,46 +21,48 @@
 
 int main(int ac, char **av, char **env)
 {
-    std::string         configPath;
-    std::vector<int>    ports;
-    
-    if(ac == 1)
+    std::string configPath;
+    std::vector<int> ports;
+
+    if (ac == 1)
         configPath = DEFAULT_PATH;
     else if (ac == 2)
         configPath = av[1];
-    else{
+    else
+    {
         std::cerr << "Error: too many arguments" << std::endl;
         return 1;
     }
-    
+
     Webserv data(configPath, env);
     try
     {
         data.initialiseConfig();
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         return 1;
     }
 
-    if (data.getConfigFileObject().isParsingFailed()){
+    if (data.getConfigFileObject().isParsingFailed())
+    {
         data.getConfigFileObject().printErrors();
         return 1;
     }
-    
+
     // std::map<int, std::string> mapError = data.getConfigFileObject().getServerBlockByIndex(0).getErrorPagesMap();
     // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 403) << std::endl;
     // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 404) << std::endl;
     // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 405) << std::endl;
     // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 413) << std::endl;
-    //Exemple pour monter comment generer une page d erreur
+    // Exemple pour monter comment generer une page d erreur
     // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
-    
-    for(size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
+
+    for (size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
         ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
 
-    TcpServer   server(ports, data.getConfigFileObject(), data.getEnvMap());
+    TcpServer server(ports, data.getConfigFileObject(), data.getEnvMap());
     server.startServer();
 
     return 0;

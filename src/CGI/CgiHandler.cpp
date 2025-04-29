@@ -4,11 +4,11 @@ CgiHandler::CgiHandler(std::map<std::string, std::string> envMap) { (void)envMap
 
 CgiHandler::~CgiHandler() {}
 
-void     CgiHandler::setMinPrice(uint & minPrice) { _minPrice = minPrice; }
+void CgiHandler::setMinPrice(uint &minPrice) { _minPrice = minPrice; }
 
-void     CgiHandler::setMaxPrice(uint & maxPrice) { _maxPrice = maxPrice; }
+void CgiHandler::setMaxPrice(uint &maxPrice) { _maxPrice = maxPrice; }
 
-void     CgiHandler::setCurrentDir(std::string &dir) { _currentDir = dir; }
+void CgiHandler::setCurrentDir(std::string &dir) { _currentDir = dir; }
 
 void CgiHandler::executepy(std::string cgi_path)
 {
@@ -22,20 +22,19 @@ void CgiHandler::executepy(std::string cgi_path)
     std::string max = ss.str();
     ss.str("");
 
-    ss <<"PWD=" << _currentDir;
+    ss << "PWD=" << _currentDir;
     std::string dir = ss.str();
-    
+
     pid_t pid = fork();
 
-    char *envp[] = 
-    {
+    char *envp[] =
+        {
             const_cast<char *>(min.c_str()),
             const_cast<char *>(max.c_str()),
             const_cast<char *>(dir.c_str()),
-            NULL
-    };
+            NULL};
 
-    if (pid < 0) 
+    if (pid < 0)
     {
         std::cerr << "Fork failed" << std::endl;
         return;
@@ -51,7 +50,7 @@ void CgiHandler::executepy(std::string cgi_path)
         argv.push_back(NULL);
 
         execve("/usr/bin/python3", argv.data(), envp);
-        
+
         std::cerr << "Execve failed" << std::endl;
         return;
     }
@@ -59,12 +58,11 @@ void CgiHandler::executepy(std::string cgi_path)
     waitpid(pid, NULL, 0);
 }
 
-
 void CgiHandler::executego(std::string cgi_path)
 {
     pid_t pid = fork();
 
-    if (pid < 0) 
+    if (pid < 0)
     {
         std::cerr << "Fork failed" << std::endl;
         return;
@@ -84,8 +82,7 @@ void CgiHandler::executego(std::string cgi_path)
             const_cast<char *>("GOCACHE=/tmp/go-build"),
             const_cast<char *>(qrpath.c_str()),
             const_cast<char *>(qrhtml.c_str()),
-            NULL
-        };
+            NULL};
 
         std::vector<char *> argv;
 
@@ -97,6 +94,6 @@ void CgiHandler::executego(std::string cgi_path)
         std::cerr << "Execve failed" << std::endl;
         return;
     }
-    
+
     waitpid(pid, NULL, 0);
 }
