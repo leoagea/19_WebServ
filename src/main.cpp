@@ -51,14 +51,6 @@ int main(int ac, char **av, char **env)
         return 1;
     }
 
-    // std::map<int, std::string> mapError = data.getConfigFileObject().getServerBlockByIndex(0).getErrorPagesMap();
-    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 403) << std::endl;
-    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 404) << std::endl;
-    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 405) << std::endl;
-    // std::cout << ErrorPageGenerator::generateErrorPageCode(mapError, 413) << std::endl;
-    // Exemple pour monter comment generer une page d erreur
-    // std::cout << data.getErrorPageGenObject().generateErrorPageCode(403) << std::endl;
-
     for (size_t i = 0; i < data.getConfigFileObject().getServerBlockVector().size(); ++i)
         ports.push_back(data.getConfigFileObject().getServerBlockVector()[i].getListeningPort());
 

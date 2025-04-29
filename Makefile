@@ -39,7 +39,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)/log
 	@mkdir -p $(OBJ_DIR)/errors
 	@mkdir -p $(OBJ_DIR)/CGI
-#@go build -C var/www/cgi-bin/scripts/wikipedia/ 2>/dev/null
+#go build -C var/www/cgi-bin/scripts/wikipedia/
 	$(CXX) $(CXXFLAGS) $(INCS) -MMD -MP -c $< -o $@
 
 -include $(DEPS)

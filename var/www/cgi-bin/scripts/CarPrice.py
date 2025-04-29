@@ -2,9 +2,6 @@ import csv
 import os
 import sys
 
-while 1:
-    continue
-    
 min_price_str = os.environ['MINPRICE']
 max_price_str = os.environ['MAXPRICE']
 current_dir = os.environ['PWD']

@@ -143,6 +143,7 @@ func generateHTMLPage(qrImage string, wikiURL string) error {
 }
 
 func main() {
+	
 	fmt.Println("🔄 Récupération d'une page Wikipédia aléatoire...")
 	wikiURL, err := getRandomWikipediaURL()
 	if err != nil {

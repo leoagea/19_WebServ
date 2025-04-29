@@ -16,21 +16,32 @@ int CgiHandler::waitProcessWithTimeout(pid_t pid, int timeoutSeconds)
     pid_t result;
     time_t startTime = time(NULL);
     
-    do {
+    while (true) {
         result = waitpid(pid, &status, WNOHANG);
         
         if (result == pid)
         {
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            if (WIFEXITED(status))
             {
-                std::cerr << "CGI process exited with error code: " << WEXITSTATUS(status) << std::endl;
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode != 0)
+                {
+                    std::cerr << "CGI process exited with error code: " << exitCode << std::endl;
+                    return 1; 
+                }
+                return 0; 
             }
-            return 0;
+            else if (WIFSIGNALED(status))
+            {
+                std::cerr << "CGI process terminated by signal: " << WTERMSIG(status) << std::endl;
+                return 1;
+            }
+            return 0; 
         }
         else if (result == -1)
         {
             std::cerr << "Error in waitpid: " << strerror(errno) << std::endl;
-            return 1;
+            return 1; 
         }
         
         if (difftime(time(NULL), startTime) >= timeoutSeconds)
@@ -43,14 +54,13 @@ int CgiHandler::waitProcessWithTimeout(pid_t pid, int timeoutSeconds)
             
             if (waitpid(pid, NULL, WNOHANG) == 0)
             {
-                kill(pid, SIGKILL);
+                kill(pid, SIGKILL); 
             }
             
-            return 2;
+            return 2; 
         }
-        usleep(10000);
-        
-    } while (0);
+        usleep(10000); 
+    }
 }
 
 int CgiHandler::executepy(std::string cgi_path)
@@ -97,13 +107,13 @@ int CgiHandler::executepy(std::string cgi_path)
         std::cerr << "Execve failed" << std::endl;
         exit(1);
     }
-
-    if (waitProcessWithTimeout(pid, 5) == 1)
+    int waitCode = waitProcessWithTimeout(pid, 5);
+    if (waitCode == 1)
     {
         std::cerr << "Python CGI execution failed" << std::endl;
         return 1;
     }
-    if (waitProcessWithTimeout(pid, 5) == 2)
+    if (waitCode == 2)
     {
         std::cerr << "Python CGI execution timed out" << std::endl;
         return 2;
@@ -118,7 +128,7 @@ int CgiHandler::executego(std::string cgi_path)
     if (pid < 0)
     {
         std::cerr << "Fork failed" << std::endl;
-        return;
+        return 1;
     }
     if (pid == 0)
     {
@@ -148,12 +158,13 @@ int CgiHandler::executego(std::string cgi_path)
         exit(1);
     }
 
-    if (waitProcessWithTimeout(pid, 5) == 1)
+    int waitCode = waitProcessWithTimeout(pid, 5);
+    if (waitCode == 1)
     {
         std::cerr << "Python CGI execution failed" << std::endl;
         return 1;
     }
-    if (waitProcessWithTimeout(pid, 5) == 2)
+    if (waitCode == 2)
     {
         std::cerr << "Python CGI execution timed out" << std::endl;
         return 2;

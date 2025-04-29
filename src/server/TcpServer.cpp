@@ -202,7 +202,6 @@ void TcpServer::acceptNewClient(int serverSocket)
     _pollFds.push_back(clientPollFd);
 }
 
-// à fusionner avec le parsing, request et path à modif
 std::string TcpServer::extractRequestedPath(const std::string &request)
 {
     size_t methodEnd = request.find(' ');
@@ -232,16 +231,8 @@ std::string TcpServer::getFullUrl(const std::string &requestBuffer)
         return "";
     }
     std::string path = requestBuffer.substr(pathStart, pathEnd - pathStart);
-    // std::string host = "";
-    // size_t hostHeaderStart = requestBuffer.find("\nHost: ");
-    // if (hostHeaderStart != std::string::npos) {
-    //     hostHeaderStart += 7;
-    //     size_t hostHeaderEnd = requestBuffer.find('\r', hostHeaderStart);
-    //     if (hostHeaderEnd != std::string::npos) {
-    //         host = requestBuffer.substr(hostHeaderStart, hostHeaderEnd - hostHeaderStart);
-    //     }
-    // }
     std::string fullUrl = path;
+
     return fullUrl;
 }
 
@@ -371,6 +362,9 @@ bool fileExists(const std::string &path) { return access(path.c_str(), F_OK) != 
 
 void TcpServer::handleClient(int clientFd)
 {
+    Response response;
+    std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
+
     if (_clientRequestMap.find(clientFd) == _clientRequestMap.end()) {
         _clientRequestMap[clientFd] = ClientRequest();
     }
@@ -391,8 +385,30 @@ void TcpServer::handleClient(int clientFd)
     buffer[bytesRead] = '\0';
     
     request.buffer.append(buffer, bytesRead);
-    
-    // Vérifier si l'en-tête est complet
+
+    if (request.buffer.size() > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
+    {
+        response.setStatusCode(413);
+        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 413));
+        
+        t_user ex = {"", "", ""};
+        std::string fullResponse = response.generateResponse(ex);
+        _clientResponseMap[clientFd].responseToSend = fullResponse;
+        _clientResponseMap[clientFd].bytesSent = 0;
+        _clientResponseMap[clientFd].responseReady = true;
+        
+        for (size_t i = 0; i < _pollFds.size(); ++i) {
+            if (_pollFds[i].fd == clientFd) {
+                _pollFds[i].events |= POLLOUT;
+                break;
+            }
+        }
+        
+        _clientRequestMap.erase(clientFd);
+        TcpServer::generateLog(RED, "Request body too large", "ERROR");
+        return;
+    }
+
     if (!request.headerComplete)
     {
         size_t headerEnd = request.buffer.find("\r\n\r\n");
@@ -433,12 +449,10 @@ void TcpServer::handleClient(int clientFd)
     int deleteBool= 0;
     int succeed = 0;
     int deleteUrl = 0;
-    Response response;
     std::string requestBuffer = bufferStr;
     std::string fullUrl = getFullUrl(requestBuffer);
     std::map<std::string, std::string> params;
     std::string deleteFile;
-    std::map<int, std::string> errorMap = _clientMap[clientFd].getErrorPagesMap();
 
     fullUrl = removeQueryString(fullUrl);
 
@@ -526,7 +540,7 @@ void TcpServer::handleClient(int clientFd)
                         if (ext == ".go")
                         {
                             std::string dir = std::getenv("PWD") + std::string("/") + location.getRootDirLoc() + std::string("wiki");
-                            cgi.executego(dir);
+                            succeed = cgi.executego(dir);
                         }
                     }
 
@@ -558,11 +572,10 @@ void TcpServer::handleClient(int clientFd)
                     else 
                         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 504));
 
-                        
+
                     if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
-                    // Traitement des requêtes POST
                     if (bufferStr.find("POST ") == 0) {
                         size_t headerEnd = bufferStr.find("\r\n\r\n");
                         if (headerEnd == std::string::npos)
@@ -657,17 +670,14 @@ void TcpServer::handleClient(int clientFd)
         }
     }
 
-    // Préparation et envoi de la réponse
     _cookiesMap[user.login] = user;
     Cookies::writeCookiesInDB(_cookiesMap);
     std::string fullResponse = response.generateResponse(user);
 
-    // Configurer la réponse pour l'envoi par POLLOUT
     _clientResponseMap[clientFd].responseToSend = fullResponse;
     _clientResponseMap[clientFd].bytesSent = 0;
     _clientResponseMap[clientFd].responseReady = true;
 
-    // Activer POLLOUT pour cette socket
     for (size_t i = 0; i < _pollFds.size(); ++i) 
     {
         if (_pollFds[i].fd == clientFd) {
@@ -675,8 +685,7 @@ void TcpServer::handleClient(int clientFd)
             break;
         }
     }
-    
-    // Nettoyer la requête pour préparer la prochaine
+
     _clientRequestMap.erase(clientFd);
 }
 
@@ -687,11 +696,13 @@ void TcpServer::handleClientWrite(int clientFd)
         return;
     }
     
+    int maxBodySize = getServerBlockBySocket(clientFd).getBodySizeLimit();
+    (void)maxBodySize;
     ClientData &clientData = _clientResponseMap[clientFd];
     const std::string &response = clientData.responseToSend;
-    
     size_t bytesToSend = response.size() - clientData.bytesSent;
-    if (bytesToSend > 0) 
+
+    if (bytesToSend > 0)
     {
         ssize_t sent = send(clientFd, response.c_str() + clientData.bytesSent, bytesToSend, 0);
         

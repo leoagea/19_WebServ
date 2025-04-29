@@ -119,9 +119,12 @@ std::string Response::generateResponse(t_user &user)
     response += "Content-Length: " + _contentLength + "\r\n";
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
-    response += "Set-Cookie: login=" + user.login + "; Path=/\r\n";
-    response += "Set-Cookie: sessionID=" + user.sessionID + "; Path=/\r\n";
-    response += "Set-Cookie: counter=" + user.counter + "; Path=/\r\n";
+    if (!user.login.empty())
+        response += "Set-Cookie: login=" + user.login + "; Path=/\r\n";
+    if (!user.sessionID.empty())
+        response += "Set-Cookie: sessionID=" + user.sessionID + "; Path=/\r\n";
+    if (!user.counter.empty())
+        response += "Set-Cookie: counter=" + user.counter + "; Path=/\r\n";
     response += "\r\n";
     response += _body;
 
@@ -302,4 +305,18 @@ void Response::post(const std::string &requestData)
     _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
 }
 
+int Response::getBodySize()
+{
+    return _body.size();
+}
+
 Response::~Response() {}
+
+
+// if (request.buffer.size() > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
+//     {
+//         response.setStatusCode(413);
+//         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 413));
+//         _clientRequestMap.erase(clientFd);
+//         TcpServer::generateLog(RED, "Request body too large", "ERROR");
+//     }

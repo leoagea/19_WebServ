@@ -56,6 +56,7 @@ public:
     bool isDirectoryWritable(const std::string &directory);
     void post(const std::string &requestData);
     int getMethod();
+    int getBodySize();
 };
 
 #endif

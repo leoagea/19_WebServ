@@ -18,7 +18,6 @@ public:
     void processHttpRequest(int clientSocket);
     void parseHttpRequest(const std::string &rawRequest, std::string &method, std::string &url, std::string &body);
     void sendResponse(int clientFd, const std::string &httpResponse);
-    // Dans Request.hpp
     void handleRequest(const std::string &method, const std::string &url, const std::string &body, int clientFd);
 
     ~Request();
