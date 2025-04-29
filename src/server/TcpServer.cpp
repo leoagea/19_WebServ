@@ -431,6 +431,7 @@ void TcpServer::handleClient(int clientFd)
     int getBool = 0;
     int postBool = 0;
     int deleteBool= 0;
+    int succeed = 0;
     int deleteUrl = 0;
     Response response;
     std::string requestBuffer = bufferStr;
@@ -550,8 +551,14 @@ void TcpServer::handleClient(int clientFd)
                         }
                     }
 
-                    response.get(fullPath, getBool);
+                    if (succeed == 0)
+                        response.get(fullPath, getBool);
+                    else if (succeed == 1)
+                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
+                    else 
+                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 504));
 
+                        
                     if (bufferStr.find("POST ") != 0 && bufferStr.find("DELETE ") != 0)
                         TcpServer::generateLog(BLUE, getDirectoryFromFirstLine("GET", fullUrl), "INFO");
 
@@ -609,7 +616,7 @@ void TcpServer::handleClient(int clientFd)
                                     cgi.setMaxPrice(maxPrice);
                                     std::string dir(std::getenv("PWD"));
                                     cgi.setCurrentDir(dir += "/");
-                                    cgi.executepy(dir += location.getCgiPath());
+                                    succeed = cgi.executepy(dir += location.getCgiPath());
                                 }
                                 else
                                 {
@@ -617,7 +624,12 @@ void TcpServer::handleClient(int clientFd)
                                 }
                             }
                         }
-                        response.get(fullPath, getBool);
+                        if (succeed == 0)
+                            response.get(fullPath, getBool);
+                        else if (succeed == 1)
+                            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
+                        else 
+                            response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 504));
                     }
                 }
                 catch (const std::exception &e)

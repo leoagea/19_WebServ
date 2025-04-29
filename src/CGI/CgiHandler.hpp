@@ -20,8 +20,8 @@ public:
     CgiHandler(std::map<std::string, std::string> envMap);
     ~CgiHandler();
 
-    void executepy(std::string cgi_path);
-    void executego(std::string cgi_path);
+    int  executepy(std::string cgi_path);
+    int  executego(std::string cgi_path);
 
     void setMinPrice(uint &minPrice);
     void setMaxPrice(uint &maxPrice);
@@ -33,6 +33,8 @@ private:
     int _minPrice;
     int _maxPrice;
     std::string _currentDir;
+
+    int waitProcessWithTimeout(pid_t pid, int timeoutSeconds);
 };
 
 #endif
