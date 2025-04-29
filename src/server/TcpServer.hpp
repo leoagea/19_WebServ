@@ -52,13 +52,17 @@ public:
     uint16_t                getSocketPort(int socket);
     std::string             getFullUrl(const std::string& requestBuffer);
     std::string             getDirectoryFromFirstLine(const std::string & method, const std::string & fullUrl);
+    int                     getClientFd() const;
     std::string             extractRequestedPath(const std::string &request);
     bool                    fileExists(const std::string& path);
     static void			    generateLog(std::string color, const std::string& message, const char *logType);
     static void             closeFds(int sig);
     void                    handle_signal(void);
+    void                    clearIsIndex();
+    void                    handleClient(int clientFd);
 
 private :
+    int                     _clientFd;
     static const size_t     _maxPollFds = 4096;
     std::vector<int>        _serverSockets;
     std::vector<int>        _ports;
@@ -97,7 +101,7 @@ private :
     void            setupSocket();
     void            makeNonBlocking(int socket);
     void            acceptNewClient(int serverSocket);
-    void            handleClient(int clientFd);
+
     void            handleClientWrite(int clientFd);
     void            cleanupClient(int fd);
     void            exitCloseFds(std::vector<int> &serverSockets);

@@ -34,3 +34,7 @@ Creer uploadFolder si il n existe pas avant upload
 ///////////////////////
 
 MAX BODY SIZE
+Upload fichier ligne en trop
+Mettre peut etre un message si upload mauvaise extension
+Bouton retour /myapp/delete
+Timeout CGI and crash -> a gerer

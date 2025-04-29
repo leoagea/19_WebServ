@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:45:51 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 15:42:31 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,8 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
         }
         else
         {
-            html << "<a class=\"file-link\" href=\"" << it->name << "\" onclick=\"forceDownload(event, '" << it->name << "')\">" << it->name << "</a>";
+            html << "<a class=\"file-link\" href=\"" << it->name 
+                 << "\" download=\"" << it->name << "\">" << it->name << "</a>";
         }
 
         html << "</td>\n"
@@ -187,17 +188,6 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
 
     html << "    </tbody>\n"
          << "  </table>\n"
-         << "  <script>\n"
-         << "    function forceDownload(event, filename) {\n"
-         << "      event.preventDefault();\n"
-         << "      const link = document.createElement('a');\n"
-         << "      link.href = filename;\n"
-         << "      link.setAttribute('download', filename);\n"
-         << "      document.body.appendChild(link);\n"
-         << "      link.click();\n"
-         << "      document.body.removeChild(link);\n"
-         << "    }\n"
-         << "  </script>\n"
          << "</body>\n"
          << "</html>\n";
 

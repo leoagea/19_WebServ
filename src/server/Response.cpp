@@ -46,7 +46,7 @@ void Response::m_delete(const std::string &fileName)
 int Response::getMethod() { return _method_int; }
 
 Response::Response()
-    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _keepAlive(true), _method_int(DELETE) {}
+    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _contentDisposition(""), _keepAlive(true), _method_int(DELETE) {}
 
 // gestion des status
 void Response::setStatusCode(int code)
@@ -85,6 +85,11 @@ void Response::setContentType(const std::string &type)
     _contentType = type;
 }
 
+void Response::setContentDisposition(const std::string &disposition)
+{
+    _contentDisposition = disposition;
+}
+
 void Response::setKeepAlive(bool keepAlive)
 {
     _keepAlive = keepAlive;
@@ -117,6 +122,10 @@ std::string Response::generateResponse(t_user &user)
     response += "Location: \r\n";
     response += "Content-Type: " + _contentType + "\r\n";
     response += "Content-Length: " + _contentLength + "\r\n";
+    if (!_contentDisposition.empty())
+    {
+        response += "Content-Disposition: " + _contentDisposition + "\r\n";
+    }
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
     if (!user.login.empty())
@@ -165,29 +174,46 @@ std::string Response::readFile(const std::string &filePath)
     return content;
 }
 
-void Response::get(const std::string &filePath, bool getBool)
+void Response::get(const std::string &filePath, bool getBool, TcpServer &server)
 {
     std::string fileContent = readFile(filePath);
     if (!fileContent.empty())
     {
         setBody(fileContent);
+
+        size_t lastSlash = filePath.find_last_of("/\\");
+        std::string filename = (lastSlash != std::string::npos) ? 
+                             filePath.substr(lastSlash + 1) : filePath;
         if (filePath.find(".jpg") != std::string::npos || filePath.find(".jpeg") != std::string::npos)
         {
             setContentType("image/jpeg");
+            if (!getBool)
+                setContentDisposition(filename);
         }
         else if (filePath.find(".png") != std::string::npos)
         {
             setContentType("image/png");
+            if (!getBool)
+                setContentDisposition(filename);
         }
         else
         {
             setContentType("text/html; charset=UTF-8");
+            if (!getBool)
+                setContentDisposition(filename);
         }
 
+        // Set Content-Length
+        std::stringstream ss;
+        ss << fileContent.size();
+        _contentLength = ss.str();
+        
         setStatusCode(200);
     }
     else if (!getBool)
     {
+        server.clearIsIndex();
+        server.handleClient(server.getClientFd());
         throw std::runtime_error("get error");
     }
 }

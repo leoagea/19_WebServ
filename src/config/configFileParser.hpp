@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:29:10 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:10:28 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ private:
     void parseConfFile();
     bool isConfPathValid(std::string &);
     void splitServerBlock();
+    void checkPortDuplicate();
 };
 
 #endif

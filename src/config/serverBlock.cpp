@@ -6,18 +6,18 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 16:02:20 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:23:07 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "serverBlock.hpp"
 
-ServerBlock::ServerBlock() : _listeningports(-1), _servername(""), _rootdir(""), _index(""),
+ServerBlock::ServerBlock() : _listeningports(), _servername(""), _rootdir(""), _index(""),
                              _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError()
 {
 }
 
-ServerBlock::ServerBlock(int start, std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(-1), _servername(""), _rootdir(""), _index(""),
+ServerBlock::ServerBlock(int start, std::vector<t_token> &tokenVec, int *j, const ErrorReporter &reporter) : _listeningports(), _servername(""), _rootdir(""), _index(""),
                                                                                                              _bodysizelimit(-1), _host(""), _hostbytes(), _locationblock(), _errorpages(), _reportError(reporter)
 {
     initializeMapErrorPages();
@@ -28,9 +28,14 @@ ServerBlock::~ServerBlock()
 {
 }
 
-int ServerBlock::getListeningPort() const
+std::vector<int> ServerBlock::getListeningPorts() const
 {
     return _listeningports;
+}
+
+int ServerBlock::getListeningPortByIndex(int index) const
+{
+    return _listeningports.at(index);
 }
 
 std::string ServerBlock::getServerName() const
@@ -144,8 +149,17 @@ void ServerBlock::parseAllServerVariables(int startIndex, std::vector<t_token> &
         t_token token = tokenVec[i];
         if (token.type == keyword && token.value == "listen")
         {
-            parseListeningPort(tokenVec[++i]);
             i++;
+            if (!_listeningports.empty()){
+                _reportError(i, "listening port already defined");
+                while (tokenVec[i].type != semicolon)
+                    i++;
+            }
+            while (tokenVec[i].type != semicolon)
+            {
+                parseListeningPort(tokenVec[i]);  
+                i++;
+            }
         }
         else if (token.type == keyword && token.value == "server_name")
         {
@@ -229,23 +243,18 @@ void ServerBlock::parseAllServerVariables(int startIndex, std::vector<t_token> &
 
 void ServerBlock::parseListeningPort(t_token &token)
 {
-    if (_listeningports == -1)
+    if (token.type == number)
     {
-        if (token.type == number)
+        int port = atoi(token.value.c_str());
+        if (port <= 1023 || port > UINT16_MAX)
         {
-            int port = atoi(token.value.c_str());
-            if (port <= 1023 || port > UINT16_MAX)
-            {
-                _reportError(token.index, "port range exceeded expected 1024 - 65535");
-            }
-            else
-                _listeningports = port;
+            _reportError(token.index, "port range exceeded expected 1024 - 65535");
         }
         else
-            _reportError(token.index, "expected number");
+            _listeningports.push_back(port);
     }
     else
-        _reportError(token.index, "listen already defined");
+        _reportError(token.index, "expected number");
 }
 
 void ServerBlock::parseServerName(t_token &token)
@@ -322,8 +331,8 @@ void ServerBlock::parseLimitBodySize(t_token &token)
         if (token.type == number)
         {
             int maxbodysize = atoi(token.value.c_str());
-            if (maxbodysize <= 0 || maxbodysize >= 1025)
-                _reportError(token.index, "max body size range exceeded 1 - 1024");
+            if (maxbodysize < 1024 || maxbodysize > INT16_MAX)
+                _reportError(token.index, "max body size range exceeded 1024 - 32767");
             else
                 _bodysizelimit = maxbodysize;
         }
@@ -440,7 +449,7 @@ std::vector<std::string> ServerBlock::checkAllDefined()
 {
     std::vector<std::string> notdefined;
 
-    if (_listeningports == -1)
+    if (_listeningports.empty())
         notdefined.push_back("listen port");
     if (_servername == "")
         notdefined.push_back("servername");
@@ -462,7 +471,11 @@ std::ostream &operator<<(std::ostream &out, const ServerBlock &obj)
     out << BLUE << "Server Block" << RESET << std::endl;
 
     out << CYAN << "Listening Port" << RESET << std::endl;
-    out << "Port:  " << obj.getListeningPort() << std::endl;
+    out << "Port:  \n";
+    for (int i = 0; i < (int)obj.getListeningPorts().size(); i++)
+    {
+        out << "     " << obj.getListeningPortByIndex(i) << "\n";
+    }
 
     out << CYAN << "Server Name" << RESET << std::endl;
     out << "Name:  " << obj.getServerName() << std::endl;
