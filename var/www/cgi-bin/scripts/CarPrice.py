@@ -29,7 +29,7 @@ with open(path, 'r') as csvfile:
 price_index = fields.index("Selling_Price")
 brand_index = fields.index("Brand")
 model_index = fields.index("Model")
-km_index = fields.index("KM_Driven")
+km_index    = fields.index("KM_Driven")
 
 filtered_rows = []
 

@@ -8,102 +8,105 @@
 void Response::m_delete(const std::string &fileName)
 {
     std::cout << "Removing file..." << std::endl;
-	std::string uploadDir = "uploadFolder/";
-	std::string fullPath = uploadDir + fileName;
-	struct stat buffer;
-	if (stat(fullPath.c_str(), &buffer) != 0) {
-		std::cerr << "File not found: " << fullPath << std::endl;
-		_response = "HTTP/1.1 404 Not Found\r\n"
-					"Content-Type: text/plain\r\n"
+    std::string uploadDir = "uploadFolder/";
+    std::string fullPath = uploadDir + fileName;
+    struct stat buffer;
+    if (stat(fullPath.c_str(), &buffer) != 0)
+    {
+        std::cerr << "File not found: " << fullPath << std::endl;
+        _response = "HTTP/1.1 404 Not Found\r\n"
+                    "Content-Type: text/plain\r\n"
                     "Keep-Alive: timeout=75\r\n"
-					"Content-Length: 14\r\n"
-					"\r\n"
-					"File not found";
-		return;
-	}
-	if (remove(fullPath.c_str()) < 0) {
-		std::cerr << "Failed to remove file: " << fullPath << std::endl;
-		_response = "HTTP/1.1 500 Internal Server Error\r\n"
+                    "Content-Length: 14\r\n"
+                    "\r\n"
+                    "File not found";
+        return;
+    }
+    if (remove(fullPath.c_str()) < 0)
+    {
+        std::cerr << "Failed to remove file: " << fullPath << std::endl;
+        _response = "HTTP/1.1 500 Internal Server Error\r\n"
                     "Keep-Alive: timeout=75\r\n"
                     "Connection: keep-alive\r\n"
-					"Content-Length: 21\r\n"
-					"\r\n"
-					"Failed to delete file";
-		return;
-	}
-	std::cout << "File removed " << fullPath << std::endl;
-	_response = "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/plain\r\n"
-            "Keep-Alive: timeout=75\r\n"
-            "Content-Length: 25\r\n"
-            "Connection: keep-alive\r\n"
-            "\r\n"
-            "File deleted successfully";
-
+                    "Content-Length: 21\r\n"
+                    "\r\n"
+                    "Failed to delete file";
+        return;
+    }
+    std::cout << "File removed " << fullPath << std::endl;
+    _response = "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/plain\r\n"
+                "Keep-Alive: timeout=75\r\n"
+                "Content-Length: 25\r\n"
+                "Connection: keep-alive\r\n"
+                "\r\n"
+                "File deleted successfully";
 }
 
-
-int	Response::getMethod() { return _method_int; }
+int Response::getMethod() { return _method_int; }
 
 Response::Response()
-    :  _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _keepAlive(true),_method_int(DELETE) {}
+    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _keepAlive(true), _method_int(DELETE) {}
 
-//gestion des status
+// gestion des status
 void Response::setStatusCode(int code)
 {
-	std::stringstream status;
-	status << code;
-	_statusCode = status.str();
+    std::stringstream status;
+    status << code;
+    _statusCode = status.str();
 
-	switch (code)
-	{
-	case 200:
-		_statusMessage = "OK";
-		break;
-	case 404:
-		_statusMessage = "Not Found";
-		break;
-	case 405:
-		_statusMessage = "Method Not Allowed";
-		break;
-	default:
-		_statusMessage = "Internal Server Error";
-		break;
-	}
+    switch (code)
+    {
+    case 200:
+        _statusMessage = "OK";
+        break;
+    case 404:
+        _statusMessage = "Not Found";
+        break;
+    case 405:
+        _statusMessage = "Method Not Allowed";
+        break;
+    default:
+        _statusMessage = "Internal Server Error";
+        break;
+    }
 }
 
 void Response::setBody(const std::string &body)
 {
-	_body = body;
-	std::stringstream ss;
-	ss << body.size();
-	_contentLength = ss.str();
+    _body = body;
+    std::stringstream ss;
+    ss << body.size();
+    _contentLength = ss.str();
 }
 
 void Response::setContentType(const std::string &type)
 {
-	_contentType = type;
+    _contentType = type;
 }
 
 void Response::setKeepAlive(bool keepAlive)
 {
-	_keepAlive = keepAlive;
+    _keepAlive = keepAlive;
 }
 
-void Response::sendRedirect(int clientFd, const std::string &requestedPath, std::string prefix) {
-	std::string newUrl = requestedPath;
+void Response::sendRedirect(int clientFd, const std::string &requestedPath, std::string prefix)
+{
+    std::string newUrl = requestedPath;
 
-	if (newUrl.find(prefix) == 0) {
-		newUrl = "/" + newUrl.substr(prefix.length());
-	}
-	std::cout << "path 2 " << requestedPath << std::endl;
-	std::string response = 
-		"HTTP/1.1 302 Found\r\n"
-		"Location: " + newUrl + "\r\n"
-		"Content-Length: 0\r\n"
-		"\r\n";
+    if (newUrl.find(prefix) == 0)
+    {
+        newUrl = "/" + newUrl.substr(prefix.length());
+    }
+    std::cout << "path 2 " << requestedPath << std::endl;
+    std::string response =
+        "HTTP/1.1 302 Found\r\n"
+        "Location: " +
+        newUrl + "\r\n"
+                 "Content-Length: 0\r\n"
+                 "\r\n";
 
-send(clientFd, response.c_str(), response.size(), 0);
+    send(clientFd, response.c_str(), response.size(), 0);
 }
 
 std::string Response::generateResponse(t_user &user)
@@ -177,7 +180,7 @@ void Response::get(const std::string &filePath, bool getBool)
         {
             setContentType("text/html; charset=UTF-8");
         }
-        
+
         setStatusCode(200);
     }
     else if (!getBool)
@@ -186,51 +189,58 @@ void Response::get(const std::string &filePath, bool getBool)
     }
 }
 
-
-bool Response::isDirectoryWritable(const std::string& directory) {
+bool Response::isDirectoryWritable(const std::string &directory)
+{
     struct stat dirInfo;
-    if (stat(directory.c_str(), &dirInfo) != 0 || !S_ISDIR(dirInfo.st_mode)) {
+    if (stat(directory.c_str(), &dirInfo) != 0 || !S_ISDIR(dirInfo.st_mode))
+    {
         return false;
     }
     return access(directory.c_str(), W_OK) == 0;
 }
 
-
-std::string Response::extractBoundary(const std::string& requestData) {
+std::string Response::extractBoundary(const std::string &requestData)
+{
     size_t pos = requestData.find("boundary=");
-    if (pos == std::string::npos) {
+    if (pos == std::string::npos)
+    {
         return "";
     }
     size_t endPos = requestData.find("\r\n", pos);
     return "--" + requestData.substr(pos + 9, endPos - (pos + 9));
 }
 
-
-bool Response::extractFileData(const std::string& requestData, const std::string& boundary, std::string& filename, std::string& fileContent) {
+bool Response::extractFileData(const std::string &requestData, const std::string &boundary, std::string &filename, std::string &fileContent)
+{
     size_t boundaryPos = requestData.find(boundary);
-    if (boundaryPos == std::string::npos) {
+    if (boundaryPos == std::string::npos)
+    {
         return false;
     }
 
     size_t fileHeaderPos = requestData.find("\r\n\r\n", boundaryPos);
-    if (fileHeaderPos == std::string::npos) {
+    if (fileHeaderPos == std::string::npos)
+    {
         return false;
     }
     size_t fileStartPos = fileHeaderPos + 4;
 
     size_t fileEndPos = requestData.find(boundary, fileStartPos);
-    if (fileEndPos == std::string::npos) {
+    if (fileEndPos == std::string::npos)
+    {
         return false;
     }
 
     // Extraction des informations d'en-tête du fichier
     size_t filenamePos = requestData.find("filename=\"", boundaryPos);
-    if (filenamePos == std::string::npos) {
+    if (filenamePos == std::string::npos)
+    {
         return false;
     }
     size_t filenameStart = filenamePos + 10;
     size_t filenameEnd = requestData.find("\"", filenameStart);
-    if (filenameEnd == std::string::npos) {
+    if (filenameEnd == std::string::npos)
+    {
         return false;
     }
     filename = requestData.substr(filenameStart, filenameEnd - filenameStart);
@@ -240,13 +250,13 @@ bool Response::extractFileData(const std::string& requestData, const std::string
     return true;
 }
 
-void createUploadFolder(const std::string& folderName = "uploadFolder") {
+void createUploadFolder(const std::string &folderName = "uploadFolder")
+{
     struct stat info;
 
     if (stat(folderName.c_str(), &info) != 0)
         mkdir(folderName.c_str(), 0777);
 }
-
 
 void Response::post(const std::string &requestData)
 {
@@ -291,6 +301,5 @@ void Response::post(const std::string &requestData)
     setStatusCode(201);
     _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
 }
-
 
 Response::~Response() {}

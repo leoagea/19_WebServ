@@ -6,12 +6,12 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 22:18:36 by lagea             #+#    #+#             */
-/*   Updated: 2024/12/18 15:02:45 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 13:42:53 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __PATHCHECKING_CPP__
-# define __PATHCHECKING_CPP__
+#define __PATHCHECKING_CPP__
 
 #include <string>
 #include <sys/stat.h>

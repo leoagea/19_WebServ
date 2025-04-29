@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   DirectoryListing.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:21:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/06 17:26:46 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/04/29 13:45:54 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __DIRECTORYLISTING_HPP__
-# define __DIRECTORYLISTING_HPP__
+#define __DIRECTORYLISTING_HPP__
 
 #include <vector>
 #include <dirent.h>

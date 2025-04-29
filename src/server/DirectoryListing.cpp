@@ -3,68 +3,75 @@
 /*                                                        :::      ::::::::   */
 /*   DirectoryListing.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 17:24:55 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/06 18:00:36 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/04/29 13:45:51 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "DirectoryListing.hpp"
 
-std::vector<s_info> DirectoryListing::listDirectory(std::string &path) 
-{ 
+std::vector<s_info> DirectoryListing::listDirectory(std::string &path)
+{
     std::vector<s_info> results;
 
-    DIR* dir = opendir(path.c_str());
-    if (!dir) {
+    DIR *dir = opendir(path.c_str());
+    if (!dir)
+    {
         throw std::runtime_error("Can't open the directory");
     }
 
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
 
         std::string fullPath = path;
-        if (!fullPath.empty() && fullPath[fullPath.size()-1] != '/')
+        if (!fullPath.empty() && fullPath[fullPath.size() - 1] != '/')
             fullPath += '/';
         fullPath += entry->d_name;
 
         struct stat st;
-        if (stat(fullPath.c_str(), &st) == 0) {
+        if (stat(fullPath.c_str(), &st) == 0)
+        {
             s_info info;
-            info.name  = entry->d_name;
+            info.name = entry->d_name;
             info.fullpath = fullPath;
-            info.raw_size  = st.st_size;
+            info.raw_size = st.st_size;
             info.mtime = st.st_mtime;
-			info.format_size = DirectoryListing::formatFileSize(info.raw_size);
-            
-			char dateBuffer[32];
-        	struct tm *ltime = std::localtime(&(info.mtime));
-			std::strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d %H:%M:%S", ltime);
-			info.format_time = dateBuffer;
+            info.format_size = DirectoryListing::formatFileSize(info.raw_size);
+
+            char dateBuffer[32];
+            struct tm *ltime = std::localtime(&(info.mtime));
+            std::strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d %H:%M:%S", ltime);
+            info.format_time = dateBuffer;
 
             results.push_back(info);
-        } else {
+        }
+        else
+        {
             throw std::runtime_error("Can't get the infos from" + fullPath);
         }
     }
 
-    if (closedir(dir) == -1) {
+    if (closedir(dir) == -1)
+    {
         throw std::runtime_error("Can't close the directory " + path);
     }
 
     return results;
 }
 
-std::string DirectoryListing::formatFileSize(off_t bytes) 
+std::string DirectoryListing::formatFileSize(off_t bytes)
 {
-    static const char* units[] = {"B", "KB", "MB", "GB", "TB"};
+    static const char *units[] = {"B", "KB", "MB", "GB", "TB"};
     const int maxIndex = 4;
 
     double size = static_cast<double>(bytes);
     int i = 0;
 
-    while (size >= 1024.0 && i < maxIndex) {
+    while (size >= 1024.0 && i < maxIndex)
+    {
         size /= 1024.0;
         i++;
     }
@@ -151,19 +158,24 @@ std::string DirectoryListing::generateDirectoryListingHTML(const std::string &di
          << "    </thead>\n"
          << "    <tbody>\n";
 
-    for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it) {
+    for (std::vector<s_info>::const_iterator it = files.begin(); it != files.end(); ++it)
+    {
         bool isDirectory = false;
         struct stat st;
-        if (stat(it->fullpath.c_str(), &st) == 0) {
+        if (stat(it->fullpath.c_str(), &st) == 0)
+        {
             isDirectory = S_ISDIR(st.st_mode);
         }
 
         html << "    <tr>\n"
              << "      <td>";
 
-        if (isDirectory) {
+        if (isDirectory)
+        {
             html << "<a class=\"dir-link\" href=\"" << it->name << "/\">" << it->name << "/</a>";
-        } else {
+        }
+        else
+        {
             html << "<a class=\"file-link\" href=\"" << it->name << "\" onclick=\"forceDownload(event, '" << it->name << "')\">" << it->name << "</a>";
         }
 

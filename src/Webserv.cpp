@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/02/05 19:01:25 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 13:43:40 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ void Webserv::initialiseConfig()
 {
     try
     {
-        _config.loadConfFile(); 
+        _config.loadConfFile();
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         throw std::runtime_error(e.what());
     }
@@ -48,8 +48,9 @@ void Webserv::initialiseConfig()
 void Webserv::initialiseEnv(char **env)
 {
     int i = -1;
-    
-    while (env[++i]){
+
+    while (env[++i])
+    {
         std::stringstream ss(env[i]);
         std::string key;
         std::string val;
