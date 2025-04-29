@@ -38,5 +38,4 @@ Mettre peut etre un message si upload mauvaise extension
 Une fois charger la page index on impossible d'aller su /myapp
 Telechargement fichier indexon foireux
 Bouton retour /myapp/delete
-Bad request 404
 Timeout CGI and crash -> a gerer

@@ -639,8 +639,8 @@ void TcpServer::handleClient(int clientFd)
             else
             {
                 TcpServer::generateLog(RED, getDirectoryFromFirstLine("GET", fullUrl), "ERROR");
-                response.setStatusCode(400);
-                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
+                response.setStatusCode(404);
+                response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 404));
             }
         }
     }
