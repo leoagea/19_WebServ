@@ -389,7 +389,6 @@ void TcpServer::handleClient(int clientFd)
     }
     
     buffer[bytesRead] = '\0';
-    
     request.buffer.append(buffer, bytesRead);
     
     // Vérifier si l'en-tête est complet
@@ -456,6 +455,10 @@ void TcpServer::handleClient(int clientFd)
     std::string requestedPath = urlPath;
     std::string rootPath;
     
+    std::cout << fullUrl << std::endl;
+    std::cout << urlPath << std::endl;
+
+
     try
     {
         if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri()) {
@@ -470,7 +473,6 @@ void TcpServer::handleClient(int clientFd)
     removeExtraSlashes(fullPath);
     std::vector<s_info> listing;
     t_user user;
-
     if (_isIndex != "")
     {
         try
@@ -482,10 +484,12 @@ void TcpServer::handleClient(int clientFd)
             _showPath = removeExtraSlashes(_showPath);
             listing = DirectoryListing::listDirectory(fullUrl);
             response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+            
         }
         catch (const std::exception &e) {}
     }
     else {
+        
         try
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
