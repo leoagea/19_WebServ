@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 19:19:55 by lagea            ###   ########.fr       */
+/*   Updated: 2025/04/29 19:23:07 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,8 +331,8 @@ void ServerBlock::parseLimitBodySize(t_token &token)
         if (token.type == number)
         {
             int maxbodysize = atoi(token.value.c_str());
-            if (maxbodysize <= 0 || maxbodysize >= 1025)
-                _reportError(token.index, "max body size range exceeded 1 - 1024");
+            if (maxbodysize < 1024 || maxbodysize > INT16_MAX)
+                _reportError(token.index, "max body size range exceeded 1024 - 32767");
             else
                 _bodysizelimit = maxbodysize;
         }
