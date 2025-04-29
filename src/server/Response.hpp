@@ -27,6 +27,7 @@ private:
     std::string _body;
     std::string _contentType;
     std::string _contentLength;
+    std::string _contentDisposition;
     bool _keepAlive;
     const char *_path;
     std::string _response;
@@ -44,7 +45,9 @@ public:
     void setStatusCode(int code);
     void setBody(const std::string &body);
     void setContentType(const std::string &type);
+    void setContentDisposition(const std::string &disposition);
     void setKeepAlive(bool keepAlive);
+    
     std::string generateResponse(t_user &);
     std::string extractHeaders(const std::string &fullResponse);
     void get(const std::string &filePath, bool getBool);

@@ -480,8 +480,14 @@ void TcpServer::handleClient(int clientFd)
             fullUrl = removeExtraSlashes(fullUrl);
             _isIndex = removeExtraSlashes(_isIndex);
             _showPath = removeExtraSlashes(_showPath);
-            listing = DirectoryListing::listDirectory(fullUrl);
-            response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+            std::string filepath = "./" + fullUrl;
+            if (!PathChecking::isDirectory(filepath)){
+                response.get(filepath, getBool);
+            }
+            else{
+                listing = DirectoryListing::listDirectory(fullUrl);
+                response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+            }
         }
         catch (const std::exception &e) {}
     }

@@ -46,7 +46,7 @@ void Response::m_delete(const std::string &fileName)
 int Response::getMethod() { return _method_int; }
 
 Response::Response()
-    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _keepAlive(true), _method_int(DELETE) {}
+    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _contentDisposition(""), _keepAlive(true), _method_int(DELETE) {}
 
 // gestion des status
 void Response::setStatusCode(int code)
@@ -85,6 +85,11 @@ void Response::setContentType(const std::string &type)
     _contentType = type;
 }
 
+void Response::setContentDisposition(const std::string &disposition)
+{
+    _contentDisposition = disposition;
+}
+
 void Response::setKeepAlive(bool keepAlive)
 {
     _keepAlive = keepAlive;
@@ -117,6 +122,10 @@ std::string Response::generateResponse(t_user &user)
     response += "Location: \r\n";
     response += "Content-Type: " + _contentType + "\r\n";
     response += "Content-Length: " + _contentLength + "\r\n";
+    if (!_contentDisposition.empty())
+    {
+        response += "Content-Disposition: " + _contentDisposition + "\r\n";
+    }
     response += "Connection: keep-alive\r\n";
     response += "Keep-Alive: timeout=75\r\n";
     response += "Set-Cookie: login=" + user.login + "; Path=/\r\n";
@@ -168,19 +177,31 @@ void Response::get(const std::string &filePath, bool getBool)
     if (!fileContent.empty())
     {
         setBody(fileContent);
+
+        size_t lastSlash = filePath.find_last_of("/\\");
+        std::string filename = (lastSlash != std::string::npos) ? 
+                             filePath.substr(lastSlash + 1) : filePath;
         if (filePath.find(".jpg") != std::string::npos || filePath.find(".jpeg") != std::string::npos)
         {
             setContentType("image/jpeg");
+            setContentDisposition(filename);
         }
         else if (filePath.find(".png") != std::string::npos)
         {
             setContentType("image/png");
+            setContentDisposition(filename);
         }
         else
         {
             setContentType("text/html; charset=UTF-8");
+            setContentDisposition(filename);
         }
 
+        // Set Content-Length
+        std::stringstream ss;
+        ss << fileContent.size();
+        _contentLength = ss.str();
+        
         setStatusCode(200);
     }
     else if (!getBool)
