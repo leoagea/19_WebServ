@@ -311,12 +311,3 @@ int Response::getBodySize()
 }
 
 Response::~Response() {}
-
-
-// if (request.buffer.size() > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
-//     {
-//         response.setStatusCode(413);
-//         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 413));
-//         _clientRequestMap.erase(clientFd);
-//         TcpServer::generateLog(RED, "Request body too large", "ERROR");
-//     }
