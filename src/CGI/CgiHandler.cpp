@@ -103,19 +103,15 @@ int CgiHandler::executepy(std::string cgi_path)
         argv.push_back(NULL);
 
         execve("/usr/bin/python3", argv.data(), envp);
-
-        std::cerr << "Execve failed" << std::endl;
         exit(1);
     }
     int waitCode = waitProcessWithTimeout(pid, 5);
     if (waitCode == 1)
     {
-        std::cerr << "Python CGI execution failed" << std::endl;
         return 1;
     }
     if (waitCode == 2)
     {
-        std::cerr << "Python CGI execution timed out" << std::endl;
         return 2;
     }
     return 0;
@@ -127,7 +123,6 @@ int CgiHandler::executego(std::string cgi_path)
 
     if (pid < 0)
     {
-        std::cerr << "Fork failed" << std::endl;
         return 1;
     }
     if (pid == 0)

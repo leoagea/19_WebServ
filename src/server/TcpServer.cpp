@@ -426,6 +426,7 @@ void TcpServer::handleClient(int clientFd)
 
     if (request.buffer.size() > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
     {
+        std::cout << request.buffer << std::endl;
         response.setStatusCode(413);
         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 413));
         
@@ -628,10 +629,8 @@ void TcpServer::handleClient(int clientFd)
                             
                             if (succeed == 0)
                                 response.get(fullPath, getBool, *this);
-                            else if (succeed == 1){
-                                std::cout  << "ICI" << std::endl;
+                            else if (succeed == 1)
                                 response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
-                            }
                             else 
                                 response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 504));
 
@@ -761,8 +760,8 @@ void TcpServer::handleClientWrite(int clientFd)
         return;
     }
     
-    int maxBodySize = getServerBlockBySocket(clientFd).getBodySizeLimit();
-    (void)maxBodySize;
+    // int maxBodySize = getServerBlockBySocket(clientFd).getBodySizeLimit();
+    // (void)maxBodySize;
     ClientData &clientData = _clientResponseMap[clientFd];
     const std::string &response = clientData.responseToSend;
     size_t bytesToSend = response.size() - clientData.bytesSent;
