@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:59:09 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:43:40 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:23:13 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Webserv::Webserv(const std::string &configPath, char **env)
 
 Webserv::~Webserv()
 {
+    _env.clear();
 }
 
 ConfigFile Webserv::getConfigFileObject() const

@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:30:54 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:16:56 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, con
 
 locationBlock::~locationBlock()
 {
+    _tokenVec.clear();
 }
 
 // True if location block is about cgi

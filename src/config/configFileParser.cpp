@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:20:44 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 19:19:16 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:16:04 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,11 @@ ConfigFile::ConfigFile(std::string path) : _filepath(path), _configFileVector(),
 
 ConfigFile::~ConfigFile()
 {
+    _configFileVector.clear();
+    _tokenizerString.clear();
+    _tokensVec.clear();
+    _serverlist.clear();
+    _errors.clear();
 }
 
 void ConfigFile::loadConfFile()

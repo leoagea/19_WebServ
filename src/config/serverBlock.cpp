@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 13:28:47 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 19:23:07 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:20:25 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,10 @@ ServerBlock::ServerBlock(int start, std::vector<t_token> &tokenVec, int *j, cons
 
 ServerBlock::~ServerBlock()
 {
+    _listeningports.clear();
+    _hostbytes.clear();
+    _locationblock.clear();
+    _errorpages.clear();
 }
 
 std::vector<int> ServerBlock::getListeningPorts() const

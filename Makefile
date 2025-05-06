@@ -6,7 +6,7 @@
 #    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2025/04/28 14:39:30 by lagea            ###   ########.fr        #
+#    Updated: 2025/05/06 18:03:14 by lagea            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ OBJ_DIR 	= build
 
 SRC 		= 	$(SRC_DIR)/main.cpp $(SRC_DIR)/Webserv.cpp \
 				$(SRC_DIR)/config/configFileParser.cpp $(SRC_DIR)/config/serverBlock.cpp $(SRC_DIR)/config/locationBlock.cpp $(SRC_DIR)/config/tokenizer.cpp  $(SRC_DIR)/config/PathChecking.cpp $(SRC_DIR)/config/ErrorReporter.cpp \
-				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/Request.cpp $(SRC_DIR)/server/DirectoryListing.cpp $(SRC_DIR)/server/Response.cpp $(SRC_DIR)/server/Cookies.cpp $(SRC_DIR)/server/ErrorPageGenerator.cpp \
+				$(SRC_DIR)/server/TcpServer.cpp $(SRC_DIR)/server/DirectoryListing.cpp $(SRC_DIR)/server/Response.cpp $(SRC_DIR)/server/Cookies.cpp $(SRC_DIR)/server/ErrorPageGenerator.cpp \
 				$(SRC_DIR)/CGI/CgiHandler.cpp \
 
 OBJ			= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

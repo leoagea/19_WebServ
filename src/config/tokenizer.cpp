@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 18:35:08 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:43:10 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:18:34 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Tokenizer::Tokenizer(std::string &configContent) : _tokensVector()
 
 Tokenizer::~Tokenizer()
 {
+    _tokensVector.clear();
 }
 
 std::vector<t_token> Tokenizer::getTokensVector() const

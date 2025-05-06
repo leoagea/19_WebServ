@@ -1,7 +1,6 @@
 #ifndef __CGI_HANDLER__
 #define __CGI_HANDLER__
 
-#include "../server/Request.hpp"
 #include <string>
 #include <vector>
 #include <map>
