@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 14:48:53 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 16:19:20 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 17:42:19 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ std::string generateHtmlCode(int error, std::string msg)
     htmlcode = "<!DOCTYPE html>\n\
 <html>\n\
 <head>\n\
-\t<meta charset=\"utf-8\">\n\
-\t<title>408 Request Timeout</title>\n\
-</head>\n\
+\t<meta charset=\"utf-8\">\n";
+    htmlcode += "\t<title>" + num + " " + msg + "</title>\n";
+  htmlcode += "</head>\n\
 <body>\n\
 \t<h1>";
 
