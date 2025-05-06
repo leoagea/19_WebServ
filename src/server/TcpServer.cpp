@@ -347,7 +347,6 @@ std::string removeQueryString(const std::string &url)
     return url;
 }
 
-// implémenter le rep racine
 std::string TcpServer::resolvePath(const std::string &requestedPath, int clientFd)
 {
     const std::string rootDirectory = _clientMap[clientFd].getRootDir();
@@ -368,15 +367,12 @@ std::string getRequestMethodType(const std::string &request)
     if (request.empty())
     return "";
 
-    // Find the first space which marks the end of the method
     size_t methodEnd = request.find(' ');
     if (methodEnd == std::string::npos)
         return "";
 
-    // Extract the method
     std::string method = request.substr(0, methodEnd);
 
-    // Check if it's one of the supported methods
     if (method == "GET" || method == "POST" || method == "DELETE")
         return method;
 
@@ -513,6 +509,7 @@ void TcpServer::handleClient(int clientFd)
     int deleteBool= 0;
     int succeed = 0;
     int deleteUrl = 0;
+    int isRedirectBool = 0;
     std::string requestBuffer = bufferStr;
     std::string fullUrl = getFullUrl(requestBuffer);
     std::string requestMethod = getRequestMethodType(requestBuffer);
@@ -585,12 +582,22 @@ void TcpServer::handleClient(int clientFd)
         try
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
-
+            std::string test = location.getRedirectName();
+            isRedirectBool = location.getIsredirect();
+            fullUrl = location.getRedirectName();
+            std::cout << fullUrl << std::endl;
+            if (isRedirectBool)
+            {
+                location = _clientMap[clientFd].getLocationBlockByString(test);
+                handleClient(clientFd);
+            }
             if (location.getAutoIndexLoc())
             {
                 try
                 {
+
                     listing = DirectoryListing::listDirectory(rootPath);
+                    std::cout << rootPath << std::endl;
                     if (listing.empty())
                     {
                         response.setStatusCode(404);

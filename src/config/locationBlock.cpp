@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   locationBlock.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
+/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:30:54 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 19:10:47 by kmailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,31 @@ locationBlock::locationBlock(ServerBlock &server, std::vector<t_token> &vec, con
                                                                                                               _allowedget(-1), _allowedpost(-1), _alloweddelete(-1), _allowedupload(-1), _reportError(reporter)
 {
     parseAllLocationVariables();
+}
+
+locationBlock &locationBlock::operator=(const locationBlock &other)
+{
+    if (this != &other)
+    {
+        _server = other._server;
+        _tokenVec = other._tokenVec;
+        _uri = other._uri;
+        _root = other._root;
+        _index = other._index;
+        _rootIndex = other._rootIndex;
+        _autoindex = other._autoindex;
+        _isredirect = other._isredirect;
+        _redirect = other._redirect;
+        _iscgi = other._iscgi;
+        _cgi = other._cgi;
+        _cgipath = other._cgipath;
+        _allowedget = other._allowedget;
+        _allowedpost = other._allowedpost;
+        _alloweddelete = other._alloweddelete;
+        _allowedupload = other._allowedupload;
+        _reportError = other._reportError;
+    }
+    return *this;
 }
 
 locationBlock::~locationBlock()
@@ -410,3 +435,4 @@ std::ostream &operator<<(std::ostream &out, const locationBlock &obj)
     out << std::endl;
     return out;
 }
+

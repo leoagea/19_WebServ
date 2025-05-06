@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   locationBlock.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
+/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:03:16 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:42:44 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 19:10:49 by kmailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class locationBlock
 public:
     locationBlock(ServerBlock &, std::vector<t_token> &, const ErrorReporter &);
     ~locationBlock();
+    locationBlock &operator=(const locationBlock &other);
 
     bool getCgi() const;
     std::string getUri() const;
