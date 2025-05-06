@@ -2,7 +2,11 @@
 
 CgiHandler::CgiHandler(std::map<std::string, std::string> envMap) { (void)envMap; }
 
-CgiHandler::~CgiHandler() {}
+CgiHandler::~CgiHandler() 
+{
+    _envpMap.clear();
+    _envpVect.clear();
+}
 
 void CgiHandler::setMinPrice(uint &minPrice) { _minPrice = minPrice; }
 

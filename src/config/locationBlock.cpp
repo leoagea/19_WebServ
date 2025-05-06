@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   locationBlock.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kmailleu <kmailleu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 17:05:04 by lagea             #+#    #+#             */
-/*   Updated: 2025/05/06 19:10:47 by kmailleu         ###   ########.fr       */
+/*   Updated: 2025/05/06 19:24:36 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ locationBlock &locationBlock::operator=(const locationBlock &other)
 
 locationBlock::~locationBlock()
 {
+    _tokenVec.clear();
 }
 
 // True if location block is about cgi

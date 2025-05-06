@@ -41,10 +41,8 @@ void Response::m_delete(const std::string &fileName)
                 "File deleted successfully";
 }
 
-int Response::getMethod() { return _method_int; }
-
 Response::Response()
-    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _contentDisposition(""), _keepAlive(true), _method_int(DELETE) {}
+    : _statusCode("200"), _statusMessage("OK"), _body(""), _contentType("text/html; charset=UTF-8"), _contentDisposition(""){}
 
 // gestion des status
 void Response::setStatusCode(int code)
@@ -88,11 +86,6 @@ void Response::setContentDisposition(const std::string &disposition)
     _contentDisposition = disposition;
 }
 
-void Response::setKeepAlive(bool keepAlive)
-{
-    _keepAlive = keepAlive;
-}
-
 std::string Response::generateResponse(t_user &user)
 {
     std::string response;
@@ -117,23 +110,6 @@ std::string Response::generateResponse(t_user &user)
     response += _body;
 
     return response;
-}
-
-std::string Response::extractHeaders(const std::string &fullResponse)
-{
-    std::istringstream stream(fullResponse);
-    std::string line;
-    std::string headers;
-
-    while (std::getline(stream, line))
-    {
-        if (line == "\r" || line.empty())
-            break;
-
-        headers += line + "\n";
-    }
-
-    return headers;
 }
 
 std::string Response::readFile(const std::string &filePath)
@@ -320,11 +296,6 @@ void Response::post(const std::string &requestData)
     outputFile.close();
     setStatusCode(201);
     _body += "<p><strong>Succès :</strong> Fichier texte sauvegardé avec succès : " + filename + "</p>";
-}
-
-int Response::getBodySize()
-{
-    return _body.size();
 }
 
 Response::~Response() {}

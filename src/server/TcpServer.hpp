@@ -45,16 +45,15 @@ public:
 
     void startServer();
 
-    std::vector<int>        getServerSockets(); 
-    std::vector<int>        getPorts();     
-    std::vector<pollfd>     getPollFds();
-    sockaddr_in             getServerAddress();
+    std::vector<int>        getServerSockets() const; 
+    std::vector<int>        getPorts() const;     
+    std::vector<pollfd>     getPollFds() const;
+    sockaddr_in             getServerAddress() const;
     uint16_t                getSocketPort(int socket);
     std::string             getFullUrl(const std::string& requestBuffer);
     std::string             getDirectoryFromFirstLine(const std::string & method, const std::string & fullUrl);
     int                     getClientFd() const;
     std::string             extractRequestedPath(const std::string &request);
-    bool                    fileExists(const std::string& path);
     static void			    generateLog(std::string color, const std::string& message, const char *logType);
     static void             closeFds(int sig);
     void                    handle_signal(void);
@@ -75,6 +74,7 @@ private :
     std::map<std::string, std::string> _envMap;
     std::map<std::string, t_user>      _cookiesMap;
     std::string             _previousUser;
+    static bool       _shouldExit;
     
     struct ClientData 
     {

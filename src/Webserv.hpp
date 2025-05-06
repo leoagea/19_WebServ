@@ -6,7 +6,7 @@
 /*   By: lagea <lagea@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 14:53:34 by lagea             #+#    #+#             */
-/*   Updated: 2025/04/29 13:43:43 by lagea            ###   ########.fr       */
+/*   Updated: 2025/05/06 18:21:56 by lagea            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ public:
     std::map<std::string, std::string> getEnvMap() const;
 
     void initialiseConfig();
-    void initialiseErrorPageGenerator();
     void initialiseEnv(char **);
 
 private:

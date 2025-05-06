@@ -9,7 +9,7 @@
 #include <map>
 
 std::vector<pollfd> TcpServer::_pollFds;
-
+bool TcpServer::_shouldExit = false;
 const std::string readpage(std::ifstream &file)
 {
     std::string line;
@@ -46,6 +46,12 @@ TcpServer::~TcpServer()
         if (_serverSockets[i] != -1)
             close(_serverSockets[i]);
     }
+    _serverSockets.clear();
+    _ports.clear();
+    _pollFds.clear();
+    _clientMap.clear();
+    _envMap.clear();
+    _cookiesMap.clear();
     std::cout << G << IT << "Server closed successfully" << RES << std::endl;
 }
 
@@ -143,11 +149,11 @@ void TcpServer::startServer()
     TcpServer::generateLog(BLUE, "Server is running...", "INFO");
     _cookiesMap = readDB(COOKIE_DB_PATH);
 
-    while (true)
+    while (!_shouldExit)
     {
         int pollCount = poll(&_pollFds[0], (nfds_t)(_pollFds.size()), -1);
 
-        if (pollCount < 0)
+        if (pollCount < 0 && !_shouldExit)
         {
             std::cerr << R << IT << "Poll failed " << RES << std::endl;
             exitCloseFds(_serverSockets);
@@ -389,9 +395,6 @@ bool checkRequestAndAllowedMethods(const std::string &method, locationBlock &loc
         return true;
     return false;
 }
-
-
-bool fileExists(const std::string &path) { return access(path.c_str(), F_OK) != -1; }
 
 size_t TcpServer::getRequestBody(const std::string &request)
 {
@@ -873,7 +876,8 @@ void TcpServer::closeFds(int sig)
         close(_pollFds[i].fd);
     }
     std::cout << BGREEN << "\nServer has been shut down successfully" << RESET << std::endl;
-    exit(0);
+    // exit(0);
+    _shouldExit = true;
 }
 
 void TcpServer::handle_signal(void)
@@ -974,10 +978,10 @@ void TcpServer::generateLog(std::string color, const std::string &message, const
     std::cout << " => " << message << RES << std::endl;
 }
 
-std::vector<int> TcpServer::getServerSockets() { return _serverSockets; }
+std::vector<int> TcpServer::getServerSockets() const { return _serverSockets; }
 
-std::vector<int> TcpServer::getPorts() { return _ports; }
+std::vector<int> TcpServer::getPorts() const { return _ports; }
 
-std::vector<pollfd> TcpServer::getPollFds() { return _pollFds; }
+std::vector<pollfd> TcpServer::getPollFds() const { return _pollFds; }
 
-sockaddr_in TcpServer::getServerAddress() { return _serverAddress; }
+sockaddr_in TcpServer::getServerAddress() const { return _serverAddress; }
