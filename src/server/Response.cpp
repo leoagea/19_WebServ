@@ -214,7 +214,6 @@ void Response::get(const std::string &filePath, bool getBool, TcpServer &server)
     {
         server.clearIsIndex();
         server.handleClient(server.getClientFd());
-        throw std::runtime_error("get error");
     }
 }
 

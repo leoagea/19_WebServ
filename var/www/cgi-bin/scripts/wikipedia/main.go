@@ -144,32 +144,21 @@ func generateHTMLPage(qrImage string, wikiURL string) error {
 
 func main() {
 	
-	fmt.Println("🔄 Récupération d'une page Wikipédia aléatoire...")
 	wikiURL, err := getRandomWikipediaURL()
 	if err != nil {
-		fmt.Println("❌ Erreur :", err)
 		return
 	}
 
-	fmt.Println("🌐 Page trouvée :", wikiURL)
-
-	// Nom du fichier QR Code
 	qrFilename := os.Getenv("QRPATH")
 
-	fmt.Println("📸 Génération du QR Code...")
 	err = generateQRCode(wikiURL, qrFilename)
 	if err != nil {
-		fmt.Println("❌ Erreur lors de la génération du QR Code :", err)
 		return
 	}
 
-	fmt.Println("✅ QR Code généré :", qrFilename)
-
 	// Générer la page HTML
-	fmt.Println("🖥 Génération de la page HTML...")
 	err = generateHTMLPage("wikipedia_qr.png", wikiURL)
 	if err != nil {
-		fmt.Println("❌ Erreur lors de la création de la page HTML :", err)
 		return
 	}
 

@@ -34,4 +34,5 @@ Creer uploadFolder si il n existe pas avant upload
 ///////////////////////
 
 MAX BODY SIZE
-Mettre peut etre un message si upload mauvaise extension
+
+get() probleme message dans terminal

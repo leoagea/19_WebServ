@@ -107,6 +107,7 @@ private :
     void            exitCloseFds(std::vector<int> &serverSockets);
     t_user          parseCookies(int clientFd, const std::string &, const std::string &);
     ServerBlock     getServerBlockBySocket(int);
+    size_t          getRequestBody(const std::string &request);
 };
 
 #endif

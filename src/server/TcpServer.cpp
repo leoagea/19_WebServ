@@ -395,7 +395,33 @@ bool checkRequestAndAllowedMethods(const std::string &method, locationBlock &loc
     return false;
 }
 
+
 bool fileExists(const std::string &path) { return access(path.c_str(), F_OK) != -1; }
+
+size_t TcpServer::getRequestBody(const std::string &request)
+{
+    size_t contentLengthPos = request.find("Content-Length:");
+    if (contentLengthPos != std::string::npos)
+    {
+        size_t valueStart = request.find_first_not_of(" \t", contentLengthPos + 15);
+        if (valueStart != std::string::npos)
+        {
+            size_t valueEnd = request.find("\r\n", valueStart);
+            if (valueEnd != std::string::npos)
+            {
+                std::string lengthStr = request.substr(valueStart, valueEnd - valueStart);
+                return static_cast<size_t>(std::atol(lengthStr.c_str()));
+            }
+        }
+    }
+    
+    size_t headerEnd = request.find("\r\n\r\n");
+    if (headerEnd == std::string::npos)
+        return 0; 
+    
+    size_t bodyStart = headerEnd + 4;
+    return request.size() - bodyStart;
+}
 
 void TcpServer::handleClient(int clientFd)
 {
@@ -424,9 +450,10 @@ void TcpServer::handleClient(int clientFd)
     
     request.buffer.append(buffer, bytesRead);
 
-    if (request.buffer.size() > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
+    size_t bodySize = getRequestBody(request.buffer);
+    
+    if (bodySize > static_cast<size_t>(_clientMap[clientFd].getBodySizeLimit()))
     {
-        std::cout << request.buffer << std::endl;
         response.setStatusCode(413);
         response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 413));
         
@@ -649,11 +676,12 @@ void TcpServer::handleClient(int clientFd)
                                 else {
                                     std::string body = bufferStr.substr(headerEnd + 4);
                                     postBool = location.getAllowedMethodPOST();
+                                    
                                     if (!postBool)
                                     {
                                         TcpServer::generateLog(RED, getDirectoryFromFirstLine("DELETE", fullUrl), "ERROR");
                                         response.setStatusCode(400);
-                                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 405));
+                                        response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 400));
                                     }
                                     else if (deleteUrl)
                                     {
@@ -760,8 +788,6 @@ void TcpServer::handleClientWrite(int clientFd)
         return;
     }
     
-    // int maxBodySize = getServerBlockBySocket(clientFd).getBodySizeLimit();
-    // (void)maxBodySize;
     ClientData &clientData = _clientResponseMap[clientFd];
     const std::string &response = clientData.responseToSend;
     size_t bytesToSend = response.size() - clientData.bytesSent;
@@ -774,7 +800,7 @@ void TcpServer::handleClientWrite(int clientFd)
         {
             clientData.bytesSent += sent;
         } 
-        else if (sent < 0 && errno != EAGAIN && errno != EWOULDBLOCK) 
+        else if (sent < 0) 
         {
             TcpServer::generateLog(RED, "Error sending response", "ERROR");
             cleanupClient(clientFd);
@@ -829,7 +855,7 @@ void TcpServer::closeFds(int sig)
     {
         close(_pollFds[i].fd);
     }
-    std::cout << BGREEN << "\nServer has been shut down successfully" << std::endl;
+    std::cout << BGREEN << "\nServer has been shut down successfully" << RESET << std::endl;
     exit(0);
 }
 
