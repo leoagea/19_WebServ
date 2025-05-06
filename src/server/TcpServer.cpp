@@ -447,7 +447,6 @@ void TcpServer::handleClient(int clientFd)
     }
     
     buffer[bytesRead] = '\0';
-    
     request.buffer.append(buffer, bytesRead);
 
     size_t bodySize = getRequestBody(request.buffer);
@@ -538,6 +537,10 @@ void TcpServer::handleClient(int clientFd)
     std::string requestedPath = urlPath;
     std::string rootPath;
     
+    std::cout << fullUrl << std::endl;
+    std::cout << urlPath << std::endl;
+
+
     try
     {
         if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri()) {
@@ -577,9 +580,13 @@ void TcpServer::handleClient(int clientFd)
             std::cerr << "Error: " << e.what() << std::endl;
             response.setStatusCode(500);
             response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
+            listing = DirectoryListing::listDirectory(fullUrl);
+            response.setBody(DirectoryListing::generateDirectoryListingHTML(fullUrl, _showPath, listing));
+            
         }
     }
     else {
+        
         try
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);

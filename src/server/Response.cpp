@@ -238,6 +238,23 @@ std::string Response::extractBoundary(const std::string &requestData)
     return "--" + requestData.substr(pos + 9, endPos - (pos + 9));
 }
 
+std::string removeLastTwoLines(const std::string& content) {
+    std::string result = content;
+    size_t firstNewline = result.rfind('\n');
+
+    if (firstNewline != std::string::npos) {
+        size_t secondNewline = result.rfind('\n', firstNewline - 1);
+        if (secondNewline != std::string::npos) {
+            result.resize(secondNewline);
+        } else {
+            result.clear();
+        }
+    } else {
+        result.clear();
+    }
+    return result;
+}
+
 bool Response::extractFileData(const std::string &requestData, const std::string &boundary, std::string &filename, std::string &fileContent)
 {
     size_t boundaryPos = requestData.find(boundary);
@@ -252,14 +269,11 @@ bool Response::extractFileData(const std::string &requestData, const std::string
         return false;
     }
     size_t fileStartPos = fileHeaderPos + 4;
-
     size_t fileEndPos = requestData.find(boundary, fileStartPos);
     if (fileEndPos == std::string::npos)
     {
         return false;
     }
-
-    // Extraction des informations d'en-tête du fichier
     size_t filenamePos = requestData.find("filename=\"", boundaryPos);
     if (filenamePos == std::string::npos)
     {
@@ -272,9 +286,8 @@ bool Response::extractFileData(const std::string &requestData, const std::string
         return false;
     }
     filename = requestData.substr(filenameStart, filenameEnd - filenameStart);
-
-    // Extraction du contenu du fichier
     fileContent = requestData.substr(fileStartPos, fileEndPos - fileStartPos - 2);
+    fileContent = removeLastTwoLines(fileContent);
     return true;
 }
 
