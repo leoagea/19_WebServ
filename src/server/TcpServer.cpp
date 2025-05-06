@@ -586,13 +586,27 @@ void TcpServer::handleClient(int clientFd)
         {
             locationBlock location = _clientMap[clientFd].getLocationBlockByString(urlPath);
             std::string test = location.getRedirectName();
+			urlPath = location.getRedirectName();
             isRedirectBool = location.getIsredirect();
-            fullUrl = location.getRedirectName();
-            std::cout << fullUrl << std::endl;
             if (isRedirectBool)
             {
                 location = _clientMap[clientFd].getLocationBlockByString(test);
-                handleClient(clientFd);
+				requestBuffer = bufferStr;
+				removeLeadingSlash(test);
+				fullPath = location.getRootDirLoc() + location.getIndexLoc();
+    			removeExtraSlashes(fullPath);
+				fullUrl = getFullUrl(requestBuffer);
+				requestMethod = getRequestMethodType(requestBuffer);
+				requestedPath = urlPath;
+				try
+				{
+					if (requestedPath == _clientMap[clientFd].getLocationBlockByString(requestedPath).getUri()) {
+						requestedPath = _clientMap[clientFd].getLocationBlockByString(requestedPath).getIndexLoc();
+						rootPath = _clientMap[clientFd].getRootDir();
+						removeExtraSlashes(rootPath);
+					}
+				}
+				catch (const std::exception &e) {}
             }
             if (location.getAutoIndexLoc())
             {
@@ -600,7 +614,6 @@ void TcpServer::handleClient(int clientFd)
                 {
 
                     listing = DirectoryListing::listDirectory(rootPath);
-                    std::cout << rootPath << std::endl;
                     if (listing.empty())
                     {
                         response.setStatusCode(404);
@@ -667,7 +680,11 @@ void TcpServer::handleClient(int clientFd)
                             }
                             
                             if (succeed == 0)
+							{
+
                                 response.get(fullPath, getBool, *this);
+            					std::cout << fullPath << std::endl;
+							}
                             else if (succeed == 1)
                                 response.setBody(ErrorPageGenerator::generateErrorPageCode(errorMap, 500));
                             else 

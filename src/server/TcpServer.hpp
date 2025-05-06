@@ -84,6 +84,7 @@ private :
         
         ClientData() : bytesSent(0), responseReady(false) {}
     };
+	
     struct ClientRequest 
     {
         std::string buffer;
