@@ -536,10 +536,6 @@ void TcpServer::handleClient(int clientFd)
     urlPath = removeExtraSlashes(urlPath);
     std::string requestedPath = urlPath;
     std::string rootPath;
-    
-    std::cout << fullUrl << std::endl;
-    std::cout << urlPath << std::endl;
-
 
     try
     {

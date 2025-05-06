@@ -102,35 +102,41 @@
     </div>
 
     <script>
-        document.getElementById('price-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-    
-            const minPriceInput = document.getElementById('min-price');
-            const maxPriceInput = document.getElementById('max-price');
-    
-            const minPrice = parseFloat(minPriceInput.value);
-            const maxPrice = parseFloat(maxPriceInput.value);
-    
-            if (isNaN(minPrice) || isNaN(maxPrice)) {
-                alert("Veuillez entrer des nombres valides.");
-                return;
-            }
-    
-            if (minPrice < 0 || maxPrice < 0) {
-                alert("Les prix doivent être positifs.");
-                return;
-            }
-    
-            if (minPrice >= maxPrice) {
-                alert("Le prix minimum doit être inférieur au prix maximum.");
-                return;
-            }
-    
-            // Modifier l'URL du formulaire avant la soumission
-            const form = document.getElementById('price-form');
-            form.action = `car_proposal?min-price=${minPrice}&max-price=${maxPrice}`;
-            form.submit();
-        });
+    document.getElementById('price-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const minPriceInput = document.getElementById('min-price');
+        const maxPriceInput = document.getElementById('max-price');
+
+        const minPrice = parseFloat(minPriceInput.value);
+        const maxPrice = parseFloat(maxPriceInput.value);
+        const maxLimit = 1000000;
+
+        if (isNaN(minPrice) || isNaN(maxPrice)) {
+            alert("Veuillez entrer des nombres valides.");
+            return;
+        }
+
+        if (minPrice < 0 || maxPrice < 0) {
+            alert("Les prix doivent être positifs.");
+            return;
+        }
+
+        if (minPrice >= maxPrice) {
+            alert("Le prix minimum doit être inférieur au prix maximum.");
+            return;
+        }
+
+        if (minPrice > maxLimit || maxPrice > maxLimit) {
+            alert(`Les prix ne doivent pas dépasser ${maxLimit}.`);
+            return;
+        }
+
+        // Modifier l'URL du formulaire avant la soumission
+        const form = document.getElementById('price-form');
+        form.action = `car_proposal?min-price=${minPrice}&max-price=${maxPrice}`;
+        form.submit();
+            });
     </script>    
 </body>
 </html>
