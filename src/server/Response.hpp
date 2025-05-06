@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <cstdio>
 
-#include "Request.hpp"
 #include "../../inc/Enum.h"
 #include "../../inc/Struct.h"
 #include "Cookies.hpp"
@@ -54,7 +53,6 @@ public:
     std::string extractHeaders(const std::string &fullResponse);
     void get(const std::string &filePath, bool getBool, TcpServer &server);
     static std::string readFile(const std::string &filePath);
-    void sendRedirect(int clientFd, const std::string &newUrl, std::string prefix);
     void m_delete(const std::string &filePath);
     bool extractFileData(const std::string &requestData, const std::string &boundary, std::string &filename, std::string &fileContent);
     std::string extractBoundary(const std::string &requestData);

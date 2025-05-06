@@ -7,7 +7,6 @@
 
 void Response::m_delete(const std::string &fileName)
 {
-    std::cout << "Removing file..." << std::endl;
     std::string uploadDir = "uploadFolder/";
     std::string fullPath = uploadDir + fileName;
     struct stat buffer;
@@ -33,7 +32,6 @@ void Response::m_delete(const std::string &fileName)
                     "Failed to delete file";
         return;
     }
-    std::cout << "File removed " << fullPath << std::endl;
     _response = "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/plain\r\n"
                 "Keep-Alive: timeout=75\r\n"
@@ -93,25 +91,6 @@ void Response::setContentDisposition(const std::string &disposition)
 void Response::setKeepAlive(bool keepAlive)
 {
     _keepAlive = keepAlive;
-}
-
-void Response::sendRedirect(int clientFd, const std::string &requestedPath, std::string prefix)
-{
-    std::string newUrl = requestedPath;
-
-    if (newUrl.find(prefix) == 0)
-    {
-        newUrl = "/" + newUrl.substr(prefix.length());
-    }
-    std::cout << "path 2 " << requestedPath << std::endl;
-    std::string response =
-        "HTTP/1.1 302 Found\r\n"
-        "Location: " +
-        newUrl + "\r\n"
-                 "Content-Length: 0\r\n"
-                 "\r\n";
-
-    send(clientFd, response.c_str(), response.size(), 0);
 }
 
 std::string Response::generateResponse(t_user &user)

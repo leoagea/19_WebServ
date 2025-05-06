@@ -1,7 +1,6 @@
 /* TCP SERVER CLASS IMPLEMENTATION */
 #include "TcpServer.hpp"
 #include "../CGI/CgiHandler.hpp"
-#include "Request.hpp"
 #include "Response.hpp"
 #include "DirectoryListing.hpp"
 #include <fstream>
@@ -803,9 +802,17 @@ void TcpServer::handleClientWrite(int clientFd)
         {
             clientData.bytesSent += sent;
         } 
-        else if (sent < 0) 
+        else if (sent == 0) 
+        {
+            TcpServer::generateLog(BLUE, "Client closed connection during response", "INFO");
+            close(clientFd);
+            cleanupClient(clientFd);
+            return;
+        }
+        else
         {
             TcpServer::generateLog(RED, "Error sending response", "ERROR");
+            close(clientFd);
             cleanupClient(clientFd);
             return;
         }

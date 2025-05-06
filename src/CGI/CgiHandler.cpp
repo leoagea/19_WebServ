@@ -26,28 +26,23 @@ int CgiHandler::waitProcessWithTimeout(pid_t pid, int timeoutSeconds)
                 int exitCode = WEXITSTATUS(status);
                 if (exitCode != 0)
                 {
-                    std::cerr << "CGI process exited with error code: " << exitCode << std::endl;
                     return 1; 
                 }
                 return 0; 
             }
             else if (WIFSIGNALED(status))
             {
-                std::cerr << "CGI process terminated by signal: " << WTERMSIG(status) << std::endl;
                 return 1;
             }
             return 0; 
         }
         else if (result == -1)
         {
-            std::cerr << "Error in waitpid: " << strerror(errno) << std::endl;
             return 1; 
         }
         
         if (difftime(time(NULL), startTime) >= timeoutSeconds)
         {
-            std::cerr << "CGI process timed out after " << timeoutSeconds << " seconds" << std::endl;
-            
             kill(pid, SIGTERM);
             
             usleep(100000);
