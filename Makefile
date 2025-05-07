@@ -6,7 +6,7 @@
 #    By: lagea <lagea@student.s19.be>               +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/16 13:14:22 by lagea             #+#    #+#              #
-#    Updated: 2025/05/06 18:03:14 by lagea            ###   ########.fr        #
+#    Updated: 2025/05/07 17:39:37 by lagea            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,7 @@ CXXFLAGS 	= -Wall -Wextra -Wshadow -Wuninitialized -Werror -std=c++98 #-fsanitiz
 INCS 		= -Isrc/**/ -I.
 	
 all: $(NAME)
+	mkdir -p uploadFolder
 
 $(NAME): $(OBJ)
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
