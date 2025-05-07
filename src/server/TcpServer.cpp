@@ -588,6 +588,7 @@ void TcpServer::handleClient(int clientFd)
             std::string test = location.getRedirectName();
 			urlPath = location.getRedirectName();
             isRedirectBool = location.getIsredirect();
+            rootPath = location.getRootDirLoc();
             if (isRedirectBool)
             {
                 location = _clientMap[clientFd].getLocationBlockByString(test);
